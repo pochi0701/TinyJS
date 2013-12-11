@@ -1,0 +1,8 @@
+#!/bin/bash
+
+src=$1
+if [ ${#src} = 0 ]; then
+  src=run_tests
+fi
+valgrind --tool=memcheck --leak-check=full --show-reachable=yes --track-origins=yes ./${src}
+
