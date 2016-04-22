@@ -128,6 +128,25 @@
 /* Create a LINK to point to VAR and free the old link.
  * BUT this is more clever - it tries to keep the old link if it's not owned to save allocations */
 #define CREATE_LINK(LINK, VAR) { if (!LINK || LINK->owned) LINK = new CScriptVarLink(VAR); else LINK->replaceWith(VAR); }
+static unsigned char map[256]={
+//+0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,//00
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//20
+   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0,//30
+   0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//40
+   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4,//50
+   0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//60
+   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,//70
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//80
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//90
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//A0
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//B0
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//C0
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//D0
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//E0
+   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//F0
+}; 
 
 //#include <string>
 //#include <string.h>
@@ -144,12 +163,12 @@ using namespace std;
 #endif
 
 // ----------------------------------------------------------------------------------- Utils
-bool isWhitespace(char ch) {
-    return (ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
+bool isWhitespace(unsigned char ch) {
+    return (map[ch]&1);//(ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
 }
 //数字チェック
-bool isNumeric(char ch) {
-    return (ch>='0') && (ch<='9');
+bool isNumeric(unsigned char ch) {
+    return (map[ch]&2);//(ch>='0') && (ch<='9');
 }
 //数値チェック
 bool isNumber(const wString &str) {
@@ -158,14 +177,14 @@ bool isNumber(const wString &str) {
     return true;
 }
 //１６進チェック
-bool isHexadecimal(char ch) {
+bool isHexadecimal(unsigned char ch) {
     return ((ch>='0') && (ch<='9')) ||
            ((ch>='a') && (ch<='f')) ||
            ((ch>='A') && (ch<='F'));
 }
 //アルファベットチェック
-bool isAlpha(char ch) {
-    return ((ch>='a') && (ch<='z')) || ((ch>='A') && (ch<='Z')) || ch=='_';
+bool isAlpha(unsigned char ch) {
+    return (map[ch]&4);//((ch>='a') && (ch<='z')) || ((ch>='A') && (ch<='Z')) || ch=='_';
 }
 //ID文字列になるかチェック
 bool isIDString(const char *s) {
@@ -180,7 +199,27 @@ bool isIDString(const char *s) {
     }
     return true;
 }
-
+char* oneLine(char *s, int ptr,int end)
+{
+    size_t cnt=0;
+    static char work[1024];
+    if( end < ptr ){
+        ptr = end;
+    }
+    if( ptr>0) ptr--;
+    if( ptr>0) ptr--;
+    while( ptr > 0  && s[ptr] != '\n'){
+        ptr--;
+    }
+    ptr++;
+    while( s[ptr] && s[ptr] != '\n' && cnt < sizeof( work )-2 ){
+        work[cnt] = s[ptr];
+        cnt++;
+        ptr++;
+    }
+    work[cnt] = 0;
+    return work;
+}
 /// convert the given wString into a quoted wString suitable for javascript
 wString getJSString(const wString &str) {
     wString nStr = str;
@@ -198,7 +237,7 @@ wString getJSString(const wString &str) {
           int nCh = ((int)nStr[i]) &0xFF;
           if (nCh<32 || nCh>127) {
             char buffer[5];
-            sprintf_s(buffer, 5, "\\x%02X", nCh);
+                    snprintf(buffer, 5, "\\x%02X", nCh);
             replaceWith = buffer;
           } else {
             replace=false;
@@ -215,6 +254,7 @@ wString getJSString(const wString &str) {
 }
 
 /** Is the wString alphanumeric */
+//英字+[英字|数値]
 bool isAlphaNum(const wString &str) {
     if (str.size()==0){
       return true;
@@ -266,17 +306,18 @@ void CScriptLex::reset() {
     tokenStart = 0;
     tokenEnd = 0;
     tokenLastEnd = 0;
-    tk = 0;
+    tk = LEX_EOF;
     tkStr = "";
     getNextCh();//currch設定 nextchは不定
     getNextCh();//currch,nextch設定
     getNextToken();//１ワード取り込んだ状態で開始
 }
 //期待する語彙を読み込む（期待はずれなら例外)
+//次の１トークンを先読み
 void CScriptLex::match(int expected_tk) {
     if (tk!=expected_tk) {
         wString errorString;
-        errorString.sprintf( "Got %s expected %s at %s",getTokenStr(tk).c_str(),getTokenStr(expected_tk).c_str(),getPosition(tokenStart).c_str());
+        errorString.sprintf( "Got %s expected %s at %s(%s)\n",getTokenStr(tk).c_str(),getTokenStr(expected_tk).c_str(),getPosition(tokenStart).c_str(),oneLine(data,dataPos,dataEnd));
         throw new CScriptException(errorString.c_str());
     }
     getNextToken();
@@ -286,7 +327,7 @@ wString CScriptLex::getTokenStr(int token) {
     if (token>32 && token<128) {
         char buf[4] = "' '";
         buf[1] = (char)token;
-        return buf;
+        return wString(buf);
     }
     switch (token) {
         case LEX_EOF            : return "EOF";
@@ -334,7 +375,7 @@ wString CScriptLex::getTokenStr(int token) {
 
     wString msg;
     msg.sprintf( "?[%s]",token);
-    return msg.c_str();
+    return msg;
 }
 //次の１文字を取り込む。EOFは０
 void CScriptLex::getNextCh() {
@@ -347,6 +388,7 @@ void CScriptLex::getNextCh() {
     dataPos++;
 }
 
+//１トークン取得
 void CScriptLex::getNextToken() {
     tk = LEX_EOF;
     tkStr.clear();
@@ -438,6 +480,8 @@ void CScriptLex::getNextToken() {
                 getNextCh();
                 switch (currCh) {
                 case 'n' : tkStr += '\n'; break;
+                    case 'r' : tkStr += '\r'; break;
+                    case 't' : tkStr += '\t'; break;
                 case '"' : tkStr += '"'; break;
                 case '\\' : tkStr += '\\'; break;
                 default: tkStr += currCh;
@@ -487,7 +531,7 @@ void CScriptLex::getNextToken() {
         tk = LEX_STR;
     } else {
         // single chars
-        tk = currCh;
+        tk = (LEX_TYPES)currCh;
         if (currCh) getNextCh();
         if (tk=='=' && currCh=='=') { // ==
             tk = LEX_EQUAL;
@@ -559,7 +603,7 @@ void CScriptLex::getNextToken() {
     tokenLastEnd = tokenEnd;
     tokenEnd = dataPos-3;
 }
-
+//部分文字列を返す
 wString CScriptLex::getSubString(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd) {
@@ -575,7 +619,7 @@ wString CScriptLex::getSubString(int lastPosition) {
     }
 }
 
-
+//部分語彙を返す
 CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd)
@@ -583,7 +627,7 @@ CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     else
         return new CScriptLex(this, lastPosition, dataEnd );
 }
-
+//指定位置を行数、列数に変換
 wString CScriptLex::getPosition(int pos) {
     if (pos<0) pos=tokenLastEnd;
     int line = 1,col = 1;
@@ -599,8 +643,8 @@ wString CScriptLex::getPosition(int pos) {
             col = 0;
         }
     }
-    char buf[256];
-    sprintf_s(buf, 256, "(line: %d, col: %d)", line, col);
+    wString buf;
+    buf.sprintf("(line: %d, col: %d)", line-1, col);
     return buf;
 }
 
@@ -639,13 +683,14 @@ void CScriptVarLink::replaceWith(CScriptVarLink *newVar) {
     else
       replaceWith(new CScriptVar());
 }
-
+//名前を数値に変換
 int CScriptVarLink::getIntName() {
     return atoi(name.c_str());
 }
+//名前を設定
 void CScriptVarLink::setIntName(int n) {
     char sIdx[64];
-    sprintf_s(sIdx, sizeof(sIdx), "%d", n);
+    snprintf(sIdx, sizeof(sIdx), "%d", n);
     name = sIdx;
 }
 
@@ -684,6 +729,11 @@ CScriptVar::CScriptVar(double val) {
 }
 
 CScriptVar::CScriptVar(int val) {
+    refs = 0;
+    init();
+    setInt(val);
+}
+CScriptVar::CScriptVar(bool val){
     refs = 0;
     init();
     setInt(val);
@@ -736,7 +786,7 @@ CScriptVarLink *CScriptVar::findChildOrCreate(const wString &childName, int varF
 
 CScriptVarLink *CScriptVar::findChildOrCreateByPath(const wString &path) {
   size_t p = path.find('.');
-  if (p == string::npos)
+    if (p == wString::npos)
     return findChildOrCreate(path);
 
   return findChildOrCreate(path.substr(0,p), SCRIPTVAR_OBJECT)->var->
@@ -782,8 +832,9 @@ CScriptVarLink *CScriptVar::addChildNoDup(const wString &childName, CScriptVar *
 void CScriptVar::removeChild(CScriptVar *child) {
     CScriptVarLink *link = firstChild;
     while (link) {
-        if (link->var == child)
+        if (link->var == child){
             break;
+        }
         link = link->nextSibling;
     }
     ASSERT(link);
@@ -816,7 +867,7 @@ void CScriptVar::removeAllChildren() {
 
 CScriptVar *CScriptVar::getArrayIndex(int idx) {
     char sIdx[64];
-    sprintf_s(sIdx, sizeof(sIdx), "%d", idx);
+    snprintf(sIdx, sizeof(sIdx), "%d", idx);
     CScriptVarLink *link = findChild(sIdx);
     if (link) return link->var;
     else return new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_NULL); // undefined
@@ -824,7 +875,7 @@ CScriptVar *CScriptVar::getArrayIndex(int idx) {
 
 void CScriptVar::setArrayIndex(int idx, CScriptVar *value) {
     char sIdx[64];
-    sprintf_s(sIdx, sizeof(sIdx), "%d", idx);
+    snprintf(sIdx, sizeof(sIdx), "%d", idx);
     CScriptVarLink *link = findChild(sIdx);
 
     if (link) {
@@ -887,13 +938,13 @@ const wString &CScriptVar::getString() {
     static wString s_undefined = "undefined";
     if (isInt()) {
       char buffer[32];
-      sprintf_s(buffer, sizeof(buffer), "%ld", intData);
+        snprintf(buffer, sizeof(buffer), "%ld", intData);
       data = buffer;
       return data;
     }
     if (isDouble()) {
       char buffer[32];
-      sprintf_s(buffer, sizeof(buffer), "%f", doubleData);
+        snprintf(buffer, sizeof(buffer), "%f", doubleData);
       data = buffer;
       return data;
     }
@@ -920,8 +971,6 @@ void CScriptVar::setDouble(double val) {
 void CScriptVar::setString(const wString &str) {
     // name sure it's not still a number or integer
     flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_STRING;
-//    printf( "1[[[ %s %d %d\n", data.c_str(), (int)data.length(), (int)data.Total() );
-//    printf( "2[[[ %s %d %d\n", str.c_str(), (int)str.length(), (int)str.Total() );
     data = str;
     intData = 0;
     doubleData = 0;
@@ -1045,8 +1094,9 @@ CScriptVar *CScriptVar::mathsOp(CScriptVar *b, int op) {
            default: throw new CScriptException("Operation "+CScriptLex::getTokenStr(op)+" not supported on the wString datatype");
        }
     }
-    ASSERT(0);
-    return 0;
+    //実行されないコード
+    //ASSERT(0);
+    //return 0;
 }
 
 void CScriptVar::copySimpleData(CScriptVar *val) {
@@ -1112,16 +1162,25 @@ void CScriptVar::trace(wString indentStr, const wString &name) {
       link = link->nextSibling;
     }
 }
+wString CScriptVar::trace2(void) {
+    wString str;
+    CScriptVarLink *link = firstChild;
+    while (link) {
+        str.Add( link->name );
+        link = link->nextSibling;
+    }
+    return str;
+}
 
 wString CScriptVar::getFlagsAsString() {
   wString flagstr = "";
-  if (flags&SCRIPTVAR_FUNCTION) flagstr = flagstr + "FUNCTION ";
-  if (flags&SCRIPTVAR_OBJECT) flagstr = flagstr + "OBJECT ";
-  if (flags&SCRIPTVAR_ARRAY) flagstr = flagstr + "ARRAY ";
-  if (flags&SCRIPTVAR_NATIVE) flagstr = flagstr + "NATIVE ";
-  if (flags&SCRIPTVAR_DOUBLE) flagstr = flagstr + "DOUBLE ";
-  if (flags&SCRIPTVAR_INTEGER) flagstr = flagstr + "INTEGER ";
-  if (flags&SCRIPTVAR_STRING) flagstr = flagstr + "STRING ";
+    if (flags&SCRIPTVAR_FUNCTION) flagstr += "FUNCTION ";
+    if (flags&SCRIPTVAR_OBJECT)   flagstr += "OBJECT ";
+    if (flags&SCRIPTVAR_ARRAY)    flagstr += "ARRAY ";
+    if (flags&SCRIPTVAR_NATIVE)   flagstr += "NATIVE ";
+    if (flags&SCRIPTVAR_DOUBLE)   flagstr += "DOUBLE ";
+    if (flags&SCRIPTVAR_INTEGER)  flagstr += "INTEGER ";
+    if (flags&SCRIPTVAR_STRING)   flagstr += "STRING ";
   return flagstr;
 }
 
@@ -1248,7 +1307,7 @@ void CTinyJS::trace() {
 
 void CTinyJS::execute(const wString &code) {
     CScriptLex *oldLex = l;
-    vector<CScriptVar*> oldScopes = scopes;
+    std::vector<CScriptVar*> oldScopes = scopes;
     l = new CScriptLex(code);
 #ifdef TINYJS_CALL_STACK
     call_stack.clear();
@@ -1260,18 +1319,14 @@ void CTinyJS::execute(const wString &code) {
         while (l->tk) statement(execute);
     } catch (CScriptException *e) {
         wString msg;
-        msg += "Error ";
-        msg +=  e->text;
+        msg.sprintf("Error %s",e->text.c_str());;
+        //msg +=  e->text;
 #ifdef TINYJS_CALL_STACK
         for (int i=(int)call_stack.size()-1;i>=0;i--){
-          msg += "\n";
-          msg +=  i;
-          msg +=  ": ";
-          msg +=  call_stack.at(i);
+            msg.cat_sprintf("\n%d: %s",i,call_stack.at(i).c_str());
         }
 #endif
-        msg += " at ";
-        msg += l->getPosition();
+        msg.cat_sprintf( " at %s",l->getPosition().c_str());
         delete l;
         l = oldLex;
 
@@ -1281,10 +1336,10 @@ void CTinyJS::execute(const wString &code) {
     l = oldLex;
     scopes = oldScopes;
 }
-
+//複合式
 CScriptVarLink CTinyJS::evaluateComplex(const wString &code) {
     CScriptLex *oldLex = l;
-    vector<CScriptVar*> oldScopes = scopes;
+    std::vector<CScriptVar*> oldScopes = scopes;
 
     l = new CScriptLex(code);
 #ifdef TINYJS_CALL_STACK
@@ -1305,14 +1360,10 @@ CScriptVarLink CTinyJS::evaluateComplex(const wString &code) {
       msg.sprintf( "Error %s", e->text.c_str() );
 #ifdef TINYJS_CALL_STACK
       for (int i=(int)call_stack.size()-1;i>=0;i--){
-        msg += "\n";
-        msg += i;
-        msg += ": ";
-        msg += call_stack.at(i);
+            msg.cat_sprintf("\n%d: %s",i,call_stack.at(i).c_str());
       }
 #endif
-      msg += " at ";
-      msg += l->getPosition();
+      msg.cat_sprintf(" at %s",l->getPosition().c_str());
       delete l;
       l = oldLex;
 
@@ -1330,7 +1381,7 @@ CScriptVarLink CTinyJS::evaluateComplex(const wString &code) {
     // return undefined...
     return CScriptVarLink(new CScriptVar());
 }
-
+//式の評価
 wString CTinyJS::evaluate(const wString &code) {
     return evaluateComplex(code).var->getString();
 }
@@ -1457,8 +1508,9 @@ CScriptVarLink *CTinyJS::functionCall(bool &execute, CScriptVarLink *function, C
         delete newLex;
         l = oldLex;
 
-        if (exception)
+            if (exception){
           throw exception;
+        }
     }
 #ifdef TINYJS_CALL_STACK
     if (!call_stack.empty()) call_stack.pop_back();
@@ -1606,7 +1658,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
         while (l->tk != ']') {
           if (execute) {
             char idx_str[16]; // big enough for 2^32
-            sprintf_s(idx_str, sizeof(idx_str), "%d",idx);
+            snprintf(idx_str, sizeof(idx_str), "%d",idx);
 
             CScriptVarLink *a = base(execute);
             contents->addChild(idx_str, a->var);
@@ -1690,7 +1742,7 @@ CScriptVarLink *CTinyJS::term(bool &execute) {
     }
     return a;
 }
-
+//表現(-a++とか)
 CScriptVarLink *CTinyJS::expression(bool &execute) {
     bool negate = false;
     if (l->tk=='-') {
@@ -1730,7 +1782,7 @@ CScriptVarLink *CTinyJS::expression(bool &execute) {
     }
     return a;
 }
-
+//シフト演算子
 CScriptVarLink *CTinyJS::shift(bool &execute) {
   CScriptVarLink *a = expression(execute);
   if (l->tk==LEX_LSHIFT || l->tk==LEX_RSHIFT || l->tk==LEX_RSHIFTUNSIGNED) {
@@ -1747,7 +1799,7 @@ CScriptVarLink *CTinyJS::shift(bool &execute) {
   }
   return a;
 }
-
+//条件式
 CScriptVarLink *CTinyJS::condition(bool &execute) {
     CScriptVarLink *a = shift(execute);
     CScriptVarLink *b;
@@ -1766,7 +1818,7 @@ CScriptVarLink *CTinyJS::condition(bool &execute) {
     }
     return a;
 }
-
+//結合条件式
 CScriptVarLink *CTinyJS::logic(bool &execute) {
     CScriptVarLink *a = condition(execute);
     CScriptVarLink *b;
@@ -1803,7 +1855,7 @@ CScriptVarLink *CTinyJS::logic(bool &execute) {
     }
     return a;
 }
-
+//三項演算子
 CScriptVarLink *CTinyJS::ternary(bool &execute) {
   CScriptVarLink *lhs = logic(execute);
   bool noexec = false;
@@ -1831,7 +1883,7 @@ CScriptVarLink *CTinyJS::ternary(bool &execute) {
 
   return lhs;
 }
-
+//a=1、a+=1、a-=等
 CScriptVarLink *CTinyJS::base(bool &execute) {
     CScriptVarLink *lhs = ternary(execute);
     if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
@@ -1864,12 +1916,25 @@ CScriptVarLink *CTinyJS::base(bool &execute) {
     }
     return lhs;
 }
-
-void CTinyJS::block(bool &execute) {
+//execute==trueならblock内を実施
+LEX_TYPES CTinyJS::block(bool &execute) {
+    LEX_TYPES ret=LEX_EOF;
     l->match('{');
     if (execute) {
-      while (l->tk && l->tk!='}')
-        statement(execute);
+            while (l->tk && l->tk!='}'){
+                ret = statement(execute);
+                //この場合のみ末尾まで読み飛ばし
+                if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
+                    //末尾まで読み飛ばし
+                    int brackets = 1;
+                    while (l->tk && brackets) {
+                        if (l->tk == '{') brackets++;
+                        if (l->tk == '}') brackets--;
+                        l->match(l->tk);
+                    }
+                    return ret;
+                }
+            }
       l->match('}');
     } else {
       // fast skip of blocks
@@ -1880,10 +1945,11 @@ void CTinyJS::block(bool &execute) {
         l->match(l->tk);
       }
     }
-
+    return ret;
 }
-
-void CTinyJS::statement(bool &execute) {
+//記述
+LEX_TYPES  CTinyJS::statement(bool &execute) {
+    LEX_TYPES ret;
     if (l->tk==LEX_ID ||
         l->tk==LEX_INT ||
         l->tk==LEX_FLOAT ||
@@ -1894,10 +1960,22 @@ void CTinyJS::statement(bool &execute) {
         l->match(';');
     } else if (l->tk=='{') {
         /* A block of code */
-        block(execute);
+        ret = block(execute);
+        //単なるreturnでいいのでは？
+        if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
+            return ret;
+        }
     } else if (l->tk==';') {
         /* Empty statement - to allow things like ;;; */
         l->match(';');
+    } else if (l->tk==LEX_R_BREAK){
+        l->match(LEX_R_BREAK);
+        l->match(';');
+        return LEX_R_BREAK;
+    } else if (l->tk==LEX_R_CONTINUE){
+        l->match(LEX_R_CONTINUE);
+        l->match(';');
+        return LEX_R_CONTINUE;
     } else if (l->tk==LEX_R_VAR) {
         /* variable creation. TODO - we need a better way of parsing the left
          * hand side. Maybe just have a flag called can_create_var that we
@@ -1929,6 +2007,7 @@ void CTinyJS::statement(bool &execute) {
             l->match(',');
         }       
         l->match(';');
+        //IF
     } else if (l->tk==LEX_R_IF) {
         l->match(LEX_R_IF);
         l->match('(');
@@ -1936,12 +2015,17 @@ void CTinyJS::statement(bool &execute) {
         l->match(')');
         bool cond = execute && var->var->getBool();
         CLEAN(var);
-        bool noexecute = false; // because we need to be abl;e to write to it
-        statement(cond ? execute : noexecute);
+        bool noexecute = false; // because we need to be able to write to it
+        ret = statement(cond ? execute : noexecute);
+        if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
+            return ret;
+        }
         if (l->tk==LEX_R_ELSE) {
             l->match(LEX_R_ELSE);
-            statement(cond ? noexecute : execute);
+            //break continue対応. LEX_R_BREAK,LEX_R_CONTINUE以外ではLEX_EOFがかえる
+            return statement(cond ? noexecute : execute);
         }
+        //WHILE
     } else if (l->tk==LEX_R_WHILE) {
         // We do repetition by pulling out the wString representing our statement
         // there's definitely some opportunity for optimisation here
@@ -1955,7 +2039,12 @@ void CTinyJS::statement(bool &execute) {
         CScriptLex *whileCond = l->getSubLex(whileCondStart);
         l->match(')');
         int whileBodyStart = l->tokenStart;
-        statement(loopCond ? execute : noexecute);
+        ret = statement(loopCond ? execute : noexecute);
+        if( ret != LEX_EOF ){
+            wString errorString;
+            errorString.sprintf( "Syntax error %s at %s",l->getTokenStr(ret).c_str(),l->getPosition(l->tokenStart).c_str());
+            throw new CScriptException(errorString.c_str());
+        }
         CScriptLex *whileBody = l->getSubLex(whileBodyStart);
         CScriptLex *oldLex = l;
         int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
@@ -1968,7 +2057,13 @@ void CTinyJS::statement(bool &execute) {
             if (loopCond) {
                 whileBody->reset();
                 l = whileBody;
-                statement(execute);
+                ret = statement(execute);
+                if( ret == LEX_R_BREAK ){
+                    break;
+                }
+                if( ret == LEX_R_CONTINUE ){
+                    continue;
+                }
             }
         }
         l = oldLex;
@@ -1983,7 +2078,12 @@ void CTinyJS::statement(bool &execute) {
     } else if (l->tk==LEX_R_FOR) {
         l->match(LEX_R_FOR);
         l->match('(');
-        statement(execute); // initialisation
+        ret = statement(execute); // initialisation
+        if( ret > LEX_EOF ){
+            wString errorString;
+            errorString.sprintf( "Syntax error %s at %s",l->getTokenStr(ret).c_str(),l->getPosition(l->tokenStart).c_str());
+            throw new CScriptException(errorString.c_str());
+        }
         //l->match(';');
         int forCondStart = l->tokenStart;
         bool noexecute = false;
@@ -1997,7 +2097,12 @@ void CTinyJS::statement(bool &execute) {
         CScriptLex *forIter = l->getSubLex(forIterStart);
         l->match(')');
         int forBodyStart = l->tokenStart;
-        statement(loopCond ? execute : noexecute);
+        ret = statement(loopCond ? execute : noexecute);
+        if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
+            wString errorString;
+            errorString.sprintf( "Syntax error %s at %s",l->getTokenStr(ret).c_str(),l->getPosition(l->tokenStart).c_str());
+            throw new CScriptException(errorString.c_str());
+        }
         CScriptLex *forBody = l->getSubLex(forBodyStart);
         CScriptLex *oldLex = l;
         if (loopCond) {
@@ -2015,7 +2120,13 @@ void CTinyJS::statement(bool &execute) {
             if (execute && loopCond) {
                 forBody->reset();
                 l = forBody;
-                statement(execute);
+                ret = statement(execute);
+                if( ret == LEX_R_BREAK ){
+                    break;
+                }
+                if( ret == LEX_R_CONTINUE ){
+                    continue;
+                }
             }
             if (execute && loopCond) {
                 forIter->reset();
@@ -2056,7 +2167,10 @@ void CTinyJS::statement(bool &execute) {
             scopes.back()->addChildNoDup(funcVar->name, funcVar->var);
         }
         CLEAN(funcVar);
-    } else l->match(LEX_EOF);
+    } else {
+        l->match(LEX_EOF);
+    }
+    return LEX_EOF;
 }
 
 /// Get the given variable specified by a path (var1.var2.etc), or return 0
@@ -2064,7 +2178,7 @@ CScriptVar *CTinyJS::getScriptVariable(const wString &path) {
     // traverse path
     size_t prevIdx = 0;
     size_t thisIdx = path.find('.');
-    if (thisIdx == string::npos) thisIdx = path.length();
+    if (thisIdx == wString::npos) thisIdx = path.length();
     CScriptVar *var = root;
     while (var && prevIdx<path.length()) {
         wString el = path.substr(prevIdx, thisIdx-prevIdx);
@@ -2072,7 +2186,7 @@ CScriptVar *CTinyJS::getScriptVariable(const wString &path) {
         var = varl?varl->var:0;
         prevIdx = thisIdx+1;
         thisIdx = path.find('.', prevIdx);
-        if (thisIdx == string::npos) thisIdx = path.length();
+        if (thisIdx == wString::npos) thisIdx = path.length();
     }
     return var;
 }

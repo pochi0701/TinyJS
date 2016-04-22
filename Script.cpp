@@ -41,7 +41,7 @@
 //const char *code = "{ var b = 1; for (var i=0;i<4;i=i+1) b = b * 2; }";
 const char *code = "function myfunc(x, y) { return x + y; } var a = myfunc(1,2); print(a);";
 
-void js_print(CScriptVar *v, void *userdata) {
+void js_print2(CScriptVar *v, void *userdata) {
     printf("> %s\n", v->getParameter("text")->getString().c_str());
 }
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   /* add the functions from TinyJS_Functions.cpp */
   registerFunctions(js);
   /* Add a native function */
-  js->addNative("function print(text)", &js_print, 0);
+  js->addNative("function print(text)", &js_print2, 0);
   js->addNative("function dump()", &js_dump, js);
   /* Execute out bit of code - we could call 'evaluate' here if
      we wanted something returned */

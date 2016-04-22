@@ -99,3 +99,9 @@ Built-in functions
 
     result = foo.length()==13 && foo.indexOf("bar")==4 && foo.substring(8,13)=="stuff" && parsed==42 && 
     Integer.valueOf(aChar)==65 && obj1.food=="cake" && obj2.desert=="pie";
+
+new!
+break in for,while support
+regurar expression support
+   preg_replace like PHP
+   see wiki.jss(run in only wizdlive)

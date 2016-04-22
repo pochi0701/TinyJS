@@ -41,7 +41,7 @@
 
 const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
 
-enum LEX_TYPES {
+typedef enum {
     LEX_EOF = 0,
     LEX_ID = 256,
     LEX_INT,
@@ -87,7 +87,7 @@ enum LEX_TYPES {
     LEX_R_NEW,
 
 	LEX_R_LIST_END /* always the last entry */
-};
+} LEX_TYPES;
 
 enum SCRIPTVAR_FLAGS {
     SCRIPTVAR_UNDEFINED   = 0,
@@ -135,7 +135,7 @@ public:
     ~CScriptLex(void);
 
     char currCh, nextCh;
-    int tk; ///< The type of the token that we have
+    LEX_TYPES tk;                            ///< The type of the token that we have
     int tokenStart; ///< Position in the data at the beginning of the token we have here
     int tokenEnd; ///< Position in the data at the last character of the token we have here
     int tokenLastEnd; ///< Position in the data at the last character of the last token
@@ -195,6 +195,7 @@ public:
     CScriptVar(const wString &str); ///< Create a string
     CScriptVar(double varData);
     CScriptVar(int val);
+    CScriptVar(bool val);
     ~CScriptVar(void);
 
     CScriptVar *getReturnVar(); ///< If this is a function, get the result value (for use by native functions)
@@ -243,6 +244,7 @@ public:
     CScriptVar *deepCopy(); ///< deep copy this node and return the result
 
     void trace(wString indentStr = "", const wString &name = ""); ///< Dump out the contents of this using trace
+    wString trace2(void); ///< Dump out the contents of this using trace
     wString getFlagsAsString(); ///< For debugging - just dump a string version of the flags
     void getJSON(wString &destination, const wString linePrefix=""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
     void setCallback(JSCallback callback, void *userdata); ///< Set the callback for native functions
@@ -338,8 +340,8 @@ private:
     CScriptVarLink *logic(bool &execute);
     CScriptVarLink *ternary(bool &execute);
     CScriptVarLink *base(bool &execute);
-    void block(bool &execute);
-    void statement(bool &execute);
+    LEX_TYPES  block(bool &execute);
+    LEX_TYPES  statement(bool &execute);
     // parsing utility functions
     CScriptVarLink *parseFunctionDefinition();
     void parseFunctionArguments(CScriptVar *funcVar);
@@ -348,5 +350,4 @@ private:
     /// Look up in any parent classes of the given object
     CScriptVarLink *findInParentClasses(CScriptVar *object, const wString &name);
 };
-
 #endif

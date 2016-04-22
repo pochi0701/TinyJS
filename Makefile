@@ -8,6 +8,7 @@ SOURCES=  \
 TinyJS.cpp \
 TinyJS_Functions.cpp \
 TinyJS_MathFunctions.cpp \
+dregex.cpp \
 wizd_String.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
