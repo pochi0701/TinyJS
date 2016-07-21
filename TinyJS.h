@@ -113,10 +113,10 @@ enum SCRIPTVAR_FLAGS {
 
 };
 
-#define TINYJS_RETURN_VAR "return"
+#define TINYJS_RETURN_VAR      "return"
 #define TINYJS_PROTOTYPE_CLASS "prototype"
-#define TINYJS_TEMP_NAME ""
-#define TINYJS_BLANK_DATA ""
+#define TINYJS_TEMP_NAME       ""
+#define TINYJS_BLANK_DATA      ""
 
 /// convert the given wString into a quoted string suitable for javascript
 wString getJSString(const wString &str);
@@ -134,34 +134,34 @@ public:
     CScriptLex(CScriptLex *owner, int startChar, int endChar);
     ~CScriptLex(void);
 
-    char currCh, nextCh;
+    char currCh;
+    char nextCh;
     LEX_TYPES tk;                            ///< The type of the token that we have
-    int tokenStart; ///< Position in the data at the beginning of the token we have here
-    int tokenEnd; ///< Position in the data at the last character of the token we have here
-    int tokenLastEnd; ///< Position in the data at the last character of the last token
-    wString tkStr; ///< Data contained in the token we have here
+    int tokenStart;                          ///< Position in the data at the beginning of the token we have here
+    int tokenEnd;                            ///< Position in the data at the last character of the token we have here
+    int tokenLastEnd;                        ///< Position in the data at the last character of the last token
+    wString tkStr;                           ///< Data contained in the token we have here
+    void chkread(int expected_tk);           ///< Lexical match wotsit
+    static wString getTokenStr(int token);   ///< Get the string representation of the given token
+    void reset();                            ///< Reset this lex so we can start again
 
-    void match(int expected_tk); ///< Lexical match wotsit
-    static wString getTokenStr(int token); ///< Get the string representation of the given token
-    void reset(); ///< Reset this lex so we can start again
-
-    wString getSubString(int pos); ///< Return a sub-string from the given position up until right now
+    wString getSubString(int pos);           ///< Return a sub-string from the given position up until right now
     CScriptLex *getSubLex(int lastPosition); ///< Return a sub-lexer from the given position up until right now
 
-    wString getPosition(int pos=-1); ///< Return a string representing the position in lines and columns of the character pos given
+    wString getPosition(int pos=-1);         ///< Return a string representing the position in lines and columns of the character pos given
+    int  dataPos;                            ///< Position in data (we CAN go past the end of the wString here)
 
 protected:
     /* When we go into a loop, we use getSubLex to get a lexer for just the sub-part of the
        relevant string. This doesn't re-allocate and copy the string, but instead copies
        the data pointer and sets dataOwned to false, and dataStart/dataEnd to the relevant things. */
-    char *data; ///< Data wString to get tokens from
-    int dataStart, dataEnd; ///< Start and end position in data string
-    bool dataOwned; ///< Do we own this data string?
+    char *data;              ///< Data wString to get tokens from
+    int  dataStart, dataEnd; ///< Start and end position in data string
+    bool dataOwned;          ///< Do we own this data string?
 
-    int dataPos; ///< Position in data (we CAN go past the end of the wString here)
 
     void getNextCh();
-    void getNextToken(); ///< Get the text token from our text string
+    void getNextToken();     ///< Get the text token from our text string
 };
 
 class CScriptVar;
@@ -171,28 +171,31 @@ typedef void (*JSCallback)(CScriptVar *var, void *userdata);
 class CScriptVarLink
 {
 public:
-  wString name;
-  CScriptVarLink *nextSibling;
-  CScriptVarLink *prevSibling;
-  CScriptVar *var;
-  bool owned;
+  wString name;               //•Ï”–¼
+  CScriptVarLink *nextSibling;//ŽŸ‚ÌƒŠƒ“ƒN
+  CScriptVarLink *prevSibling;//‘O‚ÌƒŠƒ“ƒN
+  CScriptVar     *var;        //•Ï”‚ÌŽÀ‘Ì
+  bool           owned;       //ì¬ŽÒ?
 
   CScriptVarLink(CScriptVar *var, const wString &name = TINYJS_TEMP_NAME);
   CScriptVarLink(const CScriptVarLink &link); ///< Copy constructor
   ~CScriptVarLink();
-  void replaceWith(CScriptVar *newVar); ///< Replace the Variable pointed to
+  void replaceWith(CScriptVar *newVar);     ///< Replace the Variable pointed to
   void replaceWith(CScriptVarLink *newVar); ///< Replace the Variable pointed to (just dereferences)
-  int getIntName(); ///< Get the name as an integer (for arrays)
-  void setIntName(int n); ///< Set the name as an integer (for arrays)
+  int  getIntName();                        ///< Get the name as an integer (for arrays)
+  void setIntName(int n);                   ///< Set the name as an integer (for arrays)
 };
 
 /// Variable class (containing a doubly-linked list of children)
 class CScriptVar
 {
 public:
-    CScriptVar(); ///< Create undefined
+    CScriptVarLink *firstChild;
+    CScriptVarLink *lastChild;
+
+    CScriptVar();                                     ///< Create undefined
     CScriptVar(const wString &varData, int varFlags); ///< User defined
-    CScriptVar(const wString &str); ///< Create a string
+    CScriptVar(const wString &str);                   ///< Create a string
     CScriptVar(double varData);
     CScriptVar(int val);
     CScriptVar(bool val);
@@ -227,46 +230,44 @@ public:
     void setArray();
     bool equals(CScriptVar *v);
 
-    bool isInt() { return (flags&SCRIPTVAR_INTEGER)!=0; }
-    bool isDouble() { return (flags&SCRIPTVAR_DOUBLE)!=0; }
-    bool isString() { return (flags&SCRIPTVAR_STRING)!=0; }
-    bool isNumeric() { return (flags&SCRIPTVAR_NUMERICMASK)!=0; }
-    bool isFunction() { return (flags&SCRIPTVAR_FUNCTION)!=0; }
-    bool isObject() { return (flags&SCRIPTVAR_OBJECT)!=0; }
-    bool isArray() { return (flags&SCRIPTVAR_ARRAY)!=0; }
-    bool isNative() { return (flags&SCRIPTVAR_NATIVE)!=0; }
+    bool isInt()       { return (flags&SCRIPTVAR_INTEGER)    !=0; }
+    bool isDouble()    { return (flags&SCRIPTVAR_DOUBLE)     !=0; }
+    bool isString()    { return (flags&SCRIPTVAR_STRING)     !=0; }
+    bool isNumeric()   { return (flags&SCRIPTVAR_NUMERICMASK)!=0; }
+    bool isFunction()  { return (flags&SCRIPTVAR_FUNCTION)   !=0; }
+    bool isObject()    { return (flags&SCRIPTVAR_OBJECT)     !=0; }
+    bool isArray()     { return (flags&SCRIPTVAR_ARRAY)      !=0; }
+    bool isNative()    { return (flags&SCRIPTVAR_NATIVE)     !=0; }
     bool isUndefined() { return (flags & SCRIPTVAR_VARTYPEMASK) == SCRIPTVAR_UNDEFINED; }
-    bool isNull() { return (flags & SCRIPTVAR_NULL)!=0; }
-    bool isBasic() { return firstChild==0; } ///< Is this *not* an array/object/etc
+    bool isNull()      { return (flags & SCRIPTVAR_NULL)!=0; }
+    bool isBasic()     { return firstChild==0; } ///< Is this *not* an array/object/etc
 
     CScriptVar *mathsOp(CScriptVar *b, int op); ///< do a maths op with another script variable
     void copyValue(CScriptVar *val); ///< copy the value from the value given
     CScriptVar *deepCopy(); ///< deep copy this node and return the result
 
-    void trace(wString indentStr = "", const wString &name = ""); ///< Dump out the contents of this using trace
-    wString trace2(void); ///< Dump out the contents of this using trace
-    wString getFlagsAsString(); ///< For debugging - just dump a string version of the flags
+    void trace(wString indentStr = "", const wString &name = "");    ///< Dump out the contents of this using trace
+    wString trace2(void);                                            ///< Dump out the contents of this using trace
+    wString getFlagsAsString();                                      ///< For debugging - just dump a string version of the flags
     void getJSON(wString &destination, const wString linePrefix=""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
-    void setCallback(JSCallback callback, void *userdata); ///< Set the callback for native functions
+    void setCallback(JSCallback callback, void *userdata);           ///< Set the callback for native functions
 
-    CScriptVarLink *firstChild;
-    CScriptVarLink *lastChild;
 
     /// For memory management/garbage collection
-    CScriptVar *ref(); ///< Add reference to this variable
-    void unref(); ///< Remove a reference, and delete this variable if required
-    int getRefs(); ///< Get the number of references to this script variable
+    CScriptVar *ref();        ///< Add reference to this variable
+    void unref();             ///< Remove a reference, and delete this variable if required
+    int  getRefs();           ///< Get the number of references to this script variable
 protected:
-    int refs; ///< The number of references held to this - used for garbage collection
+    int refs;                 ///< The number of references held to this - used for garbage collection
 
-    wString data; ///< The contents of this variable if it is a string
-    long intData; ///< The contents of this variable if it is an int
-    double doubleData; ///< The contents of this variable if it is a double
-    int flags; ///< the flags determine the type of the variable - int/double/string/etc
-    JSCallback jsCallback; ///< Callback for native functions
+    wString data;             ///< The contents of this variable if it is a string
+    long intData;             ///< The contents of this variable if it is an int
+    double doubleData;        ///< The contents of this variable if it is a double
+    int flags;                ///< the flags determine the type of the variable - int/double/string/etc
+    JSCallback jsCallback;    ///< Callback for native functions
     void *jsCallbackUserData; ///< user data passed as second argument to native functions
 
-    void init(); ///< initialisation of data members
+    void init();              ///< initialisation of data members
 
     /** Copy the basic data and flags from the variable given, with no
       * children. Should be used internally only - by copyValue and deepCopy */
@@ -327,19 +328,19 @@ private:
 
     CScriptVar *stringClass; /// Built in wString class
     CScriptVar *objectClass; /// Built in object class
-    CScriptVar *arrayClass; /// Built in array class
+    CScriptVar *arrayClass;  /// Built in array class
 
     // parsing - in order of precedence
     CScriptVarLink *functionCall(bool &execute, CScriptVarLink *function, CScriptVar *parent);
-    CScriptVarLink *factor(bool &execute);
-    CScriptVarLink *unary(bool &execute);
-    CScriptVarLink *term(bool &execute);
-    CScriptVarLink *expression(bool &execute);
-    CScriptVarLink *shift(bool &execute);
-    CScriptVarLink *condition(bool &execute);
-    CScriptVarLink *logic(bool &execute);
-    CScriptVarLink *ternary(bool &execute);
-    CScriptVarLink *base(bool &execute);
+    CScriptVarLink *factor      (bool &execute);
+    CScriptVarLink *unary       (bool &execute);
+    CScriptVarLink *term        (bool &execute);
+    CScriptVarLink *expression  (bool &execute);
+    CScriptVarLink *shift       (bool &execute);
+    CScriptVarLink *condition   (bool &execute);
+    CScriptVarLink *logic       (bool &execute);
+    CScriptVarLink *ternary     (bool &execute);
+    CScriptVarLink *base        (bool &execute);
     LEX_TYPES  block(bool &execute);
     LEX_TYPES  statement(bool &execute);
     // parsing utility functions

@@ -57,13 +57,13 @@ int main(int argc, char **argv)
   /* add the functions from TinyJS_Functions.cpp */
   registerFunctions(js);
   /* Add a native function */
-  js->addNative("function print(text)", &js_print2, 0);
-  js->addNative("function dump()", &js_dump, js);
+  js->addNative("function print(text)", js_print2, 0);
+  js->addNative("function dump()", js_dump, js);
   /* Execute out bit of code - we could call 'evaluate' here if
      we wanted something returned */
   try {
     js->execute("var lets_quit = 0; function quit() { lets_quit = 1; }");
-    js->execute("print(\"Interactive mode... Type quit(); to exit, or print(...); to print something, or dump() to dump the symbol table!\");");
+    js->execute("print(\"Interactive mode... Type quit(); to exit, or print(...); \nto print something, or dump() to dump the symbol table!\n\");");
   } catch (CScriptException *e) {
     printf("ERROR: %s\n", e->text.c_str());
   }
@@ -71,10 +71,6 @@ int main(int argc, char **argv)
   while (js->evaluate("lets_quit") == "0") {
     char buffer[2048];
     gets ( buffer );
-    if( buffer[0] == '\0' ){
-         break;
-    }
-        
     try {
       js->execute(buffer);
     } catch (CScriptException *e) {
@@ -82,10 +78,5 @@ int main(int argc, char **argv)
     }
   }
   delete js;
-#ifdef _WIN32
-#ifdef _DEBUG
-  _CrtDumpMemoryLeaks();
-#endif
-#endif
   return 0;
 }

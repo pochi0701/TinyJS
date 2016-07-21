@@ -38,6 +38,7 @@
 #include <string>
 #include <sstream>
 #include <stdio.h>
+#include "wizd_String.h"
 bool
 run_test (const char *filename)
 {
@@ -114,6 +115,9 @@ main (int argc, char **argv)
       sprintf (fn, "tests/test%03d.js", test_num);
 
       // check if the file exists - if not, assume we're at the end of our tests
+      if( !wString::FileExists(fn) ){
+          break;
+      }
       FILE *f = fopen (fn, "r");
       if (!f){
 	break;
@@ -127,10 +131,6 @@ main (int argc, char **argv)
     }
   printf ("Done. %d tests, %d pass, %d fail\n", count, passed,
 	  count - passed);
-#ifdef _DEBUG
-#ifdef _WIN32
-  _CrtDumpMemoryLeaks ();
-#endif
-#endif
+  int a = getchar();
   return 0;
 }

@@ -31,6 +31,7 @@
 #include "TinyJS_Functions.h"
 #include <sys/stat.h>
 #include <stdio.h>
+#include <time.h>
 #include "dregex.h"
 using namespace std;
 // ----------------------------------------------- Actual Functions
@@ -65,14 +66,11 @@ void scObjectClone(CScriptVar *c, void *userdata) {
 void scKeys(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString list = c->getParameter("obj")->trace2();
-    list.CalcCount();
-    //wString str = c->getParameter("this")->getString();
-    //wString sep = c->getParameter("separator")->getString();
     CScriptVar *result = c->getReturnVar();
     result->setArray();
     int length = 0;
-    
-    for( int i = 0 ; i < list.Count() ; i++ ){
+    int count  = list.getLines();
+    for( int i = 0 ; i < count ; i++ ){
         result->setArrayIndex(length++, new CScriptVar(list.GetListString(i)));
     }
 }
@@ -100,20 +98,17 @@ void scPrint(CScriptVar *c, void *) {
 /////////////////////////////////////////////////////////////////////////
 void scTrim(CScriptVar *c, void *) {
     wString val = c->getParameter("this")->getString();
-    val = val.Trim();
-    c->getReturnVar()->setString(val);
+    c->getReturnVar()->setString(val.Trim());
 }
 //
 void scRTrim(CScriptVar *c, void *) {
     wString val = c->getParameter("this")->getString();
-    val = val.RTrim();
-    c->getReturnVar()->setString(val);
+    c->getReturnVar()->setString(val.RTrim());
 }
 //
 void scLTrim(CScriptVar *c, void *) {
     wString val = c->getParameter("this")->getString();
-    val = val.LTrim();
-    c->getReturnVar()->setString(val);
+    c->getReturnVar()->setString(val.LTrim());
 }
 /////////////////////////////////////////////////////////////////////////
 void scCharToInt(CScriptVar *c, void *userdata) {
@@ -130,7 +125,7 @@ void scStringIndexOf(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString str = c->getParameter("this")->getString();
     wString search = c->getParameter("search")->getString();
-    size_t p = str.find(search);
+    int  p = str.find(search);
     int val = (p==wString::npos) ? -1 : p;
     c->getReturnVar()->setInt(val);
 }
@@ -191,15 +186,16 @@ void scStringSplit(CScriptVar *c, void *userdata) {
 
     //consider sepatator length;
     int inc = sep.length();
-    size_t pos = str.find(sep);
+    int pos = str.find(sep);
     while (pos != wString::npos) {
-      result->setArrayIndex(length++, new CScriptVar(str.substr(0,pos)));
+        result->setArrayIndex(length++, new CScriptVar(str.substr(0,pos)));
         str = str.substr(pos+inc);
-      pos = str.find(sep);
+        pos = str.find(sep);
     }
 
-    if (str.size()>0)
-      result->setArrayIndex(length++, new CScriptVar(str));
+    if (str.size()>0){
+        result->setArrayIndex(length++, new CScriptVar(str));
+    }
 }
 //Replace
 void scStringReplace(CScriptVar *c, void *userdata) {
@@ -208,8 +204,7 @@ void scStringReplace(CScriptVar *c, void *userdata) {
     wString before = c->getParameter("before")->getString();
     wString after = c->getParameter("after")->getString();
     //strの中のbeforeを探す
-    size_t pos = 0;
-    pos = str.find(before,pos);
+    int pos = str.find(before);
     while( pos != wString::npos){
         str = str.substr(0,pos)+after+str.substr(pos+before.length());
         pos = str.find(before,pos); 
@@ -244,11 +239,21 @@ void scPregStringReplace(CScriptVar *c, void *userdata) {
     dregex::replace(&result, str, patterns, replaces);
     c->getReturnVar()->setString(result);
 }
+//AddShashes
+void scAddShashes(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(userdata);
+    wString str = c->getParameter("this")->getString();
+    c->getReturnVar()->setString(str.addSlashes());
+}
+//getLocalAddress
+void scGetLocalAddress(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(userdata);
+    c->getReturnVar()->setString(wString::GetLocalAddress());
+}
 void scStringFromCharCode(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
-    char str[2];
+    char str[2]={0};
     str[0] = (char)c->getParameter("char")->getInt();
-    str[1] = 0;
     c->getReturnVar()->setString(str);
 }
 
@@ -280,6 +285,56 @@ void scIntegerToDateString(CScriptVar *c, void *userdata) {
     strftime(s, 128, format.c_str(), timeptr);
     c->getReturnVar()->setString(s);
 }
+void scStringDate(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(userdata);
+    time_t t = time(NULL);
+    char s[128];
+    sprintf( s, "%ld", t );
+    c->getReturnVar()->setString(s);
+}
+void scNKFConv(CScriptVar *c, void *userdata) {
+#ifdef WEB
+    IGNORE_PARAMETER(userdata);
+    wString str    = c->getParameter("this")->getString();
+    wString format = c->getParameter("format")->getString();
+    wString temp   = str.nkfcnv(format);
+    c->getReturnVar()->setString(temp);
+#endif
+}
+
+void scDBConnect(CScriptVar *c, void *userdata) {
+#ifdef DB
+    IGNORE_PARAMETER(userdata);
+    wString str      = c->getParameter("this")->getString();
+    str              = _DBConnect(str);
+    if( str.Length() ){
+        c->getParameter("this")->setString(str);
+        c->getReturnVar()->setString(str);
+    }else{
+        c->getReturnVar()->setString("");
+    }
+#endif
+}
+
+void scDBDisConnect(CScriptVar *c, void *userdata) {
+#ifdef DB
+    IGNORE_PARAMETER(userdata);
+    wString str = c->getParameter("this")->getString();
+    int ret     = _DBDisConnect(str);
+    c->getReturnVar()->setInt(ret);
+#endif
+}
+
+void scDBSQL(CScriptVar *c, void *userdata) {
+#ifdef DB
+    IGNORE_PARAMETER(userdata);
+    wString str      = c->getParameter("this")->getString();
+    wString sql      = c->getParameter("sqltext")->getString();
+    wString ret      = _DBSQL(str,sql);
+    c->getReturnVar()->setString(ret);
+#endif
+}
+
 
 void scJSONStringify(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
@@ -298,8 +353,7 @@ void scExec(CScriptVar *c, void *userdata) {
 void scEval(CScriptVar *c, void *userdata) {
     
     CTinyJS *tinyJS = (CTinyJS *)userdata;
-    wString str = c->getParameter("jsCode")->getString();
-    c->setReturnVar(tinyJS->evaluateComplex(str).var);
+    c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("jsCode")->getString()).var);
 }
 
 void scArrayContains(CScriptVar *c, void *userdata) {
@@ -375,6 +429,13 @@ void scDirExists(CScriptVar *c, void *userdata) {
     wString path = c->getParameter("path")->getString();
     int flag = wString::DirectoryExists(path);
     c->getReturnVar()->setInt(flag);
+}
+//htmlspecialchars
+void scHtmlSpecialChars(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(userdata);
+    wString uri = c->getParameter("uri")->getString();
+    uri = uri.htmlspecialchars();
+    c->getReturnVar()->setString(uri);
 }
 //encodeURI
 void scEncodeURI(CScriptVar *c, void *userdata) {
@@ -534,6 +595,70 @@ void scCommand(CScriptVar *c, void *userdata) {
     int ret = (res==0)?true:false;
     c->getReturnVar()->setInt(ret);
 }
+//Header
+void scHeader(CScriptVar *c, void *userdata) {
+#ifdef WEB
+    CTinyJS* js = (CTinyJS*)userdata;
+    headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
+    wString str = c->getParameter("str")->getString();
+    int res = js->headerBuf->header(str.c_str());
+    int ret = (res==0)?true:false;
+    c->getReturnVar()->setInt(ret);
+#endif
+}
+//SessionStart
+void scSessionStart(CScriptVar *c, void *userdata) {
+#ifdef WEB
+    const static char material[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+    CTinyJS* js = (CTinyJS*)userdata;
+    int ret = 0;
+    //sidある？
+    wString jssessid = js->evaluate("JSSESSID");
+    if( jssessid != "undefined" ){
+        if( session.count(jssessid)>0 ){
+            wString data = session[jssessid];
+            js->execute("var _SESSION="+data+";",1);
+        }else{
+            js->execute("var _SESSION={};",1);
+        }
+    }else{
+        srand((unsigned)time(NULL));
+        char work[27]={0};
+        while( 1 ){
+            for(int i=0;i<26;i++){
+                work[i] = material[rand()%(sizeof(material)-1)];
+            }
+            //同じモノはダメ
+            if( session.count(work) == 0 ) break;
+        }
+        jssessid = work;
+        js->execute("var _SESSION={};var sid=\""+jssessid+"\";");
+        //新規にセッションを作る時はcookieを送出(ブラウザ閉じるまで)
+        headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
+        wString str;
+        str.sprintf( "Set-Cookie: sid=%s;",jssessid.c_str());
+        int res = js->headerBuf->header(str.c_str());
+        ret = (res==0)?true:false;
+    }
+    c->getReturnVar()->setInt(ret);
+#endif
+}
+//SetCookie
+void scSetCookie(CScriptVar *c, void *userdata) {
+#ifdef WEB
+    CTinyJS* js = (CTinyJS*)userdata;
+    wString str;
+    time_t timer;
+    headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
+    wString name   = c->getParameter("name")->getString();
+    wString value  = c->getParameter("value")->getString();
+    time_t  expire = c->getParameter("expire")->getInt()+time(&timer);
+    str.sprintf( "Set-Cookie: %s=%s; expires=%s",name.c_str(),value.c_str(),ctime(&expire));
+    int res = js->headerBuf->header(str.c_str());
+    int ret = (res==0)?true:false;
+    c->getReturnVar()->setInt(ret);
+#endif
+}
 void scFileCopy(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString pathf = c->getParameter("pathf")->getString();
@@ -552,6 +677,9 @@ void registerFunctions(CTinyJS *tinyJS) {
     tinyJS->addNative("function Object.keys(obj)", scKeys, 0);
     tinyJS->addNative("function charToInt(ch)", scCharToInt, 0); //  convert a character to an int - get its value
     tinyJS->addNative("function command(path)", scCommand, 0 );
+    tinyJS->addNative("function header(str)", scHeader, tinyJS );
+    tinyJS->addNative("function session_start()",                      scSessionStart,  tinyJS );
+    tinyJS->addNative("function setCookie(name,value,expire)", scSetCookie, tinyJS );
     tinyJS->addNative("function Math.rand()", scMathRand, 0);
     tinyJS->addNative("function Math.randInt(min, max)", scMathRandInt, 0);
     tinyJS->addNative("function Integer.parseInt(str)", scIntegerParseInt, 0); // wString to int
@@ -569,9 +697,18 @@ void registerFunctions(CTinyJS *tinyJS) {
     tinyJS->addNative("function String.replace(before,after)",scStringReplace, 0 );
     tinyJS->addNative("function String.preg_replace(pattern,replace)",scPregStringReplace, 0 );
     //tinyJS->addNative("function String.preg_match(pattern)",scPregStringMatch, 0 );
+    tinyJS->addNative("function String.addSlashes()",                 scAddShashes,          0 );
+    tinyJS->addNative("function getLocalAddress()",            scGetLocalAddress,     0 );
     tinyJS->addNative("function String.toLowerCase()", scToLowerCase, 0 );
     tinyJS->addNative("function String.toUpperCase()", scToUpperCase, 0 );
     tinyJS->addNative("function String.toDateString(format)", scIntegerToDateString, 0); // time to strng format
+    tinyJS->addNative("function Date()",                              scStringDate,          0); // time to strng
+    tinyJS->addNative("function String.nkfconv(format)",              scNKFConv,             0 ); // language code convert
+    tinyJS->addNative("function String.Connect()",                    scDBConnect,           0 ); // Connect to DB
+    tinyJS->addNative("function String.DisConnect()",                 scDBDisConnect,        0 ); // DisConnect to DB
+    tinyJS->addNative("function String.SQL(sqltext)",                 scDBSQL,               0 ); // Execute SQL
+
+//    tinyJS->addNative("function JSON.mp3id3tag(path)",                scMp3Id3Tag,           0 );
     tinyJS->addNative("function JSON.stringify(obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment
     
     // JSON.parse is left out as you can (unsafely!) use eval instead
@@ -579,26 +716,24 @@ void registerFunctions(CTinyJS *tinyJS) {
     tinyJS->addNative("function Array.remove(obj)", scArrayRemove, 0);
     tinyJS->addNative("function Array.join(separator)", scArrayJoin, 0);
     tinyJS->addNative("function encodeURI(url)", scEncodeURI, 0);
-    tinyJS->addNative("function File.file_exists(file)", scFileExists, 0);
     tinyJS->addNative("function String.trim()", scTrim, 0);
     tinyJS->addNative("function String.rtrim()", scRTrim, 0);
     tinyJS->addNative("function String.ltrim()", scLTrim, 0);
     tinyJS->addNative("function print(text)", js_print, tinyJS);
-    tinyJS->addNative("function FILE.file_exists(path)", scFileExists, 0 );
-    tinyJS->addNative("function FILE.dir_exists(path)", scDirExists, 0 );
-    tinyJS->addNative("function FILE.scandir(uri)", scScanDir, 0 );
-    tinyJS->addNative("function FILE.extractFileExt(uri)", scExtractFileExt, 0 );
-    tinyJS->addNative("function FILE.file_stat(path)", scFileStats, 0 );
-    tinyJS->addNative("function FILE.filedate(path)", scFileDate, 0 );
-    tinyJS->addNative("function FILE.loadFromFile(path)", scLoadFromFile, 0 );
-    tinyJS->addNative("function FILE.loadFromCSV(path)", scLoadFromCSV, 0 );
-    tinyJS->addNative("function FILE.unlink(path)", scUnlink, 0 );
-    tinyJS->addNative("function FILE.touch(path)", scTouch, 0 );
-    tinyJS->addNative("function FILE.rename(pathf,patht)", scRename, 0 );
-    tinyJS->addNative("function FILE.mkdir(path)", scMkdir, 0 );
-    tinyJS->addNative("function FILE.rmdir(path)", scRmdir, 0 );
-    tinyJS->addNative("function FILE.saveToFile(path,data)", scSaveToFile, 0 );
-    tinyJS->addNative("function FILE.copy(pathf,patht)", scFileCopy, 0 );
-
+    tinyJS->addNative("function htmlspecialchars(uri)",               scHtmlSpecialChars, 0 );
+    tinyJS->addNative("function file_exists(path)", scFileExists, 0 );
+    tinyJS->addNative("function dir_exists(path)", scDirExists, 0 );
+    tinyJS->addNative("function scandir(uri)", scScanDir, 0 );
+    tinyJS->addNative("function extractFileExt(uri)", scExtractFileExt, 0 );
+    tinyJS->addNative("function file_stat(path)", scFileStats, 0 );
+    tinyJS->addNative("function filedate(path)", scFileDate, 0 );
+    tinyJS->addNative("function loadFromFile(path)", scLoadFromFile, 0 );
+    tinyJS->addNative("function loadFromCSV(path)", scLoadFromCSV, 0 );
+    tinyJS->addNative("function unlink(path)", scUnlink, 0 );
+    tinyJS->addNative("function touch(path)", scTouch, 0 );
+    tinyJS->addNative("function rename(pathf,patht)", scRename, 0 );
+    tinyJS->addNative("function mkdir(path)", scMkdir, 0 );
+    tinyJS->addNative("function rmdir(path)", scRmdir, 0 );
+    tinyJS->addNative("function saveToFile(path,data)", scSaveToFile, 0 );
+    tinyJS->addNative("function copy(pathf,patht)", scFileCopy, 0 );
 }
-
