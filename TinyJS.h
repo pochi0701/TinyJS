@@ -41,7 +41,7 @@
 
 const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
 
-typedef enum {
+enum class  LEX_TYPES {
     LEX_EOF = 0,
     LEX_ID = 256,
     LEX_INT,
@@ -87,9 +87,9 @@ typedef enum {
     LEX_R_NEW,
 
 	LEX_R_LIST_END /* always the last entry */
-} LEX_TYPES;
+};
 
-enum SCRIPTVAR_FLAGS {
+enum class SCRIPTVAR_FLAGS {
     SCRIPTVAR_UNDEFINED   = 0,
     SCRIPTVAR_FUNCTION    = 1,
     SCRIPTVAR_OBJECT      = 2,
@@ -206,7 +206,7 @@ public:
     CScriptVar *getParameter(const wString &name); ///< If this is a function, get the parameter with the given name (for use by native functions)
 
     CScriptVarLink *findChild(const wString &childName); ///< Tries to find a child with the given name, may return 0
-    CScriptVarLink *findChildOrCreate(const wString &childName, int varFlags=SCRIPTVAR_UNDEFINED); ///< Tries to find a child with the given name, or will create it with the given flags
+    CScriptVarLink *findChildOrCreate(const wString &childName, int varFlags= (int)SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED); ///< Tries to find a child with the given name, or will create it with the given flags
     CScriptVarLink *findChildOrCreateByPath(const wString &path); ///< Tries to find a child with the given path (separated by dots)
     CScriptVarLink *addChild(const wString &childName, CScriptVar *child=NULL);
     CScriptVarLink *addChildNoDup(const wString &childName, CScriptVar *child=NULL); ///< add a child overwriting any with the same name
@@ -230,16 +230,16 @@ public:
     void setArray();
     bool equals(CScriptVar *v);
 
-    bool isInt()       { return (flags&SCRIPTVAR_INTEGER)    !=0; }
-    bool isDouble()    { return (flags&SCRIPTVAR_DOUBLE)     !=0; }
-    bool isString()    { return (flags&SCRIPTVAR_STRING)     !=0; }
-    bool isNumeric()   { return (flags&SCRIPTVAR_NUMERICMASK)!=0; }
-    bool isFunction()  { return (flags&SCRIPTVAR_FUNCTION)   !=0; }
-    bool isObject()    { return (flags&SCRIPTVAR_OBJECT)     !=0; }
-    bool isArray()     { return (flags&SCRIPTVAR_ARRAY)      !=0; }
-    bool isNative()    { return (flags&SCRIPTVAR_NATIVE)     !=0; }
-    bool isUndefined() { return (flags & SCRIPTVAR_VARTYPEMASK) == SCRIPTVAR_UNDEFINED; }
-    bool isNull()      { return (flags & SCRIPTVAR_NULL)!=0; }
+    bool isInt() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER)!=0; }
+    bool isDouble() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_DOUBLE)!=0; }
+    bool isString() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_STRING)!=0; }
+    bool isNumeric() { return (flags& (int)SCRIPTVAR_FLAGS::SCRIPTVAR_NUMERICMASK)!=0; }
+    bool isFunction() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_FUNCTION)!=0; }
+    bool isObject() { return (flags  & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT)!=0; }
+    bool isArray() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_ARRAY)!=0; }
+    bool isNative() { return (flags& (int)SCRIPTVAR_FLAGS::SCRIPTVAR_NATIVE)!=0; }
+    bool isUndefined() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) == (int)SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
+    bool isNull() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_NULL)!=0; }
     bool isBasic()     { return firstChild==0; } ///< Is this *not* an array/object/etc
 
     CScriptVar *mathsOp(CScriptVar *b, int op); ///< do a maths op with another script variable
