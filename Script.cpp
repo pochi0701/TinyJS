@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
   while (js->evaluate("lets_quit") == "0") {
     char buffer[2048];
-    gets ( buffer );
+    gets_s ( buffer );
     try {
       js->execute(buffer);
     } catch (CScriptException *e) {

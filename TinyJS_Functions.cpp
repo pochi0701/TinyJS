@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 /*
  * TinyJS
  *
@@ -32,7 +33,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <time.h>
-#include "dregex.h"
+//#include "dregex.h"
 using namespace std;
 // ----------------------------------------------- Actual Functions
 void js_print(CScriptVar *v, void *userdata) {
@@ -203,7 +204,7 @@ void scStringReplace(CScriptVar *c, void *userdata) {
     wString str = c->getParameter("this")->getString();
     wString before = c->getParameter("before")->getString();
     wString after = c->getParameter("after")->getString();
-    //strã®ä¸­ã®beforeã‚’æŽ¢ã™
+    //str‚Ì’†‚Ìbefore‚ð’T‚·
     int pos = str.find(before);
     while( pos != wString::npos){
         str = str.substr(0,pos)+after+str.substr(pos+before.length());
@@ -236,7 +237,7 @@ void scPregStringReplace(CScriptVar *c, void *userdata) {
         patterns.push_back(pattern);
         replaces.push_back(replace);
     }
-    dregex::replace(&result, str, patterns, replaces);
+    //dregex::replace(&result, str, patterns, replaces);
     c->getReturnVar()->setString(result);
 }
 //AddShashes
@@ -248,7 +249,7 @@ void scAddShashes(CScriptVar *c, void *userdata) {
 //getLocalAddress
 void scGetLocalAddress(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
-    c->getReturnVar()->setString(wString::GetLocalAddress());
+   //c->getReturnVar()->setString(wString::GetLocalAddress());
 }
 void scStringFromCharCode(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
@@ -276,14 +277,14 @@ void scIntegerValueOf(CScriptVar *c, void *userdata) {
 //
 void scIntegerToDateString(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
-    wString times = c->getParameter("this")->getString();
-    wString format = c->getParameter("format")->getString();
-    char s[128] = {0};
-    long time = atol(times.c_str());
-    struct tm *timeptr;
-    timeptr = localtime(&time);
-    strftime(s, 128, format.c_str(), timeptr);
-    c->getReturnVar()->setString(s);
+    //wString times = c->getParameter("this")->getString();
+    //wString format = c->getParameter("format")->getString();
+    //char s[128] = {0};
+    //long time = atol(times.c_str());
+    //struct tm *timeptr;
+    //timeptr = localtime(&time);
+    //strftime(s, 128, format.c_str(), timeptr);
+    //c->getReturnVar()->setString(s);
 }
 void scStringDate(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
@@ -416,14 +417,14 @@ void scArrayJoin(CScriptVar *c, void *userdata) {
 
   c->getReturnVar()->setString(sstr.c_str());
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«å­˜åœ¨ãƒã‚§ãƒƒã‚¯
+//ƒtƒ@ƒCƒ‹‘¶Ýƒ`ƒFƒbƒN
 void scFileExists(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
     int flag = wString::FileExists(path);
     c->getReturnVar()->setInt(flag);
 }
-//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå­˜åœ¨ãƒã‚§ãƒƒã‚¯
+//ƒfƒBƒŒƒNƒgƒŠ‘¶Ýƒ`ƒFƒbƒN
 void scDirExists(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
@@ -490,7 +491,7 @@ void scToLowerCase(CScriptVar *c, void *userdata) {
     wString str = c->getParameter("this")->getString();
     char* String = str.c_str();
     for( unsigned int i = 0 ; i < str.length() ; i++ ){
-        String[i] = (unsigned char)tolower(String[i]);
+        //String[i] = (unsigned char)tolower(String[i]);
     }
     c->getReturnVar()->setString(str);
 }
@@ -500,25 +501,25 @@ void scToUpperCase(CScriptVar *c, void *userdata) {
     wString str = c->getParameter("this")->getString();
     char* String = str.c_str();
     for( unsigned int i = 0 ; i < str.length() ; i++ ){
-        String[i] = (unsigned char)toupper(String[i]);
+        //String[i] = (unsigned char)toupper(String[i]);
     }
     c->getReturnVar()->setString(str);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«å±žæ€§ãªã©
+//ƒtƒ@ƒCƒ‹‘®«‚È‚Ç
 void scFileStats(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
     wString json = wString::FileStats(path);
     c->getReturnVar()->setString(json);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«å±žæ€§ãªã©
+//ƒtƒ@ƒCƒ‹‘®«‚È‚Ç
 void scFileDate(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
     wString json = wString::FileStats(path,1);
     c->getReturnVar()->setString(json);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«å†…å®¹å–å¾—
+//ƒtƒ@ƒCƒ‹“à—eŽæ“¾
 void scLoadFromFile(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
@@ -526,7 +527,7 @@ void scLoadFromFile(CScriptVar *c, void *userdata) {
     data.LoadFromFile(path);
     c->getReturnVar()->setString(data);
 }
-//CSVå†…å®¹å–å¾—
+//CSV“à—eŽæ“¾
 void scLoadFromCSV(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
@@ -534,28 +535,28 @@ void scLoadFromCSV(CScriptVar *c, void *userdata) {
     data.LoadFromCSV(path);
     c->getReturnVar()->setString(data);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«å‰Šé™¤
+//ƒtƒ@ƒCƒ‹íœ
 void scUnlink(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
-    int res = unlink(path.c_str());
+    int res = _unlink(path.c_str());
     int ret = (res==0)?true:false;
     c->getReturnVar()->setInt(ret);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«ä½œæˆ
+//ƒtƒ@ƒCƒ‹ì¬
 void scTouch(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
     int ret=true;
-    int fd = open(path.c_str(),O_CREAT | O_APPEND | O_WRONLY | O_BINARY , S_IREAD | S_IWRITE);
+    int fd = _open(path.c_str(),O_CREAT | O_APPEND | O_WRONLY | O_BINARY , S_IREAD | S_IWRITE);
     if( fd < 0 ){
         ret = false;
     }else{
-        close( fd );
+        _close( fd );
     }
     c->getReturnVar()->setInt(ret);
 }
-//ãƒªãƒãƒ¼ãƒ 
+//ƒŠƒl[ƒ€
 void scRename(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString pathf = c->getParameter("pathf")->getString();
@@ -563,22 +564,22 @@ void scRename(CScriptVar *c, void *userdata) {
     int ret = wString::RenameFile(pathf,patht);
     c->getReturnVar()->setInt(ret);
 }
-//ãƒ•ã‚©ãƒ«ãƒ€ä½œæˆ
+//ƒtƒHƒ‹ƒ_ì¬
 void scMkdir(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
     int ret = wString::CreateDir(path);
     c->getReturnVar()->setInt(ret);
 }
-//ãƒ•ã‚©ãƒ«ãƒ€å‰Šé™¤
+//ƒtƒHƒ‹ƒ_íœ
 void scRmdir(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
-    int res = rmdir(path.c_str());
+    int res = _rmdir(path.c_str());
     int ret = (res==0)?true:false;
     c->getReturnVar()->setInt(ret);
 }
-//ãƒ•ã‚¡ã‚¤ãƒ«ä¿å­˜
+//ƒtƒ@ƒCƒ‹•Û‘¶
 void scSaveToFile(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString path = c->getParameter("path")->getString();
@@ -587,7 +588,7 @@ void scSaveToFile(CScriptVar *c, void *userdata) {
     int ret = (res==0)?true:false;
     c->getReturnVar()->setInt(ret);
 }
-//commandå®Ÿè¡Œ
+//commandŽÀs
 void scCommand(CScriptVar *c, void *userdata) {
     IGNORE_PARAMETER(userdata);
     wString ppath = c->getParameter("path")->getString();
@@ -612,7 +613,7 @@ void scSessionStart(CScriptVar *c, void *userdata) {
     const static char material[] = "abcdefghijklmnopqrstuvwxyz0123456789";
     CTinyJS* js = (CTinyJS*)userdata;
     int ret = 0;
-    //sidã‚ã‚‹ï¼Ÿ
+    //sid‚ ‚éH
     wString jssessid = js->evaluate("JSSESSID");
     if( jssessid != "undefined" ){
         if( session.count(jssessid)>0 ){
@@ -628,12 +629,12 @@ void scSessionStart(CScriptVar *c, void *userdata) {
             for(int i=0;i<26;i++){
                 work[i] = material[rand()%(sizeof(material)-1)];
             }
-            //åŒã˜ãƒ¢ãƒŽã¯ãƒ€ãƒ¡
+            //“¯‚¶ƒ‚ƒm‚Íƒ_ƒ
             if( session.count(work) == 0 ) break;
         }
         jssessid = work;
         js->execute("var _SESSION={};var sid=\""+jssessid+"\";");
-        //æ–°è¦ã«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ä½œã‚‹æ™‚ã¯cookieã‚’é€å‡º(ãƒ–ãƒ©ã‚¦ã‚¶é–‰ã˜ã‚‹ã¾ã§)
+        //V‹K‚ÉƒZƒbƒVƒ‡ƒ“‚ðì‚éŽž‚Ícookie‚ð‘—o(ƒuƒ‰ƒEƒU•Â‚¶‚é‚Ü‚Å)
         headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
         wString str;
         str.sprintf( "Set-Cookie: sid=%s;",jssessid.c_str());

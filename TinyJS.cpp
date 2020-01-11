@@ -147,7 +147,7 @@ static unsigned char cmap[256]={
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//E0
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//F0
 }; 
-#define web
+//#define web
 //#include <string>
 //#include <string.h>
 //#include <sstream>
@@ -166,12 +166,12 @@ bool isWhitespace(unsigned char ch) {
     return (cmap[ch]&1);//(ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
 }
 ////////////////////////////////////////////////////////////////////////////////
-//æ•°å­—ãƒã‚§ãƒƒã‚¯
+//”šƒ`ƒFƒbƒN
 bool isNumeric(unsigned char ch) {
     return (cmap[ch]&2);//(ch>='0') && (ch<='9');
 }
 ////////////////////////////////////////////////////////////////////////////////
-//æ•°å€¤ãƒã‚§ãƒƒã‚¯
+//”’lƒ`ƒFƒbƒN
 bool isNumber(const wString &str) {
     for (size_t i=0;i<str.size();i++){
       if (!isNumeric(str[i])) return false;
@@ -179,19 +179,19 @@ bool isNumber(const wString &str) {
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//ï¼‘ï¼–é€²ãƒã‚§ãƒƒã‚¯
+//‚P‚Uiƒ`ƒFƒbƒN
 bool isHexadecimal(unsigned char ch) {
     return ((ch>='0') && (ch<='9')) ||
            ((ch>='a') && (ch<='f')) ||
            ((ch>='A') && (ch<='F'));
 }
 ////////////////////////////////////////////////////////////////////////////////
-//ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆãƒã‚§ãƒƒã‚¯
+//ƒAƒ‹ƒtƒ@ƒxƒbƒgƒ`ƒFƒbƒN
 bool isAlpha(unsigned char ch) {
     return (cmap[ch]&4);//((ch>='a') && (ch<='z')) || ((ch>='A') && (ch<='Z')) || ch=='_';
 }
 ////////////////////////////////////////////////////////////////////////////////
-//IDæ–‡å­—åˆ—ã«ãªã‚‹ã‹ãƒã‚§ãƒƒã‚¯
+//ID•¶š—ñ‚É‚È‚é‚©ƒ`ƒFƒbƒN
 //bool isIDString(const char *s) {
 //    if (!isAlpha(*s)){
 //        return false;
@@ -205,7 +205,7 @@ bool isAlpha(unsigned char ch) {
 //    return true;
 //}
 ////////////////////////////////////////////////////////////////////////////////
-//ã‚¨ãƒ©ãƒ¼æ™‚1è¡Œå‡ºåŠ›
+//ƒGƒ‰[1so—Í
 char* oneLine(char *s, int ptr,int end)
 {
     size_t cnt=0;
@@ -262,7 +262,7 @@ wString getJSString(const wString &str) {
 }
 
 /** Is the wString alphanumeric */
-//è‹±å­—+[è‹±å­—|æ•°å€¤]
+//‰pš+[‰pš|”’l]
 bool isAlphaNum(const wString &str) {
     if (str.size()==0){
       return true;
@@ -289,15 +289,15 @@ void TRACE( int socket, const char* format, ... )
 }
 #endif
 // ----------------------------------------------------------------------------------- CSCRIPTEXCEPTION
-// ä¾‹å¤–ã¯textã«æ ¼ç´
+// —áŠO‚Ítext‚ÉŠi”[
 CScriptException::CScriptException(const wString &exceptionText) {
     text = exceptionText;
 }
 
 // ----------------------------------------------------------------------------------- CSCRIPTLEX
-// ã‚¹ã‚¯ãƒªãƒ—ãƒˆèªå½™ã‚¯ãƒ©ã‚¹
+// ƒXƒNƒŠƒvƒgŒêœbƒNƒ‰ƒX
 CScriptLex::CScriptLex(const wString &input) {
-    data = strdup(input.c_str());//å¯¿å‘½ã®ç‚¹ã‹ã‚‰ã‚³ãƒ”ãƒ¼ã™ã‚‹ã€‚deleteã§æ¶ˆã™
+    data = _strdup(input.c_str());//õ–½‚Ì“_‚©‚çƒRƒs[‚·‚éBdelete‚ÅÁ‚·
     dataOwned = true;
     dataStart = 0;
     dataEnd = strlen(data);
@@ -325,12 +325,12 @@ void CScriptLex::reset() {
     tokenLastEnd = 0;
     tk           = LEX_EOF;
     tkStr        = "";
-    getNextCh();//currchè¨­å®š nextchã¯ä¸å®š
-    getNextCh();//currch,nextchè¨­å®š
-    getNextToken();//ï¼‘ãƒ¯ãƒ¼ãƒ‰å–ã‚Šè¾¼ã‚“ã çŠ¶æ…‹ã§é–‹å§‹
+    getNextCh();//currchİ’è nextch‚Í•s’è
+    getNextCh();//currch,nextchİ’è
+    getNextToken();//‚Pƒ[ƒhæ‚è‚ñ‚¾ó‘Ô‚ÅŠJn
 }
-//æœŸå¾…ã™ã‚‹èªã‚’ãƒã‚§ãƒƒã‚¯ã—ã¦æ¬¡ã®ï¼‘ãƒˆãƒ¼ã‚¯ãƒ³ã‚’å…ˆèª­ã¿
-//æœŸå¾…ã¯ãšã‚Œãªã‚‰ä¾‹å¤–
+//Šú‘Ò‚·‚éŒê‚ğƒ`ƒFƒbƒN‚µ‚ÄŸ‚Ì‚Pƒg[ƒNƒ“‚ğæ“Ç‚İ
+//Šú‘Ò‚Í‚¸‚ê‚È‚ç—áŠO
 void CScriptLex::chkread(int expected_tk) {
     if (tk!=expected_tk) {
         wString errorString;
@@ -340,7 +340,7 @@ void CScriptLex::chkread(int expected_tk) {
     getNextToken();
 }
 #ifdef web
-//ã‚°ãƒ­ãƒ¼ãƒãƒ«ã§ç”³ã—è¨³ãªã„ãŒæœ€åˆã«æ–‡å­—ã‚’å‡ºåŠ›ã™ã‚‹éš›ã«headerã‚’å…ˆã«å‡ºã™
+//ƒOƒ[ƒoƒ‹‚Å\‚µ–ó‚È‚¢‚ªÅ‰‚É•¶š‚ğo—Í‚·‚éÛ‚Éheader‚ğæ‚Éo‚·
 void headerCheckPrint(int socket, int* printed, wString* headerBuf, int flag)
 {
     if( headerBuf->length() == 0 ){
@@ -352,7 +352,7 @@ void headerCheckPrint(int socket, int* printed, wString* headerBuf, int flag)
     }
 }
 #endif
-//ã‚¨ãƒ©ãƒ¼ç”¨ç­‰ã«ãƒˆãƒ¼ã‚¯ãƒ³ã‚’èªå½™ã«å¤‰æ›
+//ƒGƒ‰[—p“™‚Éƒg[ƒNƒ“‚ğŒêœb‚É•ÏŠ·
 wString CScriptLex::getTokenStr(int token) {
     if (token>32 && token<128) {
         char buf[4] = "' '";
@@ -406,7 +406,7 @@ wString CScriptLex::getTokenStr(int token) {
     msg.sprintf( "?[%s]",token);
     return msg;
 }
-//æ¬¡ã®ï¼‘æ–‡å­—ã‚’å–ã‚Šè¾¼ã‚€ã€‚EOFã¯ï¼
+//Ÿ‚Ì‚P•¶š‚ğæ‚è‚ŞBEOF‚Í‚O
 void CScriptLex::getNextCh() {
     currCh = nextCh;
     if (dataPos < dataEnd){
@@ -416,11 +416,11 @@ void CScriptLex::getNextCh() {
     }
     dataPos++;
 }
-//ï¼‘ãƒˆãƒ¼ã‚¯ãƒ³å–å¾—
+//‚Pƒg[ƒNƒ“æ“¾
 void CScriptLex::getNextToken() {
     tk = LEX_EOF;
     tkStr.clear();
-    //ç„¡é§„æ–‡å­—èª­ã¿é£›ã°ã—
+    //–³‘Ê•¶š“Ç‚İ”ò‚Î‚µ
     while (currCh && isWhitespace(currCh)){
       getNextCh();
     }
@@ -633,7 +633,7 @@ void CScriptLex::getNextToken() {
     tokenLastEnd = tokenEnd;
     tokenEnd = dataPos-3;
 }
-//éƒ¨åˆ†æ–‡å­—åˆ—ã‚’è¿”ã™
+//•”•ª•¶š—ñ‚ğ•Ô‚·
 wString CScriptLex::getSubString(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd) {
@@ -649,7 +649,7 @@ wString CScriptLex::getSubString(int lastPosition) {
     }
 }
 
-//éƒ¨åˆ†èªå½™ã‚’è¿”ã™
+//•”•ªŒêœb‚ğ•Ô‚·
 CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd)
@@ -657,7 +657,7 @@ CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     else
         return new CScriptLex(this, lastPosition, dataEnd );
 }
-//æŒ‡å®šä½ç½®ã‚’è¡Œæ•°ã€åˆ—æ•°ã«å¤‰æ›
+//w’èˆÊ’u‚ğs”A—ñ”‚É•ÏŠ·
 wString CScriptLex::getPosition(int pos) {
     if (pos<0) pos=tokenLastEnd;
     int line = 1;
@@ -686,7 +686,7 @@ CScriptVarLink::CScriptVarLink(CScriptVar *var, const wString &myname) {
     this->name = myname;
     this->nextSibling = 0;
     this->prevSibling = 0;
-    this->var         = var->ref();//thisã‚’å‚ç…§ã‚’å¢—ã‚„ã—ã¦è¿”ã™
+    this->var         = var->ref();//this‚ğQÆ‚ğ‘‚â‚µ‚Ä•Ô‚·
     this->owned = false;
 }
 
@@ -715,11 +715,11 @@ void CScriptVarLink::replaceWith(CScriptVarLink *newVar) {
     else
       replaceWith(new CScriptVar());
 }
-//åå‰ã‚’æ•°å€¤ã«å¤‰æ›
+//–¼‘O‚ğ”’l‚É•ÏŠ·
 int CScriptVarLink::getIntName() {
     return atoi(name.c_str());
 }
-//åå‰ã‚’è¨­å®š
+//–¼‘O‚ğİ’è
 void CScriptVarLink::setIntName(int n) {
     char sIdx[64];
     snprintf(sIdx, sizeof(sIdx), "%d", n);
@@ -798,7 +798,7 @@ void CScriptVar::setReturnVar(CScriptVar *var) {
 CScriptVar *CScriptVar::getParameter(const wString &name) {
     return findChildOrCreate(name)->var;
 }
-//è¦ªå¤‰æ•°ã§å­ä¾›ãŒè¦‹ã¤ã‹ã£ãŸã‚‰linkã‚’è¿”ã™ã€‚ãªã‘ã‚Œã°0
+//e•Ï”‚Åq‹Ÿ‚ªŒ©‚Â‚©‚Á‚½‚çlink‚ğ•Ô‚·B‚È‚¯‚ê‚Î0
 CScriptVarLink *CScriptVar::findChild(const wString &childName) {
     CScriptVarLink *v = firstChild;
     while (v) {
@@ -1134,7 +1134,7 @@ CScriptVar *CScriptVar::mathsOp(CScriptVar *b, int op) {
            default: throw new CScriptException("Operation "+CScriptLex::getTokenStr(op)+" not supported on the wString datatype");
        }
     }
-    //å®Ÿè¡Œã•ã‚Œãªã„ã‚³ãƒ¼ãƒ‰
+    //Às‚³‚ê‚È‚¢ƒR[ƒh
     //ASSERT(0);
     //return 0;
 }
@@ -1345,7 +1345,7 @@ void CTinyJS::trace() {
 }
 
 void CTinyJS::execute(const wString &code) {
-    //é€€é¿ã™ã‚‹
+    //‘Ş”ğ‚·‚é
     CScriptLex *oldLex                 = l;
     std::vector<CScriptVar*> oldScopes = scopes;
 
@@ -1374,11 +1374,11 @@ void CTinyJS::execute(const wString &code) {
         throw new CScriptException(msg.c_str());
     }
     delete l;
-    //å¾©å¸°ã™ã‚‹
+    //•œ‹A‚·‚é
     l      = oldLex;
     scopes = oldScopes;
 }
-//è¤‡åˆå¼
+//•¡‡®
 CScriptVarLink CTinyJS::evaluateComplex(const wString &code) {
     CScriptLex *oldLex = l;
     std::vector<CScriptVar*> oldScopes = scopes;
@@ -1422,7 +1422,7 @@ CScriptVarLink CTinyJS::evaluateComplex(const wString &code) {
     // return undefined...
     return CScriptVarLink(new CScriptVar());
 }
-//å¼ã®è©•ä¾¡
+//®‚Ì•]‰¿
 wString CTinyJS::evaluate(const wString &code) {
     return evaluateComplex(code).var->getString();
 }
@@ -1436,7 +1436,7 @@ void CTinyJS::parseFunctionArguments(CScriptVar *funcVar) {
   }
   l->chkread(')');
 }
-//Cã§å®Ÿè£…ã•ã‚ŒãŸã‚³ãƒ¼ãƒ‰ã®å®Ÿè¡Œ
+//C‚ÅÀ‘•‚³‚ê‚½ƒR[ƒh‚ÌÀs
 void CTinyJS::addNative(const wString &funcDesc, JSCallback ptr, void *userdata) {
     CScriptLex *oldLex = l;
     l = new CScriptLex(funcDesc);
@@ -1642,13 +1642,13 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
                     }
                   }
                   parent = a->var;
-                  //ä¸æ˜ãªå¤‰æ•°ã«childã‚’ä½œã‚‰ãªã„                  
+                  //•s–¾‚È•Ï”‚Échild‚ğì‚ç‚È‚¢                  
                   if( a == alone){
                       wString errorMsg = "Object variable not defined '";
                       errorMsg = errorMsg + a->name + "' must be defined";
                         throw new CScriptException(errorMsg.c_str());
                     }
-                    //å¤šåˆ†aã‚’CLEANã—ãªã„ã¨ãƒ¡ãƒ¢ãƒªãƒ¼ãƒªãƒ¼ã‚¯ ã²ã§ãˆå®Ÿè£…
+                    //‘½•ªa‚ğCLEAN‚µ‚È‚¢‚Æƒƒ‚ƒŠ[ƒŠ[ƒN ‚Ğ‚Å‚¦À‘•
                     if( aa == 1 ){
                       CLEAN(a);
                   }
@@ -1764,7 +1764,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
     l->chkread(LEX_EOF);
     return 0;
 }
-//å˜é …æ¼”ç®—å­!
+//’P€‰‰Zq!
 CScriptVarLink *CTinyJS::unary(bool &execute) {
     CScriptVarLink *a;
     if (l->tk=='!') {
@@ -1796,7 +1796,7 @@ CScriptVarLink *CTinyJS::term(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//è¡¨ç¾(-a++ã¨ã‹)
+//•\Œ»(-a++‚Æ‚©)
 CScriptVarLink *CTinyJS::expression(bool &execute) {
     bool negate = false;
     if (l->tk=='-') {
@@ -1837,7 +1837,7 @@ CScriptVarLink *CTinyJS::expression(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//ã‚·ãƒ•ãƒˆæ¼”ç®—å­
+//ƒVƒtƒg‰‰Zq
 CScriptVarLink *CTinyJS::shift(bool &execute) {
   CScriptVarLink *a = expression(execute);
   if (l->tk==LEX_LSHIFT || l->tk==LEX_RSHIFT || l->tk==LEX_RSHIFTUNSIGNED) {
@@ -1855,7 +1855,7 @@ CScriptVarLink *CTinyJS::shift(bool &execute) {
   return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//æ¡ä»¶å¼
+//ğŒ®
 CScriptVarLink *CTinyJS::condition(bool &execute) {
     CScriptVarLink *a = shift(execute);
     CScriptVarLink *b;
@@ -1875,7 +1875,7 @@ CScriptVarLink *CTinyJS::condition(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//çµåˆæ¡ä»¶å¼
+//Œ‹‡ğŒ®
 CScriptVarLink *CTinyJS::logic(bool &execute) {
     CScriptVarLink *a = condition(execute);
     CScriptVarLink *b;
@@ -1913,7 +1913,7 @@ CScriptVarLink *CTinyJS::logic(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//ä¸‰é …æ¼”ç®—å­
+//O€‰‰Zq
 CScriptVarLink *CTinyJS::ternary(bool &execute) {
   CScriptVarLink *lhs = logic(execute);
   bool noexec = false;
@@ -1941,7 +1941,7 @@ CScriptVarLink *CTinyJS::ternary(bool &execute) {
   return lhs;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//a=1ã€a+=1ã€a-=ç­‰
+//a=1Aa+=1Aa-=“™
 CScriptVarLink *CTinyJS::base(bool &execute) {
     CScriptVarLink *lhs = ternary(execute);
     if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
@@ -1974,16 +1974,16 @@ CScriptVarLink *CTinyJS::base(bool &execute) {
     }
     return lhs;
 }
-//execute==trueãªã‚‰blockå†…ã‚’å®Ÿæ–½
+//execute==true‚È‚çblock“à‚ğÀ{
 LEX_TYPES CTinyJS::block(bool &execute) {
     LEX_TYPES ret=LEX_EOF;
     l->chkread('{');
     if (execute) {
             while (l->tk && l->tk!='}'){
                 ret = statement(execute);
-                //ã“ã®å ´åˆã®ã¿æœ«å°¾ã¾ã§èª­ã¿é£›ã°ã—
+                //‚±‚Ìê‡‚Ì‚İ––”ö‚Ü‚Å“Ç‚İ”ò‚Î‚µ
                 if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
-                    //æœ«å°¾ã¾ã§èª­ã¿é£›ã°ã—
+                    //––”ö‚Ü‚Å“Ç‚İ”ò‚Î‚µ
                     int brackets = 1;
                     while (l->tk && brackets) {
                         if (l->tk == '{') brackets++;
@@ -2005,7 +2005,7 @@ LEX_TYPES CTinyJS::block(bool &execute) {
     }
     return ret;
 }
-//è¨˜è¿°
+//‹Lq
 LEX_TYPES  CTinyJS::statement(bool &execute) {
     LEX_TYPES ret;
     if (l->tk==LEX_ID    ||
@@ -2019,7 +2019,7 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
     } else if (l->tk=='{') {
         /* A block of code */
         ret = block(execute);
-        //å˜ãªã‚‹returnã§ã„ã„ã®ã§ã¯ï¼Ÿ
+        //’P‚È‚éreturn‚Å‚¢‚¢‚Ì‚Å‚ÍH
         if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
             return ret;
         }
@@ -2081,7 +2081,7 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
         }
         if (l->tk==LEX_R_ELSE) {
             l->chkread(LEX_R_ELSE);
-            //break continueå¯¾å¿œ. LEX_R_BREAK,LEX_R_CONTINUEä»¥å¤–ã§ã¯LEX_EOFãŒã‹ãˆã‚‹
+            //break continue‘Î‰. LEX_R_BREAK,LEX_R_CONTINUEˆÈŠO‚Å‚ÍLEX_EOF‚ª‚©‚¦‚é
             return statement(cond ? noexecute : execute);
         }
         //WHILE

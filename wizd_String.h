@@ -4,7 +4,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <fcntl.h>
-#include <dirent.h>
+//#include <dirent.h>
 #include <assert.h>
 #ifdef linux
 #define SOCKET_ERROR (-1)
@@ -18,7 +18,7 @@
 #else
 #include <sys/stat.h>
 #include <process.h>
-#include <dir.h>
+//#include <dir.h>
 #include <direct.h>
 #include <io.h>
 #endif
@@ -32,8 +32,8 @@
 class wString
 {
 private:
-    unsigned int len;	//å®Ÿéš›ã®é•·ã•
-    unsigned int total;	//ä¿å­˜é ˜åŸŸã®é•·ã•
+    unsigned int len;	//ÀÛ‚Ì’·‚³
+    unsigned int total;	//•Û‘¶—Ìˆæ‚Ì’·‚³
     char* String;
 
     void replace_character_len(const char *sentence,int slen,const char* p,int klen,const char *rep);
@@ -171,7 +171,8 @@ private:
     int             SaveToFile(const char* FileName);
     int             SaveToFile(const wString& str);
     wString         nkfcnv(const wString& option);
-    //HTTPæ¥ç¶šç”¨
+    //HTTPÚ‘±—p
+#ifdef web
     static int      HTTPSize(const wString& url);
     static SOCKET   sock_connect(const wString& host, const int port);
     static SOCKET   sock_connect(const char *host, const int port);
@@ -180,6 +181,6 @@ private:
     static char*    GetLocalAddress(void);
 
     static void convert_language_code(const unsigned char *in, size_t len, int in_flag, int out_flag);
-
+#endif
 };
 #endif

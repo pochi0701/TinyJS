@@ -53,9 +53,9 @@ using namespace std;
 #define scReturnInt(a)      ( c->getReturnVar()->setInt(a) )
 #define scReturnDouble(a)   ( c->getReturnVar()->setDouble(a) )  
 
-#ifndef linux
-namespace
-{
+#ifdef linux
+//namespace
+//{
     double asinh( const double &value )
     {
         double returned;
@@ -79,7 +79,7 @@ namespace
 
         return(returned);
     }
-}
+//}
 #endif
 
 //Math.abs(x) - returns absolute of given value

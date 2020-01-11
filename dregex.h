@@ -4,7 +4,8 @@
 #ifdef linux
 #include <regex.h>
 #else
-#include <pcreposi.h>
+#include <regex>
+//#include <pcreposi.h>
 #define REG_EXTENDED 0
 #define REG_NOSUB 0
 #endif

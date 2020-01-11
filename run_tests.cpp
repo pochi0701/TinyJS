@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 /*
  * TinyJS
  *
@@ -112,7 +113,7 @@ main (int argc, char **argv)
   while (test_num < 1000)
     {
       char fn[32];
-      sprintf (fn, "tests/test%03d.js", test_num);
+      sprintf(fn, "tests/test%03d.js", test_num);
 
       // check if the file exists - if not, assume we're at the end of our tests
       if( !wString::FileExists(fn) ){
