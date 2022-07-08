@@ -104,4 +104,4 @@ new!
 break in for,while support
 regurar expression support
    preg_replace like PHP
-   see wiki.jss(run in only wizdlive)
+
