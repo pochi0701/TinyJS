@@ -228,7 +228,7 @@ void scMathSinh(CScriptVar* c, void* userdata) {
 void scMathASinh(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
-	scReturnDouble(asinh(scGetDouble("a")));
+	scReturnDouble(std::asinh(scGetDouble("a")));
 }
 
 //Math.cosh(a) - returns trig. hyperbolic cosine of given angle in radians
@@ -242,7 +242,7 @@ void scMathCosh(CScriptVar* c, void* userdata) {
 void scMathACosh(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
-	scReturnDouble(acosh(scGetDouble("a")));
+	scReturnDouble(std::acosh(scGetDouble("a")));
 }
 
 //Math.tanh(a) - returns trig. hyperbolic tangent of given angle in radians

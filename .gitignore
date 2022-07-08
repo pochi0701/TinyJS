@@ -215,3 +215,6 @@ pip-log.txt
 .mr.developer.cfg
 /.vs/Run_tests/v16/Browse.VC.db
 /.vs/Run_tests/v16/Browse.VC.opendb
+*.vsidx
+*.lock
+*.db

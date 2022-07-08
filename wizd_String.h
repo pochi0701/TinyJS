@@ -8,6 +8,7 @@
 #include <assert.h>
 #ifdef linux
 #define SOCKET_ERROR (-1)
+#define O_BINARY (0)
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>

@@ -11,14 +11,15 @@
 #include <sys/types.h>
 #include <vector>
 #include <algorithm>
-#include <windows.h>
 #ifdef linux
 #include <unistd.h>
 #include <netdb.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <dirent.h>
 #else
+#include <windows.h>
 #include <process.h>
 //#include <dir.h>
 #include <Shlwapi.h>
@@ -164,8 +165,11 @@ wString::wString(const char* str)
 	if (len) {
 		total = len + 1;
 		String = (char*)new char[total];
-		//strcpy(String, str);
+#ifdef __linux
+		strcpy(String, str);
+#else
 		strcpy_s(String, total, str);
+#endif
 	}
 	else {
 		total = 1;

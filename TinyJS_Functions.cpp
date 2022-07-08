@@ -30,6 +30,7 @@
  */
 
 #include "TinyJS_Functions.h"
+#include "define.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <time.h>
@@ -543,7 +544,7 @@ void scLoadFromCSV(CScriptVar* c, void* userdata) {
 void scUnlink(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int res = _unlink(path.c_str());
+	int res = unlink(path.c_str());
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
@@ -552,12 +553,12 @@ void scTouch(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int ret = true;
-	int fd = _open(path.c_str(), O_CREAT | O_APPEND | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE);
+	int fd = open(path.c_str(), O_CREAT | O_APPEND | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE);
 	if (fd < 0) {
 		ret = false;
 	}
 	else {
-		_close(fd);
+		close(fd);
 	}
 	c->getReturnVar()->setInt(ret);
 }
@@ -580,7 +581,7 @@ void scMkdir(CScriptVar* c, void* userdata) {
 void scRmdir(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int res = _rmdir(path.c_str());
+	int res = rmdir(path.c_str());
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }

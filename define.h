@@ -1,4 +1,5 @@
 #ifndef DEFINEH
+#ifndef __linux
 #define DEFINEH
 #define write _write
 #define read _read
@@ -16,4 +17,5 @@
 #define strnicmp _strnicmp
 #define rmdir _rmdir
 #define strdup _strdup
+#endif
 #endif
