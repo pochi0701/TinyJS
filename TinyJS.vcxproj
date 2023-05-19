@@ -149,7 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="run_tests.cpp" />
     <ClCompile Include="TinyJS.cpp" />
     <ClCompile Include="TinyJS_Functions.cpp" />
     <ClCompile Include="TinyJS_MathFunctions.cpp" />

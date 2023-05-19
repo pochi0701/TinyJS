@@ -1,4 +1,4 @@
-#ifndef WIZDSTRINGH
+ï»¿#ifndef WIZDSTRINGH
 #define WIZDSTRINGH
 #include <stdio.h>
 #include <string.h>
@@ -33,8 +33,8 @@
 class wString
 {
 private:
-    unsigned int len;	//ÀÛ‚Ì’·‚³
-    unsigned int total;	//•Û‘¶—Ìˆæ‚Ì’·‚³
+    unsigned int len;	//å®Ÿéš›ã®é•·ã•
+    unsigned int total;	//ä¿å­˜é ˜åŸŸã®é•·ã•
     char* String;
 
     void replace_character_len(const char *sentence,int slen,const char* p,int klen,const char *rep);
@@ -172,7 +172,7 @@ private:
     int             SaveToFile(const char* FileName);
     int             SaveToFile(const wString& str);
     wString         nkfcnv(const wString& option);
-    //HTTPÚ‘±—p
+    //HTTPæ¥ç¶šç”¨
 #ifdef web
     static int      HTTPSize(const wString& url);
     static SOCKET   sock_connect(const wString& host, const int port);

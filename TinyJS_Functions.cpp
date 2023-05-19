@@ -52,7 +52,7 @@ void js_print(CScriptVar* v, void* userdata) {
 void scTrace(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
-	CTinyJS* js = (CTinyJS*)userdata;
+	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	js->root->trace();
 }
 
@@ -350,14 +350,14 @@ void scJSONStringify(CScriptVar* c, void* userdata) {
 
 void scExec(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
-	CTinyJS* tinyJS = (CTinyJS*)userdata;
+	CTinyJS* tinyJS = static_cast<CTinyJS*>(userdata);
 	wString str = c->getParameter("jsCode")->getString();
 	tinyJS->execute(str);
 }
 
 void scEval(CScriptVar* c, void* userdata) {
 
-	CTinyJS* tinyJS = (CTinyJS*)userdata;
+	CTinyJS* tinyJS = static_cast<CTinyJS*>(userdata);
 	c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("jsCode")->getString()).var);
 }
 

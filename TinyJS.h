@@ -43,6 +43,37 @@ const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
 
 enum class  LEX_TYPES {
     LEX_EOF = 0,
+    LEX_LF = '\r',
+    LEX_CR = '\n',
+    LEX_EXC   = '!',  /// exclamation
+    LEX_DQT   = '"',  /// double quote
+    LEX_MOD   = '%',
+    LEX_AND   = '&',
+    LEX_SQT   = '\'', /// single quote
+    LEX_LPA   = '(',
+    LEX_RPA   = ')',
+    LEX_MUL   = '*',
+    LEX_PLUS  = '+',
+    LEX_CMA   = ',',
+    LEX_MINUS = '-',
+    LEX_DOT   = '.',
+    LEX_DIV   = '/',
+    LEX_COL   = ':',
+    LEX_SCL   = ';',
+    LEX_LTN   = '<',
+    LEX_EQ    = '=',
+    LEX_GTN   = '>',
+    LEX_QST   = '?',
+    LEX_LBKT  = '[',
+    LEX_ESC   = '\\',
+    LEX_RBKT  = ']',
+    LEX_HAT   = '^',
+    LEX_LBRA  = '{',
+    LEX_OR    = '|',
+    LEX_RBRA  = '}',
+    LEX_TLD   = '~',
+
+
     LEX_ID = 256,
     LEX_INT,
     LEX_FLOAT,
@@ -134,15 +165,15 @@ public:
     CScriptLex(CScriptLex *owner, int startChar, int endChar);
     ~CScriptLex(void);
 
-    char currCh;
-    char nextCh;
+    LEX_TYPES currCh;
+    LEX_TYPES nextCh;
     LEX_TYPES tk;                            ///< The type of the token that we have
     int tokenStart;                          ///< Position in the data at the beginning of the token we have here
     int tokenEnd;                            ///< Position in the data at the last character of the token we have here
     int tokenLastEnd;                        ///< Position in the data at the last character of the last token
     wString tkStr;                           ///< Data contained in the token we have here
-    void chkread(int expected_tk);           ///< Lexical match wotsit
-    static wString getTokenStr(int token);   ///< Get the string representation of the given token
+    void chkread(LEX_TYPES expected_tk);           ///< Lexical match wotsit
+    static wString getTokenStr(LEX_TYPES token);   ///< Get the string representation of the given token
     void reset();                            ///< Reset this lex so we can start again
 
     wString getSubString(int pos);           ///< Return a sub-string from the given position up until right now
@@ -155,13 +186,14 @@ protected:
     /* When we go into a loop, we use getSubLex to get a lexer for just the sub-part of the
        relevant string. This doesn't re-allocate and copy the string, but instead copies
        the data pointer and sets dataOwned to false, and dataStart/dataEnd to the relevant things. */
-    char *data;              ///< Data wString to get tokens from
-    int  dataStart, dataEnd; ///< Start and end position in data string
-    bool dataOwned;          ///< Do we own this data string?
+    char *data;             ///< Data wString to get tokens from
+    int  dataStart;         ///< Start and end position in data string
+    int  dataEnd;           ///< Start and end position in data string
+    bool dataOwned;         ///< Do we own this data string?
 
 
-    void getNextCh();
-    void getNextToken();     ///< Get the text token from our text string
+    LEX_TYPES getNextCh();
+    void getNextToken();    ///< Get the text token from our text string
 };
 
 class CScriptVar;
@@ -210,7 +242,7 @@ public:
     CScriptVarLink *findChildOrCreateByPath(const wString &path); ///< Tries to find a child with the given path (separated by dots)
     CScriptVarLink *addChild(const wString &childName, CScriptVar *child=NULL);
     CScriptVarLink *addChildNoDup(const wString &childName, CScriptVar *child=NULL); ///< add a child overwriting any with the same name
-    void removeChild(CScriptVar *child);
+    void removeChild(const CScriptVar *child);
     void removeLink(CScriptVarLink *link); ///< Remove a specific link (this is faster than finding via a child)
     void removeAllChildren();
     CScriptVar *getArrayIndex(int idx); ///< The the value at an array index
@@ -242,7 +274,7 @@ public:
     bool isNull() { return (flags & (int)SCRIPTVAR_FLAGS::SCRIPTVAR_NULL)!=0; }
     bool isBasic()     { return firstChild==0; } ///< Is this *not* an array/object/etc
 
-    CScriptVar *mathsOp(CScriptVar *b, int op); ///< do a maths op with another script variable
+    CScriptVar *mathsOp(CScriptVar *b, LEX_TYPES op); ///< do a maths op with another script variable
     void copyValue(CScriptVar *val); ///< copy the value from the value given
     CScriptVar *deepCopy(); ///< deep copy this node and return the result
 
@@ -254,7 +286,7 @@ public:
 
 
     /// For memory management/garbage collection
-    CScriptVar *ref();        ///< Add reference to this variable
+    CScriptVar *setRef();     ///< Add reference to this variable
     void unref();             ///< Remove a reference, and delete this variable if required
     int  getRefs();           ///< Get the number of references to this script variable
 protected:

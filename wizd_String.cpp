@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NONSTDC_NO_DEPRECATE
 #pragma comment(lib, "shlwapi.lib")
 #include <stdio.h>
@@ -30,10 +30,10 @@
 #include "wizd_String.h"
 #include "define.h"
 
-//linux/windows‹¤—pƒI[ƒvƒ“
-//’Ç‰Á: O_CREAT | O_APPEND | O_WRONLY(‚Ü‚½‚ÍO_RDWR) | (O_BINARY) , S_IREAD | S_IWRITE
-//V‹K: O_CREAT | O_TRUNC  | O_WRONLY(‚Ü‚½‚ÍO_RDWR) | (O_BINARY) , S_IREAD | S_IWRITE
-//“Ç: O_RDONLY                                     | (O_BINARY) 
+//linux/windowså…±ç”¨ã‚ªãƒ¼ãƒ—ãƒ³
+//è¿½åŠ : O_CREAT | O_APPEND | O_WRONLY(ã¾ãŸã¯O_RDWR) | (O_BINARY) , S_IREAD | S_IWRITE
+//æ–°è¦: O_CREAT | O_TRUNC  | O_WRONLY(ã¾ãŸã¯O_RDWR) | (O_BINARY) , S_IREAD | S_IWRITE
+//èª­è¾¼: O_RDONLY                                     | (O_BINARY) 
 int myopen(const char* filename, int amode, int option)
 {
 #ifdef linux
@@ -62,22 +62,22 @@ int myopen(const char* filename, int amode, int option)
 #endif
 }
 // **************************************************************************
-// fd‚©‚çA‚Ps(CRLF‚©ALF’P“Æ‚ªŒ»‚ê‚é‚Ü‚Å)óM
-// CRLF‚Ííœ‚·‚éB
-// óM‚µ‚½ƒTƒCƒY‚ğreturn‚·‚éB
+// fdã‹ã‚‰ã€ï¼‘è¡Œ(CRLFã‹ã€LFå˜ç‹¬ãŒç¾ã‚Œã‚‹ã¾ã§)å—ä¿¡
+// CRLFã¯å‰Šé™¤ã™ã‚‹ã€‚
+// å—ä¿¡ã—ãŸã‚µã‚¤ã‚ºã‚’returnã™ã‚‹ã€‚
 // **************************************************************************
 int readLine(int fd, char* line_buf_p, int line_max)
 {
 	char byte_buf;
 	int  line_len = 0;
 	int	 recv_len;
-	// ‚PsóMÀs
+	// ï¼‘è¡Œå—ä¿¡å®Ÿè¡Œ
 	while (1) {
 		recv_len = read(fd, &byte_buf, 1);
-		if (recv_len != 1) { // óM¸”sƒ`ƒFƒbƒN
+		if (recv_len != 1) { // å—ä¿¡å¤±æ•—ãƒã‚§ãƒƒã‚¯
 			return (-1);
 		}
-		// CR/LFƒ`ƒFƒbƒN
+		// CR/LFãƒã‚§ãƒƒã‚¯
 		if (byte_buf == '\r') {
 			continue;
 		}
@@ -85,11 +85,11 @@ int readLine(int fd, char* line_buf_p, int line_max)
 			*line_buf_p = 0;
 			break;
 		}
-		// ƒoƒbƒtƒ@‚ÉƒZƒbƒg
+		// ãƒãƒƒãƒ•ã‚¡ã«ã‚»ãƒƒãƒˆ
 		*line_buf_p++ = byte_buf;
-		// óMƒoƒbƒtƒ@ƒTƒCƒYƒ`ƒFƒbƒN
+		// å—ä¿¡ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºãƒã‚§ãƒƒã‚¯
 		if (++line_len >= line_max) {
-			// ƒoƒbƒtƒ@ƒI[ƒo[ƒtƒ[ŒŸ’m
+			// ãƒãƒƒãƒ•ã‚¡ã‚ªãƒ¼ãƒãƒ¼ãƒ•ãƒ­ãƒ¼æ¤œçŸ¥
 			return (-1);
 		}
 	}
@@ -98,24 +98,24 @@ int readLine(int fd, char* line_buf_p, int line_max)
 #ifndef strrstr
 //*********************************************************
 // strrstr()
-//   •¶š—ñ ‚©‚ç •¶š—ñ ‚ğŒŸõ‚·‚éB
-//   ÅŒã ‚ÉŒ»‚ê‚½•¶š—ñ‚Ìæ“ª‚ğw‚· ƒ|ƒCƒ“ƒ^ ‚ğ•Ô‚·B
-//   •¶š—ñ‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚Í null ‚ğ•Ô‚·B
-//   pattern ‚ª ‹ó•¶š—ñ ‚Ìê‡‚Íí‚É •¶š—ñI’[ ‚ğ•Ô‚·B
-//   •¶š—ñI’[•¶š '\0' ‚ÍŒŸõ‘ÎÛ‚Æ‚È‚ç‚È‚¢B
-//   ”¼Šp‰pš ‚Ì ‘å•¶š‚Æ¬•¶š ‚ğ‹æ•Ê‚·‚éB
+//   æ–‡å­—åˆ— ã‹ã‚‰ æ–‡å­—åˆ— ã‚’æ¤œç´¢ã™ã‚‹ã€‚
+//   æœ€å¾Œ ã«ç¾ã‚ŒãŸæ–‡å­—åˆ—ã®å…ˆé ­ã‚’æŒ‡ã™ ãƒã‚¤ãƒ³ã‚¿ ã‚’è¿”ã™ã€‚
+//   æ–‡å­—åˆ—ãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã¯ null ã‚’è¿”ã™ã€‚
+//   pattern ãŒ ç©ºæ–‡å­—åˆ— ã®å ´åˆã¯å¸¸ã« æ–‡å­—åˆ—çµ‚ç«¯ ã‚’è¿”ã™ã€‚
+//   æ–‡å­—åˆ—çµ‚ç«¯æ–‡å­— '\0' ã¯æ¤œç´¢å¯¾è±¡ã¨ãªã‚‰ãªã„ã€‚
+//   åŠè§’è‹±å­— ã® å¤§æ–‡å­—ã¨å°æ–‡å­— ã‚’åŒºåˆ¥ã™ã‚‹ã€‚
 //
 // const char *string
-//   ŒŸõ‘ÎÛ‚Æ‚È‚é•¶š—ñ
+//   æ¤œç´¢å¯¾è±¡ã¨ãªã‚‹æ–‡å­—åˆ—
 //
 // const char *pattern
-//   •¶š—ñ‚©‚çŒŸõ‚·‚é•¶š—ñ
+//   æ–‡å­—åˆ—ã‹ã‚‰æ¤œç´¢ã™ã‚‹æ–‡å­—åˆ—
 //
 //*********************************************************
-char* // •¶š—ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+char* // æ–‡å­—åˆ—ã¸ã®ãƒã‚¤ãƒ³ã‚¿
 strrstr(const char* string, const char* pattern)
 {
-	// •¶š—ñI’[‚É’B‚·‚é‚Ü‚ÅŒŸõ‚ğŒJ‚è•Ô‚·B
+	// æ–‡å­—åˆ—çµ‚ç«¯ã«é”ã™ã‚‹ã¾ã§æ¤œç´¢ã‚’ç¹°ã‚Šè¿”ã™ã€‚
 	const char* last = NULL;
 	for (const char* p = string; ; p++) {
 		if (0 == *p) {
@@ -135,32 +135,32 @@ strrstr(const char* string, const char* pattern)
 //---------------------------------------------------------------------------
 const int wString::npos = (int)(-1);
 //---------------------------------------------------------------------------
-//’ÊíƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//é€šå¸¸ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 wString::wString(void)
 {
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	len = 0;
 	total = 1;
 	String = (char*)new char[1];
 	*String = 0;
 }
 //---------------------------------------------------------------------------
-//’ÊíƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//é€šå¸¸ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 wString::wString(int mylen)
 {
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	if (mylen < 0) mylen = 0;
 	len = 0;
-	//––”ö‚O‚Ì•ª
+	//æœ«å°¾ï¼ã®åˆ†
 	total = mylen + 1;
 	String = (char*)new char[mylen + 1];
 	*String = 0;
 }
 //---------------------------------------------------------------------------
-//•¶š—ñƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//æ–‡å­—åˆ—ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 wString::wString(const char* str)
 {
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	len = strlen(str);
 	if (len) {
 		total = len + 1;
@@ -178,10 +178,10 @@ wString::wString(const char* str)
 	}
 }
 //---------------------------------------------------------------------------
-//ƒRƒs[ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 wString::wString(const wString& str)
 {
-	//‰Šú‰»
+	//åˆæœŸåŒ–
 	len = str.len;
 	if (str.len) {
 		total = str.total;
@@ -196,13 +196,13 @@ wString::wString(const wString& str)
 	}
 }
 //---------------------------------------------------------------------------
-//ƒfƒXƒgƒ‰ƒNƒ^
+//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 wString::~wString()
 {
 	delete[] String;
 }
 //---------------------------------------------------------------------------
-//ƒfƒB[ƒvƒRƒs[ƒƒ\ƒbƒh
+//ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰
 //void wString::copy(wString* dst,const wString* src)
 //{
 //    src->myrealloc(src->total);
@@ -210,7 +210,7 @@ wString::~wString()
 //    dst->len = src->len;
 //}
 //---------------------------------------------------------------------------
-//ƒfƒB[ƒvƒRƒs[ƒƒ\ƒbƒh
+//ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰
 //void wString::copy(wString* dst,const wString& src)
 //{
 //    dst->myrealloc(src.total);
@@ -410,21 +410,21 @@ wString& wString::SetLength(const unsigned int num)
 	return *this;
 }
 //---------------------------------------------------------------------------
-// ”äŠr
+// æ¯”è¼ƒ
 //---------------------------------------------------------------------------
 int wString::compare(const wString& str) const
 {
 	return strcmp(String, str.String);
 }
 //---------------------------------------------------------------------------
-// ”äŠr
+// æ¯”è¼ƒ
 //---------------------------------------------------------------------------
 int wString::compare(const char* str) const
 {
 	return strcmp(String, str);
 }
 //---------------------------------------------------------------------------
-// ƒNƒŠƒA
+// ã‚¯ãƒªã‚¢
 //---------------------------------------------------------------------------
 void  wString::clear(void)
 {
@@ -434,7 +434,7 @@ void  wString::clear(void)
 	}
 }
 //---------------------------------------------------------------------------
-// •”•ª•¶š—ñ
+// éƒ¨åˆ†æ–‡å­—åˆ—
 //---------------------------------------------------------------------------
 wString  wString::SubString(int start, int mylen) const
 {
@@ -443,7 +443,7 @@ wString  wString::SubString(int start, int mylen) const
 	if (mylen > 0) {
 		memcpy(temp.String, String + start, mylen);
 		temp.String[mylen] = 0;
-		//’·‚³•s’èB”‚¦‚È‚¨‚·
+		//é•·ã•ä¸å®šã€‚æ•°ãˆãªãŠã™
 		temp.len = mylen;
 	}
 	return temp;
@@ -459,14 +459,14 @@ wString wString::substr(int start, int mylen) const
 	if (mylen > 0) {
 		memcpy(temp.String, String + start, mylen);
 		temp.String[mylen] = 0;
-		//’·‚³•s’èB”‚¦‚È‚¨‚·
+		//é•·ã•ä¸å®šã€‚æ•°ãˆãªãŠã™
 		temp.len = mylen;
 	}
 	return temp;
 }
 
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 int wString::find(const wString& str, size_t index) const
 {
@@ -479,7 +479,7 @@ int wString::find(const wString& str, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 int wString::find(const char* str, size_t index) const
 {
@@ -492,7 +492,7 @@ int wString::find(const char* str, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 int wString::find(char ch, size_t index) const
 {
@@ -505,7 +505,7 @@ int wString::find(char ch, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// s––‚©‚ç‚ÌŒŸõ
+// è¡Œæœ«ã‹ã‚‰ã®æ¤œç´¢
 //---------------------------------------------------------------------------
 int wString::rfind(const wString& str, size_t index) const
 {
@@ -518,9 +518,9 @@ int wString::rfind(const wString& str, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// s––‚©‚ç‚ÌŒŸõ
-// str:•¶š—ñ
-// index:ŠJnˆÊ’u(È—ª‰Â”\)
+// è¡Œæœ«ã‹ã‚‰ã®æ¤œç´¢
+// str:æ–‡å­—åˆ—
+// index:é–‹å§‹ä½ç½®(çœç•¥å¯èƒ½)
 //---------------------------------------------------------------------------
 int wString::rfind(const char* str, size_t index) const
 {
@@ -533,9 +533,9 @@ int wString::rfind(const char* str, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// s––‚©‚ç‚ÌŒŸõ
+// è¡Œæœ«ã‹ã‚‰ã®æ¤œç´¢
 // ch:char
-// index:ŠJnˆÊ’u(È—ª‰Â”\)
+// index:é–‹å§‹ä½ç½®(çœç•¥å¯èƒ½)
 //---------------------------------------------------------------------------
 int wString::rfind(char ch, size_t index) const
 {
@@ -548,7 +548,7 @@ int wString::rfind(char ch, size_t index) const
 	}
 }
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 //int wString::Pos(const char* pattern)
 //{
@@ -560,7 +560,7 @@ int wString::rfind(char ch, size_t index) const
 //    }
 //}
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 int wString::Pos(const char* pattern, int pos) const
 {
@@ -573,7 +573,7 @@ int wString::Pos(const char* pattern, int pos) const
 	}
 }
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 //int wString::Pos(wString& pattern, int pos)
 //{
@@ -586,35 +586,35 @@ int wString::Pos(const char* pattern, int pos) const
 //    }
 //}
 //---------------------------------------------------------------------------
-// ˆÊ’u
+// ä½ç½®
 //---------------------------------------------------------------------------
 int wString::Pos(const wString& pattern, int pos) const
 {
 	return Pos(pattern.String, pos);
 }
 //---------------------------------------------------------------------------
-//@Size
+//ã€€Size
 //---------------------------------------------------------------------------
 size_t  wString::size(void) const
 {
 	return (size_t)len;
 }
 //---------------------------------------------------------------------------
-//@Size
+//ã€€Size
 //---------------------------------------------------------------------------
 size_t  wString::length(void) const
 {
 	return (size_t)len;
 }
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 //---------------------------------------------------------------------------
 void wString::LoadFromFile(const wString& str)
 {
 	LoadFromFile(str.String);
 }
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 //---------------------------------------------------------------------------
 int wString::LoadFromFile(const char* FileName)
 {
@@ -640,13 +640,13 @@ int wString::LoadFromFile(const char* FileName)
 		len = read(handle, String, flen);
 		close(handle);
 		String[len] = 0;
-		//\0‚ª‚ ‚éê‡‚ğl‚¦‚ê‚Îstrlen‚Æ‚Á‚Ä‚Í‚¢‚¯‚È‚¢
+		//\0ãŒã‚ã‚‹å ´åˆã‚’è€ƒãˆã‚Œã°strlenã¨ã£ã¦ã¯ã„ã‘ãªã„
 		//len = strlen(String);
 	}
 	return 0;
 }
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 //---------------------------------------------------------------------------
 void wString::LoadFromCSV(const wString& str)
 {
@@ -663,7 +663,7 @@ int isNumber(char* str)
 }
 
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿
 //---------------------------------------------------------------------------
 void wString::LoadFromCSV(const char* FileName)
 {
@@ -674,16 +674,16 @@ void wString::LoadFromCSV(const char* FileName)
 	int first = 1;
 	fd = myopen(FileName, O_RDONLY | O_BINARY, S_IREAD);
 	if (fd < 0) {
-		printf("%sƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚Ü‚¹‚ñ\n", FileName);
+		printf("%sãƒ•ã‚¡ã‚¤ãƒ«ãŒé–‹ã‘ã¾ã›ã‚“\n", FileName);
 		return;
 	}
 
 	*this = "[";
-	//‚Ps–Ú‚Íƒ^ƒCƒgƒ‹
+	//ï¼‘è¡Œç›®ã¯ã‚¿ã‚¤ãƒˆãƒ«
 	while (true) {
 		ret = readLine(fd, s, sizeof(s));
 		if (ret < 0) break;
-		//•ª‰ğ‚·‚é
+		//åˆ†è§£ã™ã‚‹
 		char* p = strtok(s, ",");
 		int ptr = 0;
 		if (p) {
@@ -715,14 +715,14 @@ void wString::LoadFromCSV(const char* FileName)
 	return;
 }
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹‘‚«‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«æ›¸ãè¾¼ã¿
 //---------------------------------------------------------------------------
 int wString::SaveToFile(const wString& str)
 {
 	return SaveToFile(str.String);
 }
 //---------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹‘‚«‚İ
+// ãƒ•ã‚¡ã‚¤ãƒ«æ›¸ãè¾¼ã¿
 //---------------------------------------------------------------------------
 int wString::SaveToFile(const char* FileName)
 {
@@ -739,13 +739,13 @@ int wString::SaveToFile(const char* FileName)
 	return 0;
 }
 //---------------------------------------------------------------------------
-// ƒgƒŠƒ€
+// ãƒˆãƒªãƒ 
 //---------------------------------------------------------------------------
 wString wString::Trim(void)
 {
 	wString temp(*this);
 	if (temp.len) {
-		//æ“ª‚Ì‹ó”’“™‚ğ”²‚­
+		//å…ˆé ­ã®ç©ºç™½ç­‰ã‚’æŠœã
 		while (temp.len && *temp.String <= ' ') {
 #ifdef linux
 			char* src = temp.String;
@@ -758,7 +758,7 @@ wString wString::Trim(void)
 #endif
 			temp.len--;
 		}
-		//––”ö‚Ì‹ó”’“™‚ğ”²‚­
+		//æœ«å°¾ã®ç©ºç™½ç­‰ã‚’æŠœã
 		while (temp.len && temp.String[temp.len - 1] <= ' ') {
 			temp.String[--temp.len] = 0;
 		}
@@ -766,13 +766,13 @@ wString wString::Trim(void)
 	return temp;
 }
 //---------------------------------------------------------------------------
-// ƒgƒŠƒ€
+// ãƒˆãƒªãƒ 
 //---------------------------------------------------------------------------
 wString wString::RTrim(void)
 {
 	wString temp(*this);
 	if (temp.len) {
-		//––”ö‚Ì‹ó”’“™‚ğ”²‚­
+		//æœ«å°¾ã®ç©ºç™½ç­‰ã‚’æŠœã
 		while (temp.len && temp.String[temp.len - 1] <= ' ') {
 			temp.String[--temp.len] = 0;
 		}
@@ -780,35 +780,35 @@ wString wString::RTrim(void)
 	return temp;
 }
 //---------------------------------------------------------------------------
-// sentence•¶š—ñ‚Ìs––‚ÉAcut_char‚ª‚ ‚Á‚½‚Æ‚«Aíœ
+// sentenceæ–‡å­—åˆ—ã®è¡Œæœ«ã«ã€cut_charãŒã‚ã£ãŸã¨ãã€å‰Šé™¤
 //---------------------------------------------------------------------------
 void wString::Rtrimch(char* sentence, char cut_char)
 {
 	if (sentence == NULL || *sentence == 0) return;
 	char* source_p;
 	int         length, i;
-	length = strlen(sentence);        // •¶š—ñ’·Get
+	length = strlen(sentence);        // æ–‡å­—åˆ—é•·Get
 	source_p = sentence;
-	source_p += length;                 // ƒ[ƒNƒ|ƒCƒ“ƒ^‚ğ•¶š—ñ‚ÌÅŒã‚ÉƒZƒbƒgB
-	for (i = 0; i < length; i++) {       // •¶š—ñ‚Ì”‚¾‚¯ŒJ‚è•Ô‚µB
-		source_p--;                     // ˆê•¶š‚¸‚Â‘O‚ÖB
-		if (*source_p == cut_char) {     // íœƒLƒƒƒ‰ ƒqƒbƒg‚µ‚½ê‡íœ
+	source_p += length;                 // ãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒ³ã‚¿ã‚’æ–‡å­—åˆ—ã®æœ€å¾Œã«ã‚»ãƒƒãƒˆã€‚
+	for (i = 0; i < length; i++) {       // æ–‡å­—åˆ—ã®æ•°ã ã‘ç¹°ã‚Šè¿”ã—ã€‚
+		source_p--;                     // ä¸€æ–‡å­—ãšã¤å‰ã¸ã€‚
+		if (*source_p == cut_char) {     // å‰Šé™¤ã‚­ãƒ£ãƒ© ãƒ’ãƒƒãƒˆã—ãŸå ´åˆå‰Šé™¤
 			*source_p = '\0';
 		}
-		else {                          // ˆá‚¤ƒLƒƒƒ‰‚ªo‚Ä‚«‚½‚Æ‚±‚ë‚ÅI—¹B
+		else {                          // é•ã†ã‚­ãƒ£ãƒ©ãŒå‡ºã¦ããŸã¨ã“ã‚ã§çµ‚äº†ã€‚
 			break;
 		}
 	}
 	return;
 }
 //---------------------------------------------------------------------------
-// ƒgƒŠƒ€
+// ãƒˆãƒªãƒ 
 //---------------------------------------------------------------------------
 wString wString::LTrim(void)
 {
 	wString temp(*this);
 	if (temp.len) {
-		//æ“ª‚Ì‹ó”’“™‚ğ”²‚­
+		//å…ˆé ­ã®ç©ºç™½ç­‰ã‚’æŠœã
 		while (temp.len && *temp.String <= ' ') {
 			char* src = temp.String;
 			char* dst = src + 1;
@@ -827,21 +827,21 @@ wString wString::FileStats(const char* str, int mode)
 	struct stat      stat_buf;
 	wString buf;
 	if (stat(str, &stat_buf) == 0 && mode == 0) {
-		/* ƒtƒ@ƒCƒ‹î•ñ‚ğ•\¦ */
+		/* ãƒ•ã‚¡ã‚¤ãƒ«æƒ…å ±ã‚’è¡¨ç¤º */
 		buf.sprintf("{\"permission\":\"%o\",\"size\":%d,\"date\":\"%s\"}", stat_buf.st_mode, stat_buf.st_size, ctime(&stat_buf.st_mtime));
-		//printf("ƒfƒoƒCƒXID : %d\n",stat_buf.st_dev);
-		//printf("inode”Ô† : %d\n",stat_buf.st_ino);
-		//printf("ƒAƒNƒZƒX•ÛŒì : %o\n",stat_buf.st_mode );
-		//printf("ƒn[ƒhƒŠƒ“ƒN‚Ì” : %d\n",stat_buf.st_nlink);
-		//printf("Š—LÒ‚Ìƒ†[ƒUID : %d\n",stat_buf.st_uid);
-		//printf("Š—LÒ‚ÌƒOƒ‹[ƒvID : %d\n",stat_buf.st_gid);
-		//printf("ƒfƒoƒCƒXIDi“Áêƒtƒ@ƒCƒ‹‚Ìê‡j : %d\n",stat_buf.st_rdev);
-		//printf("—e—ÊiƒoƒCƒg’PˆÊj : %d\n",stat_buf.st_size);
-		//printf("ƒtƒ@ƒCƒ‹ƒVƒXƒeƒ€‚ÌƒuƒƒbƒNƒTƒCƒY : %d\n",stat_buf.st_blksize);
-		//printf("Š„‚è“–‚Ä‚ç‚ê‚½ƒuƒƒbƒN” : %d\n",stat_buf.st_blocks);
-		//printf("ÅIƒAƒNƒZƒX : %s",ctime(&stat_buf.st_atime));
-		//printf("ÅIC³ : %s",ctime(&stat_buf.st_mtime));
-		//printf("ÅIó‘Ô•ÏX : %s",ctime(&stat_buf.st_ctime));
+		//printf("ãƒ‡ãƒã‚¤ã‚¹ID : %d\n",stat_buf.st_dev);
+		//printf("inodeç•ªå· : %d\n",stat_buf.st_ino);
+		//printf("ã‚¢ã‚¯ã‚»ã‚¹ä¿è­· : %o\n",stat_buf.st_mode );
+		//printf("ãƒãƒ¼ãƒ‰ãƒªãƒ³ã‚¯ã®æ•° : %d\n",stat_buf.st_nlink);
+		//printf("æ‰€æœ‰è€…ã®ãƒ¦ãƒ¼ã‚¶ID : %d\n",stat_buf.st_uid);
+		//printf("æ‰€æœ‰è€…ã®ã‚°ãƒ«ãƒ¼ãƒ—ID : %d\n",stat_buf.st_gid);
+		//printf("ãƒ‡ãƒã‚¤ã‚¹IDï¼ˆç‰¹æ®Šãƒ•ã‚¡ã‚¤ãƒ«ã®å ´åˆï¼‰ : %d\n",stat_buf.st_rdev);
+		//printf("å®¹é‡ï¼ˆãƒã‚¤ãƒˆå˜ä½ï¼‰ : %d\n",stat_buf.st_size);
+		//printf("ãƒ•ã‚¡ã‚¤ãƒ«ã‚·ã‚¹ãƒ†ãƒ ã®ãƒ–ãƒ­ãƒƒã‚¯ã‚µã‚¤ã‚º : %d\n",stat_buf.st_blksize);
+		//printf("å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸãƒ–ãƒ­ãƒƒã‚¯æ•° : %d\n",stat_buf.st_blocks);
+		//printf("æœ€çµ‚ã‚¢ã‚¯ã‚»ã‚¹æ™‚åˆ» : %s",ctime(&stat_buf.st_atime));
+		//printf("æœ€çµ‚ä¿®æ­£æ™‚åˆ» : %s",ctime(&stat_buf.st_mtime));
+		//printf("æœ€çµ‚çŠ¶æ…‹å¤‰æ›´æ™‚åˆ» : %s",ctime(&stat_buf.st_ctime));
 	}
 	else {
 		//date
@@ -893,10 +893,10 @@ int wString::FileExists(const wString& str)
 	return FileExists(str.String);
 }
 //---------------------------------------------------------------------------
-//ƒpƒX•”•ª‚ğ’Šo
+//ãƒ‘ã‚¹éƒ¨åˆ†ã‚’æŠ½å‡º
 wString wString::ExtractFileDir(wString& str)
 {
-	//todo SJIS/EUC‘Î‰‚·‚é‚æ‚¤‚É
+	//todo SJIS/EUCå¯¾å¿œã™ã‚‹ã‚ˆã†ã«
 	wString temp(str);
 	int ptr = temp.LastDelimiter(DELIMITER);
 	temp.len = ptr;
@@ -908,7 +908,7 @@ int wString::CreateDir(const wString& str)
 {
 	int flag = 0;
 #ifdef linux
-	//0x777‚Å‚Í‚¿‚á‚ñ‚ÆƒtƒHƒ‹ƒ_‚Å‚«‚È‚¢
+	//0x777ã§ã¯ã¡ã‚ƒã‚“ã¨ãƒ•ã‚©ãƒ«ãƒ€ã§ããªã„
 	flag = (mkdir(str.String, 0777) != -1);
 #else
 	char work[2048];
@@ -921,8 +921,8 @@ int wString::CreateDir(const wString& str)
 	return flag;
 }
 //---------------------------------------------------------------------------
-//@TStringList‘Îô
-//  s”‚ğ•Ô‚·
+//ã€€TStringListå¯¾ç­–
+//  è¡Œæ•°ã‚’è¿”ã™
 //---------------------------------------------------------------------------
 //void wString::ResetLength(unsigned int num)
 //{
@@ -1051,12 +1051,12 @@ int wString::DirectoryExists(const wString& str)
 	return DirectoryExists(str.String);
 }
 /********************************************************************************/
-// sentence•¶š—ñ“à‚Ìkey•¶š—ñ‚ğrep•¶š—ñ‚Å’uŠ·‚·‚éB
-// sentence:Œ³•¶š—ñ
-// slen:Œ³•¶š—ñ‚Ì’·‚³
-// p:’uŠ·‘O‚ÌˆÊ’u
-// klen:’uŠ·‘O‚Ì’·‚³
-// rep:’uŠ·Œã•¶š—ñ
+// sentenceæ–‡å­—åˆ—å†…ã®keyæ–‡å­—åˆ—ã‚’repæ–‡å­—åˆ—ã§ç½®æ›ã™ã‚‹ã€‚
+// sentence:å…ƒæ–‡å­—åˆ—
+// slen:å…ƒæ–‡å­—åˆ—ã®é•·ã•
+// p:ç½®æ›å‰ã®ä½ç½®
+// klen:ç½®æ›å‰ã®é•·ã•
+// rep:ç½®æ›å¾Œæ–‡å­—åˆ—
 /********************************************************************************/
 void wString::replace_character_len(const char* sentence, int slen, const char* p, int klen, const char* rep)
 {
@@ -1065,17 +1065,17 @@ void wString::replace_character_len(const char* sentence, int slen, const char* 
 	int num;
 	if (klen == rlen) {
 		memcpy((void*)p, rep, rlen);
-		//‘O‹l‚ß’uŠ·‚»‚Ì‚Ü‚ÜƒRƒs[‚·‚ê‚Î‚¢‚¢
+		//å‰è©°ã‚ç½®æ›ãã®ã¾ã¾ã‚³ãƒ”ãƒ¼ã™ã‚Œã°ã„ã„
 	}
 	else if (klen > rlen) {
 		num = klen - rlen;
 		strcpy((char*)p, (char*)(p + num));
 		memcpy((void*)p, rep, rlen);
-		//’uŠ·•¶š‚ª’·‚¢‚Ì‚ÅŒã‹l‚ß‚·‚é
+		//ç½®æ›æ–‡å­—ãŒé•·ã„ã®ã§å¾Œè©°ã‚ã™ã‚‹
 	}
 	else {
 		num = rlen - klen;
-		//p‚©‚çrlen-klen‚¾‚¯‚Ì‚Î‚·
+		//pã‹ã‚‰rlen-klenã ã‘ã®ã°ã™
 		for (str = (char*)(sentence + slen + num); str > p + num; str--) {
 			*str = *(str - num);
 		}
@@ -1084,9 +1084,9 @@ void wString::replace_character_len(const char* sentence, int slen, const char* 
 	return;
 }
 //---------------------------------------------------------------------------
-// ƒtƒHƒ‹ƒ_‚Ìƒtƒ@ƒCƒ‹‚ğ”‚¦‚é
-// ˆø”@wString Path:
-// –ß’l@ƒtƒ@ƒCƒ‹ƒŠƒXƒgB‚Ù‚Á‚Ä‚¨‚¢‚Ä‚¢‚¢‚ªAƒRƒs[‚µ‚Ä‚Ù‚µ‚¢
+// ãƒ•ã‚©ãƒ«ãƒ€ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ•°ãˆã‚‹
+// å¼•æ•°ã€€wString Path:
+// æˆ»å€¤ã€€ãƒ•ã‚¡ã‚¤ãƒ«ãƒªã‚¹ãƒˆã€‚ã»ã£ã¦ãŠã„ã¦ã„ã„ãŒã€ã‚³ãƒ”ãƒ¼ã—ã¦ã»ã—ã„
 wString wString::EnumFolderjson(const wString& Path)
 {
 	//DIR                  *dir;
@@ -1095,9 +1095,9 @@ wString wString::EnumFolderjson(const wString& Path)
 	//wString              Path2;
 	//std::vector<wString> list;
 	//Path2 = Path;
-	////DirectoryƒI[ƒvƒ“
+	////Directoryã‚ªãƒ¼ãƒ—ãƒ³
 	//if ((dir = opendir(Path.String)) != NULL){
-	//    //ƒtƒ@ƒCƒ‹ƒŠƒXƒg
+	//    //ãƒ•ã‚¡ã‚¤ãƒ«ãƒªã‚¹ãƒˆ
 	//    while ((ent = readdir(dir)) != NULL){
 	//        if( strcmp(ent->d_name,"." ) != 0 &&
 	//        strcmp(ent->d_name,"..") != 0 ){
@@ -1122,15 +1122,15 @@ wString wString::EnumFolderjson(const wString& Path)
 	//    }
 	//    temp += "]";
 	//}else{
-	//    perror("ƒfƒBƒŒƒNƒgƒŠ‚ÌƒI[ƒvƒ“ƒGƒ‰[");
+	//    perror("ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ã‚ªãƒ¼ãƒ—ãƒ³ã‚¨ãƒ©ãƒ¼");
 	//    exit(1);
 	//}
 	return temp;
 }
 //---------------------------------------------------------------------------
-// ƒtƒHƒ‹ƒ_‚Ìƒtƒ@ƒCƒ‹‚ğ”‚¦‚é
-// ˆø”@wString Path:
-// –ß’l@ƒtƒ@ƒCƒ‹ƒŠƒXƒgB‚Ù‚Á‚Ä‚¨‚¢‚Ä‚¢‚¢‚ªAƒRƒs[‚µ‚Ä‚Ù‚µ‚¢
+// ãƒ•ã‚©ãƒ«ãƒ€ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ•°ãˆã‚‹
+// å¼•æ•°ã€€wString Path:
+// æˆ»å€¤ã€€ãƒ•ã‚¡ã‚¤ãƒ«ãƒªã‚¹ãƒˆã€‚ã»ã£ã¦ãŠã„ã¦ã„ã„ãŒã€ã‚³ãƒ”ãƒ¼ã—ã¦ã»ã—ã„
 wString wString::EnumFolder(const wString& Path)
 {
 	wString temp;
@@ -1168,9 +1168,9 @@ wString wString::EnumFolder(const wString& Path)
 	//wString              Path2;
 	//std::vector<wString> list;
 	//Path2 = Path;
-	////DirectoryƒI[ƒvƒ“
+	////Directoryã‚ªãƒ¼ãƒ—ãƒ³
 	//if ((dir = opendir(Path.String)) != NULL){
-	//    //ƒtƒ@ƒCƒ‹ƒŠƒXƒg
+	//    //ãƒ•ã‚¡ã‚¤ãƒ«ãƒªã‚¹ãƒˆ
 	//    while ((ent = readdir(dir)) != NULL){
 	//        if( strcmp(ent->d_name,"." ) != 0 &&
 	//        strcmp(ent->d_name,"..") != 0 ){
@@ -1191,7 +1191,7 @@ wString wString::EnumFolder(const wString& Path)
 	//        temp.Add(list[i]);
 	//    }
 	//}else{
-	//    perror("ƒfƒBƒŒƒNƒgƒŠ‚ÌƒI[ƒvƒ“ƒGƒ‰[");
+	//    perror("ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ã‚ªãƒ¼ãƒ—ãƒ³ã‚¨ãƒ©ãƒ¼");
 	//    exit(1);
 	//}
 #endif
@@ -1205,7 +1205,7 @@ int wString::vtsprintf(const char* fmt, va_list arg) {
 
 
 	while (*fmt) {
-		if (*fmt == '%') {        /* % ‚ÉŠÖ‚·‚éˆ— */
+		if (*fmt == '%') {        /* % ã«é–¢ã™ã‚‹å‡¦ç† */
 			zeroflag = width = 0;
 			fmt++;
 			if (*fmt == '0') {
@@ -1219,35 +1219,36 @@ int wString::vtsprintf(const char* fmt, va_list arg) {
 
 			/* printf ("zerof = %d,width = %d\n",zeroflag,width); */
 
-			//llu‚àlu‚àu‚à“¯‚¶
+			//lluã‚‚luã‚‚uã‚‚åŒã˜
 			while (*fmt == 'l' || *fmt == 'z') {
-				*fmt++;
+				//*fmt++;
+				fmt++;
 			}
 
 			switch (*fmt) {
-			case 'd':        /* 10i” */
+			case 'd':        /* 10é€²æ•° */
 				size = tsprintf_decimal(va_arg(arg, signed long), zeroflag, width);
 				break;
-			case 'u':        /* 10i” */
+			case 'u':        /* 10é€²æ•° */
 				size = tsprintf_decimalu(va_arg(arg, unsigned long), zeroflag, width);
 				break;
-			case 'o':        /* 8i” */
+			case 'o':        /* 8é€²æ•° */
 				size = tsprintf_octadecimal(va_arg(arg, unsigned long), zeroflag, width);
 				break;
-			case 'x':        /* 16i” 0-f */
+			case 'x':        /* 16é€²æ•° 0-f */
 				size = tsprintf_hexadecimal(va_arg(arg, unsigned long), 0, zeroflag, width);
 				break;
-			case 'X':        /* 16i” 0-F */
+			case 'X':        /* 16é€²æ•° 0-F */
 				size = tsprintf_hexadecimal(va_arg(arg, unsigned long), 1, zeroflag, width);
 				break;
-			case 'c':        /* ƒLƒƒƒ‰ƒNƒ^[ */
+			case 'c':        /* ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ */
 				size = tsprintf_char(va_arg(arg, int));
 				break;
-			case 's':        /* ASCIIZ•¶š—ñ */
+			case 's':        /* ASCIIZæ–‡å­—åˆ— */
 				size = tsprintf_string(va_arg(arg, char*));
 				break;
-			default:        /* ƒRƒ“ƒgƒ[ƒ‹ƒR[ƒhˆÈŠO‚Ì•¶š */
-			/* %%(%‚É‘Î‰)‚Í‚±‚±‚Å‘Î‰‚³‚ê‚é */
+			default:        /* ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã‚³ãƒ¼ãƒ‰ä»¥å¤–ã®æ–‡å­— */
+			/* %%(%ã«å¯¾å¿œ)ã¯ã“ã“ã§å¯¾å¿œã•ã‚Œã‚‹ */
 				len++;
 				*this += *fmt;
 				break;
@@ -1266,29 +1267,29 @@ int wString::vtsprintf(const char* fmt, va_list arg) {
 
 
 /*
-”’l => 10i•¶š—ñ•ÏŠ·
+æ•°å€¤ => 10é€²æ–‡å­—åˆ—å¤‰æ›
 */
 int wString::tsprintf_decimal(signed long val, int zerof, int width)
 {
-	//––”ö‚O‚ğ•ÛØ
+	//æœ«å°¾ï¼ã‚’ä¿è¨¼
 	char tmp[22] = { 0 };
 	char* ptmp = tmp + 20;
 	int len = 0;
 	int minus = 0;
 
-	if (!val) {        /* w’è’l‚ª0‚Ìê‡ */
+	if (!val) {        /* æŒ‡å®šå€¤ãŒ0ã®å ´åˆ */
 		*(ptmp--) = '0';
 		len++;
 	}
 	else {
-		/* ƒ}ƒCƒiƒX‚Ì’l‚Ìê‡‚É‚Í2‚Ì•â”‚ğæ‚é */
+		/* ãƒã‚¤ãƒŠã‚¹ã®å€¤ã®å ´åˆã«ã¯2ã®è£œæ•°ã‚’å–ã‚‹ */
 		if (val < 0) {
 			val = ~val;
 			val++;
 			minus = 1;
 		}
 		while (val && len < 19) {
-			/* ƒoƒbƒtƒ@ƒAƒ“ƒ_[ƒtƒ[‘Îô */
+			/* ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒ³ãƒ€ãƒ¼ãƒ•ãƒ­ãƒ¼å¯¾ç­– */
 				//if (len >= 19){
 				//    break;
 				//}
@@ -1301,7 +1302,7 @@ int wString::tsprintf_decimal(signed long val, int zerof, int width)
 
 	}
 
-	/* •„†AŒ…‡‚í‚¹‚ÉŠÖ‚·‚éˆ— */
+	/* ç¬¦å·ã€æ¡åˆã‚ã›ã«é–¢ã™ã‚‹å‡¦ç† */
 	if (zerof) {
 		if (minus) {
 			width--;
@@ -1329,7 +1330,7 @@ int wString::tsprintf_decimal(signed long val, int zerof, int width)
 	return (len);
 }
 /*
-”’l => 10i•¶š—ñ•ÏŠ·
+æ•°å€¤ => 10é€²æ–‡å­—åˆ—å¤‰æ›
 */
 int wString::tsprintf_decimalu(unsigned long val, int zerof, int width)
 {
@@ -1338,13 +1339,13 @@ int wString::tsprintf_decimalu(unsigned long val, int zerof, int width)
 	int len = 0;
 	int minus = 0;
 
-	if (!val) {        /* w’è’l‚ª0‚Ìê‡ */
+	if (!val) {        /* æŒ‡å®šå€¤ãŒ0ã®å ´åˆ */
 		*(ptmp--) = '0';
 		len++;
 	}
 	else {
 		while (val) {
-			/* ƒoƒbƒtƒ@ƒAƒ“ƒ_[ƒtƒ[‘Îô */
+			/* ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒ³ãƒ€ãƒ¼ãƒ•ãƒ­ãƒ¼å¯¾ç­– */
 			if (len >= 19) {
 				break;
 			}
@@ -1356,7 +1357,7 @@ int wString::tsprintf_decimalu(unsigned long val, int zerof, int width)
 		}
 	}
 
-	/* •„†AŒ…‡‚í‚¹‚ÉŠÖ‚·‚éˆ— */
+	/* ç¬¦å·ã€æ¡åˆã‚ã›ã«é–¢ã™ã‚‹å‡¦ç† */
 	if (zerof) {
 		if (minus) {
 			width--;
@@ -1381,7 +1382,7 @@ int wString::tsprintf_decimalu(unsigned long val, int zerof, int width)
 	return (len);
 }
 /*
-”’l => 8i•¶š—ñ•ÏŠ·
+æ•°å€¤ => 8é€²æ–‡å­—åˆ—å¤‰æ›
 */
 int wString::tsprintf_octadecimal(unsigned long val, int zerof, int width)
 {
@@ -1390,13 +1391,13 @@ int wString::tsprintf_octadecimal(unsigned long val, int zerof, int width)
 	int len = 0;
 	int minus = 0;
 
-	if (!val) {        /* w’è’l‚ª0‚Ìê‡ */
+	if (!val) {        /* æŒ‡å®šå€¤ãŒ0ã®å ´åˆ */
 		*(ptmp--) = '0';
 		len++;
 	}
 	else {
 		while (val) {
-			/* ƒoƒbƒtƒ@ƒAƒ“ƒ_[ƒtƒ[‘Îô */
+			/* ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒ³ãƒ€ãƒ¼ãƒ•ãƒ­ãƒ¼å¯¾ç­– */
 			if (len >= 19) {
 				break;
 			}
@@ -1408,7 +1409,7 @@ int wString::tsprintf_octadecimal(unsigned long val, int zerof, int width)
 		}
 	}
 
-	/* •„†AŒ…‡‚í‚¹‚ÉŠÖ‚·‚éˆ— */
+	/* ç¬¦å·ã€æ¡åˆã‚ã›ã«é–¢ã™ã‚‹å‡¦ç† */
 	if (zerof) {
 		if (minus) {
 			width--;
@@ -1433,7 +1434,7 @@ int wString::tsprintf_octadecimal(unsigned long val, int zerof, int width)
 	return (len);
 }
 /*
-”’l => 16i•¶š—ñ•ÏŠ·
+æ•°å€¤ => 16é€²æ–‡å­—åˆ—å¤‰æ›
 */
 int wString::tsprintf_hexadecimal(unsigned long val, int capital, int zerof, int width)
 {
@@ -1442,7 +1443,7 @@ int wString::tsprintf_hexadecimal(unsigned long val, int capital, int zerof, int
 	int len = 0;
 	char str_a;
 
-	/* A`F‚ğ‘å•¶š‚É‚·‚é‚©¬•¶š‚É‚·‚é‚©Ø‚è‘Ö‚¦‚é */
+	/* Aï½Fã‚’å¤§æ–‡å­—ã«ã™ã‚‹ã‹å°æ–‡å­—ã«ã™ã‚‹ã‹åˆ‡ã‚Šæ›¿ãˆã‚‹ */
 	if (capital) {
 		str_a = 'A';
 	}
@@ -1450,13 +1451,13 @@ int wString::tsprintf_hexadecimal(unsigned long val, int capital, int zerof, int
 		str_a = 'a';
 	}
 
-	if (!val) {        /* w’è’l‚ª0‚Ìê‡ */
+	if (!val) {        /* æŒ‡å®šå€¤ãŒ0ã®å ´åˆ */
 		*(ptmp--) = '0';
 		len++;
 	}
 	else {
 		while (val) {
-			/* ƒoƒbƒtƒ@ƒAƒ“ƒ_[ƒtƒ[‘Îô */
+			/* ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒ³ãƒ€ãƒ¼ãƒ•ãƒ­ãƒ¼å¯¾ç­– */
 			if (len >= 18) {
 				break;
 			}
@@ -1469,7 +1470,7 @@ int wString::tsprintf_hexadecimal(unsigned long val, int capital, int zerof, int
 				*ptmp += '0';
 			}
 
-			val >>= 4;        /* 16‚ÅŠ„‚é */
+			val >>= 4;        /* 16ã§å‰²ã‚‹ */
 			ptmp--;
 			len++;
 		}
@@ -1484,7 +1485,7 @@ int wString::tsprintf_hexadecimal(unsigned long val, int capital, int zerof, int
 }
 
 /*
-”’l => 1•¶šƒLƒƒƒ‰ƒNƒ^•ÏŠ·
+æ•°å€¤ => 1æ–‡å­—ã‚­ãƒ£ãƒ©ã‚¯ã‚¿å¤‰æ›
 */
 int wString::tsprintf_char(int ch)
 {
@@ -1493,7 +1494,7 @@ int wString::tsprintf_char(int ch)
 }
 
 /*
-”’l => ASCIIZ•¶š—ñ•ÏŠ·
+æ•°å€¤ => ASCIIZæ–‡å­—åˆ—å¤‰æ›
 */
 int wString::tsprintf_string(char* str)
 {
@@ -1502,7 +1503,7 @@ int wString::tsprintf_string(char* str)
 }
 #endif
 //---------------------------------------------------------------------------
-//wString ‰Â•Ïˆø”
+//wString å¯å¤‰å¼•æ•°
 int wString::sprintf(const char* format, ...)
 {
 #ifndef va_copy
@@ -1515,14 +1516,14 @@ int wString::sprintf(const char* format, ...)
 	return len;
 #else
 	int stat;
-	//‰Â•Ïˆø”‚ğ‚Q‚Âì‚é
+	//å¯å¤‰å¼•æ•°ã‚’ï¼’ã¤ä½œã‚‹
 	va_list ap1, ap2;
 	va_start(ap1, format);
 	va_copy(ap2, ap1);
-	//Å‰‚Íƒ_ƒ~[‚Å•¶š—ñ’·‚ğƒVƒ~ƒ…ƒŒ[ƒg
+	//æœ€åˆã¯ãƒ€ãƒŸãƒ¼ã§æ–‡å­—åˆ—é•·ã‚’ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆ
 	stat = vsnprintf(String, 0, format, ap1);
 	SetLength(stat + 1);
-	//ÀÛ‚Éo—Í
+	//å®Ÿéš›ã«å‡ºåŠ›
 	stat = vsprintf(String, format, ap2);
 	va_end(ap1);
 	va_end(ap2);
@@ -1531,7 +1532,7 @@ int wString::sprintf(const char* format, ...)
 #endif
 }
 //---------------------------------------------------------------------------
-//wString ‰Â•Ïˆø”
+//wString å¯å¤‰å¼•æ•°
 int wString::cat_sprintf(const char* format, ...)
 {
 #ifndef va_copy
@@ -1543,14 +1544,14 @@ int wString::cat_sprintf(const char* format, ...)
 	return status;
 #else
 	int stat;
-	//‰Â•Ïˆø”‚ğ‚Q‚Âì‚é
+	//å¯å¤‰å¼•æ•°ã‚’ï¼’ã¤ä½œã‚‹
 	va_list ap1, ap2;
 	va_start(ap1, format);
 	va_copy(ap2, ap1);
-	//Å‰‚Íƒ_ƒ~[‚Å•¶š—ñ’·‚ğƒVƒ~ƒ…ƒŒ[ƒg
+	//æœ€åˆã¯ãƒ€ãƒŸãƒ¼ã§æ–‡å­—åˆ—é•·ã‚’ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆ
 	stat = vsnprintf(String, 0, format, ap1);
 	SetLength(stat + len + 1);
-	//ÀÛ‚Éo—Í
+	//å®Ÿéš›ã«å‡ºåŠ›
 	stat = vsprintf(String + len, format, ap2);
 	va_end(ap1);
 	va_end(ap2);
@@ -1559,13 +1560,13 @@ int wString::cat_sprintf(const char* format, ...)
 #endif
 }
 //---------------------------------------------------------------------------
-//•¶š—ñ‚ğƒfƒŠƒ~ƒ^‚ÅØ‚Á‚ÄAƒfƒŠƒ~ƒ^Œã‚Ì•¶š‚ğ•Ô‚·
-//ˆø”
-//wString str           :“ü—Í•¶š—ñ
-//const char* delimstr  :Ø’f•¶š—ñ
-//–ß‚è’l
-//wString               :Ø’fŒã‚Ì•¶š—ñ
-//Œ©‚Â‚©‚ç‚È‚¢ê‡‚Í’·‚³‚O‚Ì•¶š—ñ
+//æ–‡å­—åˆ—ã‚’ãƒ‡ãƒªãƒŸã‚¿ã§åˆ‡ã£ã¦ã€ãƒ‡ãƒªãƒŸã‚¿å¾Œã®æ–‡å­—ã‚’è¿”ã™
+//å¼•æ•°
+//wString str           :å…¥åŠ›æ–‡å­—åˆ—
+//const char* delimstr  :åˆ‡æ–­æ–‡å­—åˆ—
+//æˆ»ã‚Šå€¤
+//wString               :åˆ‡æ–­å¾Œã®æ–‡å­—åˆ—
+//è¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã¯é•·ã•ï¼ã®æ–‡å­—åˆ—
 wString wString::strsplit(const char* delimstr)
 {
 
@@ -1595,15 +1596,15 @@ void wString::myrealloc(const int newsize)
 		String = tmp;
 	}
 	else {
-		//w’èƒTƒCƒY‚ªŒ³‚æ‚è¬‚³‚¢‚Ì‚Å‰½‚à‚µ‚È‚¢
+		//æŒ‡å®šã‚µã‚¤ã‚ºãŒå…ƒã‚ˆã‚Šå°ã•ã„ã®ã§ä½•ã‚‚ã—ãªã„
 	}
 }
 //---------------------------------------------------------------------------
-//HTML“Áê•¶š‚É•ÏŠ·
+//HTMLç‰¹æ®Šæ–‡å­—ã«å¤‰æ›
 wString wString::htmlspecialchars(void)
 {
 	wString temp;
-	// ˆø”ƒ`ƒFƒbƒN
+	// å¼•æ•°ãƒã‚§ãƒƒã‚¯
 	char* ptr = String;
 	for (unsigned int is = 0; is < len; is++) {
 		switch (*ptr) {
@@ -1620,40 +1621,40 @@ wString wString::htmlspecialchars(void)
 }
 //---------------------------------------------------------------------------
 // **************************************************************************
-//  URIƒGƒ“ƒR[ƒh‚ğs‚¢‚Ü‚·.
-//  ‹@”\ : URIƒfƒR[ƒh‚ğs‚¤
-//  ‘® : int uri_encode
+//  URIã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã‚’è¡Œã„ã¾ã™.
+//  æ©Ÿèƒ½ : URIãƒ‡ã‚³ãƒ¼ãƒ‰ã‚’è¡Œã†
+//  æ›¸å¼ : int uri_encode
 //  (char* dst,size_t dst_len,const char* src,int src_len);
-//  ˆø” : dst •ÏŠ·‚µ‚½•¶š‚Ì‘‚«o‚µæ.
-//                 dst_len •ÏŠ·‚µ‚½•¶š‚Ì‘‚«o‚µæ‚ÌÅ‘å’·.
-//                 src •ÏŠ·Œ³‚Ì•¶š.
-//                 src_len •ÏŠ·Œ³‚Ì•¶š‚Ì’·‚³.
-//  •Ô’l : ƒGƒ“ƒR[ƒh‚µ‚½•¶š‚Ì”(‚»‚Ì‚Ü‚Ü‚àŠÜ‚Ş)
+//  å¼•æ•° : dst å¤‰æ›ã—ãŸæ–‡å­—ã®æ›¸ãå‡ºã—å…ˆ.
+//                 dst_len å¤‰æ›ã—ãŸæ–‡å­—ã®æ›¸ãå‡ºã—å…ˆã®æœ€å¤§é•·.
+//                 src å¤‰æ›å…ƒã®æ–‡å­—.
+//                 src_len å¤‰æ›å…ƒã®æ–‡å­—ã®é•·ã•.
+//  è¿”å€¤ : ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã—ãŸæ–‡å­—ã®æ•°(ãã®ã¾ã¾ã‚‚å«ã‚€)
 // **************************************************************************
 wString wString::uri_encode(void)
 {
 	unsigned int is;
 	wString dst;
 	char work[8];
-	// ˆø”ƒ`ƒFƒbƒN
+	// å¼•æ•°ãƒã‚§ãƒƒã‚¯
 	for (is = 0; is < len; is++) {
-		/* ' '(space) ‚Í‚¿‚Æ“Á•Êˆµ‚¢‚É‚µ‚È‚¢‚Æ‚Ü‚¸‚¢ */
+		/* ' '(space) ã¯ã¡ã¨ç‰¹åˆ¥æ‰±ã„ã«ã—ãªã„ã¨ã¾ãšã„ */
 		if (String[is] == ' ') {
 			dst += "%20";
-			/* ƒGƒ“ƒR[ƒh‚µ‚È‚¢•¶š‘SˆõW‡ */
+			/* ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã—ãªã„æ–‡å­—å…¨å“¡é›†åˆ */
 			//        }else if ( strchr("!$()*,-./:;?@[]^_`{}~", String[is]) != NULL ){
 		}
 		else if (strchr("!$()*,-.:;/?@[]^_`{}~", String[is]) != NULL) {
 			dst += String[is];
-			/* ƒAƒ‹ƒtƒ@ƒxƒbƒg‚Æ”š‚ÍƒGƒ“ƒR[ƒh‚¹‚¸‚»‚Ì‚Ü‚Ü */
+			/* ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆã¨æ•°å­—ã¯ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ã›ãšãã®ã¾ã¾ */
 		}
 		else if (isalnum(String[is])) {
 			dst += String[is];
 		}
-		/* \ƒ}[ƒN‚ÍƒGƒ“ƒR[ƒh */
+		/* \ãƒãƒ¼ã‚¯ã¯ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ */
 		else if (String[is] == '\\') {
 			dst += "%5c";
-			/* ‚»‚êˆÈŠO‚Í‚·‚×‚ÄƒGƒ“ƒR[ƒh */
+			/* ãã‚Œä»¥å¤–ã¯ã™ã¹ã¦ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰ */
 		}
 		else {
 			::sprintf(work, "%%%2X", (unsigned char)String[is]);
@@ -1691,7 +1692,7 @@ int   wString::FileCopy(const char* fname_r, const char* fname_w)
 	return 0;
 }
 //---------------------------------------------------------------------------
-//QUOTE,ESCAPE,NULL‚ğ•ÛŒì‚·‚é
+//QUOTE,ESCAPE,NULLã‚’ä¿è­·ã™ã‚‹
 wString wString::addSlashes(void)
 {
 	wString tmp;
@@ -1704,13 +1705,13 @@ wString wString::addSlashes(void)
 	return tmp;
 }
 // **************************************************************************
-// URIƒfƒR[ƒh‚ğs‚¢‚Ü‚·.
-//  ‹@”\ : URIƒfƒR[ƒh‚ğs‚¤
-//  ˆø” : dst •ÏŠ·‚µ‚½•¶š‚Ì‘‚«o‚µæ.
-//                dst_len •ÏŠ·‚µ‚½•¶š‚Ì‘‚«o‚µæ‚ÌÅ‘å’·.
-//                src •ÏŠ·Œ³‚Ì•¶š.
-//                src_len •ÏŠ·Œ³‚Ì•¶š‚Ì’·‚³.
-// •Ô’l : ƒfƒR[ƒh‚µ‚½•¶š‚Ì”(‚»‚Ì‚Ü‚Ü‚àŠÜ‚Ş)
+// URIãƒ‡ã‚³ãƒ¼ãƒ‰ã‚’è¡Œã„ã¾ã™.
+//  æ©Ÿèƒ½ : URIãƒ‡ã‚³ãƒ¼ãƒ‰ã‚’è¡Œã†
+//  å¼•æ•° : dst å¤‰æ›ã—ãŸæ–‡å­—ã®æ›¸ãå‡ºã—å…ˆ.
+//                dst_len å¤‰æ›ã—ãŸæ–‡å­—ã®æ›¸ãå‡ºã—å…ˆã®æœ€å¤§é•·.
+//                src å¤‰æ›å…ƒã®æ–‡å­—.
+//                src_len å¤‰æ›å…ƒã®æ–‡å­—ã®é•·ã•.
+// è¿”å€¤ : ãƒ‡ã‚³ãƒ¼ãƒ‰ã—ãŸæ–‡å­—ã®æ•°(ãã®ã¾ã¾ã‚‚å«ã‚€)
 // **************************************************************************
 unsigned char htoc(unsigned char x)
 {
@@ -1725,7 +1726,7 @@ wString wString::uri_decode()
 	unsigned char   code;
 	wString dst;
 	// =================
-	// ƒƒCƒ“ƒ‹[ƒv
+	// ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒ—
 	// =================
 	for (i = 0; i < len && String[i] != '\0'; i++) {
 		if (String[i] == '%') {
@@ -1821,7 +1822,7 @@ int wString::header(const char* str, int flag, int status)
 			int count = getLines();
 			wString str2;
 			str2.sprintf("%s%s", head, body);
-			//‚ ‚ê‚Î“ü‚ê‘Ö‚¦
+			//ã‚ã‚Œã°å…¥ã‚Œæ›¿ãˆ
 			for (int i = 0; i < count; i++) {
 				wString tmp = GetListString(i);
 				if (strncmp(tmp.c_str(), head, strlen(head)) == 0) {
@@ -1829,7 +1830,7 @@ int wString::header(const char* str, int flag, int status)
 					return 0;
 				}
 			}
-			//‚È‚¯‚ê‚Î’Ç‰Á
+			//ãªã‘ã‚Œã°è¿½åŠ 
 			Add(str2);
 			return 0;
 		}
@@ -1837,10 +1838,10 @@ int wString::header(const char* str, int flag, int status)
 	return 1;
 }
 /********************************************************************************/
-// “ú–{Œê•¶šƒR[ƒh•ÏŠ·B
-// (libnkf‚Ìƒ‰ƒbƒp[ŠÖ”)
+// æ—¥æœ¬èªæ–‡å­—ã‚³ãƒ¼ãƒ‰å¤‰æ›ã€‚
+// (libnkfã®ãƒ©ãƒƒãƒ‘ãƒ¼é–¢æ•°)
 //
-//      ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚éŒ`®‚ÍˆÈ‰º‚Ì’Ê‚èB
+//      ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹å½¢å¼ã¯ä»¥ä¸‹ã®é€šã‚Šã€‚
 //              in_flag:        CODE_AUTO, CODE_SJIS, CODE_EUC, CODE_UTF8, CODE_UTF16
 //              out_flag:       CODE_SJIS, CODE_EUC
 /********************************************************************************/
@@ -1851,7 +1852,7 @@ void wString::convert_language_code(const unsigned char* in, size_t len, int in_
 	out = (unsigned char*)(new char[len * 3]);
 	memset(nkf_option, '\0', sizeof(nkf_option));
 	//=====================================================================
-	// in_flag, out_flag‚ğ‚İ‚ÄAlibnkf‚Ö‚ÌƒIƒvƒVƒ‡ƒ“‚ğ‘g‚İ—§‚Ä‚éB
+	// in_flag, out_flagã‚’ã¿ã¦ã€libnkfã¸ã®ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’çµ„ã¿ç«‹ã¦ã‚‹ã€‚
 	//=====================================================================
 	switch (in_flag)
 	{
@@ -1886,7 +1887,7 @@ void wString::convert_language_code(const unsigned char* in, size_t len, int in_
 		break;
 	}
 	//=================================================
-	// libnkf Às
+	// libnkf å®Ÿè¡Œ
 	//=================================================
 	nkf((const char*)in, (char*)out, len, (const char*)nkf_option);
 	strcpy((char*)in, (char*)out);
@@ -1895,10 +1896,10 @@ void wString::convert_language_code(const unsigned char* in, size_t len, int in_
 	return;
 }
 /********************************************************************************/
-// “ú–{Œê•¶šƒR[ƒh•ÏŠ·B
-// (libnkf‚Ìƒ‰ƒbƒp[ŠÖ”)
+// æ—¥æœ¬èªæ–‡å­—ã‚³ãƒ¼ãƒ‰å¤‰æ›ã€‚
+// (libnkfã®ãƒ©ãƒƒãƒ‘ãƒ¼é–¢æ•°)
 //
-//      ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚éŒ`®‚ÍˆÈ‰º‚Ì’Ê‚èB
+//      ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ã‚‹å½¢å¼ã¯ä»¥ä¸‹ã®é€šã‚Šã€‚
 //              in_flag:        CODE_AUTO, CODE_SJIS, CODE_EUC, CODE_UTF8, CODE_UTF16
 //              out_flag:       CODE_SJIS, CODE_EUC
 /********************************************************************************/
@@ -1906,7 +1907,7 @@ wString wString::nkfcnv(const wString& option)
 {
 	wString ptr(len * 3);
 	//=================================================
-	// libnkf Às
+	// libnkf å®Ÿè¡Œ
 	//=================================================
 	nkf((const char*)String, (char*)ptr.c_str(), len * 3, (const char*)option.c_str());
 	ptr.len = strlen(ptr.c_str());
@@ -1927,8 +1928,8 @@ void wString::Add(const wString& str)
 }
 
 //---------------------------------------------------------------------------
-//@TStringList‘Îô
-//  s”‚ğ•Ô‚·
+//ã€€TStringListå¯¾ç­–
+//  è¡Œæ•°ã‚’è¿”ã™
 //---------------------------------------------------------------------------
 int wString::getLines(void)
 {
@@ -1947,10 +1948,10 @@ int wString::getLines(void)
 }
 
 //---------------- -----------------------------------------------------------
-//@TStringList‘Îô
-//  s”‚ğ•Ô‚·
-//@ƒŠƒGƒ“ƒgƒ‰ƒ“ƒg‚Å‚È‚¢‚±‚Æ‚É’ˆÓ
-//@–ß‚è’l‚Íg‚¢Ì‚Ä
+//ã€€TStringListå¯¾ç­–
+//  è¡Œæ•°ã‚’è¿”ã™
+//ã€€ãƒªã‚¨ãƒ³ãƒˆãƒ©ãƒ³ãƒˆã§ãªã„ã“ã¨ã«æ³¨æ„
+//ã€€æˆ»ã‚Šå€¤ã¯ä½¿ã„æ¨ã¦
 //---------------- -----------------------------------------------------------
 bool wString::SetListString(wString& src, int pos)
 {
@@ -1959,12 +1960,12 @@ bool wString::SetListString(wString& src, int pos)
 	return flag;
 }
 //---------------- -----------------------------------------------------------
-//@TStringList‘Îô
-//  poss–Ú(0start)‚Édst‚ğ‘}“ü
+//ã€€TStringListå¯¾ç­–
+//  posè¡Œç›®(0start)ã«dstã‚’æŒ¿å…¥
 //---------------- -----------------------------------------------------------
 bool wString::SetListString(const char* dst, int pos)
 {
-	//s”‚ª‘½‚¢
+	//è¡Œæ•°ãŒå¤šã„
 	std::vector<wString> work;
 	int count = 0;
 	int ptr = 0;
@@ -1989,15 +1990,15 @@ bool wString::SetListString(const char* dst, int pos)
 			ptr++;
 		}
 	}
-	//s––‚Écrlf‚ª‚È‚©‚Á‚½ê‡‚É‘Î‰
+	//è¡Œæœ«ã«crlfãŒãªã‹ã£ãŸå ´åˆã«å¯¾å¿œ
 	if (ptr - last - cchar) {
 		count++;
 		work.push_back(substr(last, ptr - last - cchar));
 	}
-	//—v‘f’Ç‰Á
+	//è¦ç´ è¿½åŠ 
 	if (0 <= pos && pos <= count) {
 		work[pos] = dst;
-		//Œ³‚ğÁ‚·
+		//å…ƒã‚’æ¶ˆã™
 		clear();
 		for (size_t i = 0; i < work.size(); i++) {
 			*this += work[i] + "\r\n";
@@ -2005,20 +2006,20 @@ bool wString::SetListString(const char* dst, int pos)
 		return true;
 	}
 	else {
-		//‚È‚É‚à‚µ‚È‚¢
+		//ãªã«ã‚‚ã—ãªã„
 		return false;
 	}
 }
 //---------------------------------------------------------------------------
-//@TStringList‘Îô
-//@poss–Ú‚Ì•¶š—ñ‚ğ•Ô‚·
+//ã€€TStringListå¯¾ç­–
+//ã€€posè¡Œç›®ã®æ–‡å­—åˆ—ã‚’è¿”ã™
 wString wString::GetListString(int pos)
 {
 	int   lcount = 0;
 	int   ptr = 0;
 	int   curptr = 0;
 	int   lstptr;
-	int   spcnt = 0;//\r\n‚Ü‚½‚Í\n‚Ì•¶š”
+	int   spcnt = 0;//\r\nã¾ãŸã¯\nã®æ–‡å­—æ•°
 	while (String[ptr]) {
 		if (String[ptr] == '\r') {
 			ptr++;
@@ -2039,33 +2040,33 @@ wString wString::GetListString(int pos)
 }
 #if 0
 //---------------------------------------------------------------------------
-//HTTP‚æ‚è•¶š—ñƒf[ƒ^‚ğæ“¾
-//ˆø”
+//HTTPã‚ˆã‚Šæ–‡å­—åˆ—ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
+//å¼•æ•°
 // char* src    :URL
-// off_t offset :“Ç‚İ‚İƒIƒtƒZƒbƒg
-//–ß‚è’l
-// wString&     :“Ç‚İ‚ñ‚¾•¶š—ñB¸”s‚µ‚½‚Æ‚«‚Í’·‚³‚O
+// off_t offset :èª­ã¿è¾¼ã¿ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+//æˆ»ã‚Šå€¤
+// wString&     :èª­ã¿è¾¼ã‚“ã æ–‡å­—åˆ—ã€‚å¤±æ•—ã—ãŸã¨ãã¯é•·ã•ï¼
 //---------------------------------------------------------------------------
 wString wString::HTTPGet(const char* url, off_t offset)
 {
-	int         recv_len;                       //“Ç‚İæ‚è’·‚³
+	int         recv_len;                       //èª­ã¿å–ã‚Šé•·ã•
 	wString     buf;
 	wString     ptr;
-	wString     host;                           //ƒzƒXƒg–¼
-	wString     target;                         //ƒtƒ@ƒCƒ‹–¼
+	wString     host;                           //ãƒ›ã‚¹ãƒˆå
+	wString     target;                         //ãƒ•ã‚¡ã‚¤ãƒ«å
 	int         work1;
 	int         work2;
 	int         work3;
-	SOCKET      server_socket;                  //ƒT[ƒo[ƒ\ƒPƒbƒg
+	SOCKET      server_socket;                  //ã‚µãƒ¼ãƒãƒ¼ã‚½ã‚±ãƒƒãƒˆ
 	int         server_port = HTTP_SERVER_PORT;
-	//o—Íƒtƒ@ƒCƒ‹‚Ìİ’è
+	//å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã®è¨­å®š
 	// ================
-	// À‘Ì“]‘—ŠJn
+	// å®Ÿä½“è»¢é€é–‹å§‹
 	// ================
 	//buf = (char*)malloc(HTTP_BUF_SIZE);
 	//ptr = buf;
-	//€”õ
-	//ƒAƒhƒŒƒX‚©‚çAƒzƒXƒg–¼‚Æƒ^[ƒQƒbƒg‚ğæ“¾
+	//æº–å‚™
+	//ã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰ã€ãƒ›ã‚¹ãƒˆåã¨ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’å–å¾—
 	ptr.SetLength(HTTP_STR_BUF_SIZE + 1);
 	buf = url;
 	//ptr = 0;
@@ -2080,10 +2081,10 @@ wString wString::HTTPGet(const char* url, off_t offset)
 	else {
 		host = buf.SubString(work1, work2 - work1);
 	}
-	//ƒ\ƒPƒbƒgì¬‚ÆÚ‘±
+	//ã‚½ã‚±ãƒƒãƒˆä½œæˆã¨æ¥ç¶š
 	server_socket = sock_connect(host.String, server_port);
 	if (!SERROR(server_socket)) {
-		//HTTP1.0 GET”­s
+		//HTTP1.0 GETç™ºè¡Œ
 		ptr.sprintf("GET %s HTTP/1.0\r\n"
 			"Accept: */*\r\n"
 			"User-Agent: %s%s\r\nHost: %s\r\nRange: bytes=%llu-\r\nConnection: close\r\n\r\n",
@@ -2094,14 +2095,14 @@ wString wString::HTTPGet(const char* url, off_t offset)
 			host.String,
 			offset);
 		//ptr.len = strlen(ptr.String);
-		//ƒT[ƒo‚ÉŒq‚ª‚Á‚½
+		//ã‚µãƒ¼ãƒã«ç¹‹ãŒã£ãŸ
 		if (send(server_socket, ptr.String, ptr.len, 0) != SOCKET_ERROR) {
 
-			//‰‰ñ•ª‚©‚çƒwƒbƒ_‚ğíœ
+			//åˆå›åˆ†ã‹ã‚‰ãƒ˜ãƒƒãƒ€ã‚’å‰Šé™¤
 			recv_len = recv(server_socket, ptr.String, ptr.Total() - 1, 0);
 			ptr.String[recv_len] = 0;
 			ptr.len = recv_len;
-			//Œ©‚Â‚©‚ç‚È‚¢
+			//è¦‹ã¤ã‹ã‚‰ãªã„
 			work1 = atoi(ptr.String + (ptr.Pos(" ") + 1));
 			if (work1 < 200 || 300 <= work1) {
 				sClose(server_socket);
@@ -2109,17 +2110,17 @@ wString wString::HTTPGet(const char* url, off_t offset)
 			}
 			//content_length = atoi(buf.String+buf.Pos("Content-Length:" )+16);
 
-			//\r\n\r\n‚ğ’T‚·
-			work1 = ptr.Pos(HTTP_DELIMITER) + 4;//sizeof( HTTP_DELIMITER );//À‘Ì‚Ìæ“ª
+			//\r\n\r\nã‚’æ¢ã™
+			work1 = ptr.Pos(HTTP_DELIMITER) + 4;//sizeof( HTTP_DELIMITER );//å®Ÿä½“ã®å…ˆé ­
 			recv_len -= work1;
 			buf = ptr.SubString(work1, recv_len);
-			//“]‘—‚·‚é
+			//è»¢é€ã™ã‚‹
 			while (loop_flag) {
 				recv_len = recv(server_socket, ptr.String, ptr.Total() - 1, 0);
 				if (recv_len <= 0) {
 					break;
 				}
-				//ƒGƒ‰[‚É‚È‚ç‚È‚¢B
+				//ã‚¨ãƒ©ãƒ¼ã«ãªã‚‰ãªã„ã€‚
 				ptr.len = recv_len;
 				ptr.String[recv_len] = 0;
 				buf += ptr;
@@ -2135,11 +2136,11 @@ wString wString::HTTPGet(const char* url, off_t offset)
 		return wString();
 	}
 	wString tmp(buf);
-	//I—¹
+	//çµ‚äº†
 	return tmp;
 }
 //---------------------------------------------------------------------------
-/* ƒ\ƒPƒbƒg‚ğì¬‚µA‘Šè‚ÉÚ‘±‚·‚éƒ‰ƒbƒp. ¸”s = -1 */
+/* ã‚½ã‚±ãƒƒãƒˆã‚’ä½œæˆã—ã€ç›¸æ‰‹ã«æ¥ç¶šã™ã‚‹ãƒ©ãƒƒãƒ‘. å¤±æ•— = -1 */
 //static int sock_connect(char *host, int port)
 //---------------------------------------------------------------------------
 SOCKET wString::sock_connect(const wString& host, const int port)
@@ -2151,10 +2152,10 @@ SOCKET wString::sock_connect(const char* host, const int port)
 {
 	//  int sock;
 	SOCKET sock;
-	struct sockaddr_in sockadd = { 0 };     //‚r‚n‚b‚j‚d‚s\‘¢‘Ì
+	struct sockaddr_in sockadd = { 0 };     //ï¼³ï¼¯ï¼£ï¼«ï¼¥ï¼´æ§‹é€ ä½“
 	struct hostent* hent;
 	debug_log_output("sock_connect: %s:%d", host, port);
-	//‚r‚n‚b‚j‚d‚sì¬
+	//ï¼³ï¼¯ï¼£ï¼«ï¼¥ï¼´ä½œæˆ
 	if (SERROR(sock = socket(PF_INET, SOCK_STREAM, 0))) {
 		debug_log_output("sock_connect_error:");
 		return INVALID_SOCKET;
@@ -2165,13 +2166,13 @@ SOCKET wString::sock_connect(const char* host, const int port)
 		return INVALID_SOCKET;
 	}
 	debug_log_output("hent: %p", hent);
-	//ƒ\ƒPƒbƒg\‘¢‘Ì‚ÖƒAƒhƒŒƒXİ’è
+	//ã‚½ã‚±ãƒƒãƒˆæ§‹é€ ä½“ã¸ã‚¢ãƒ‰ãƒ¬ã‚¹è¨­å®š
 	memcpy(&sockadd.sin_addr, hent->h_addr, hent->h_length);
-	//ƒ\ƒPƒbƒg\‘¢‘Ì‚Öƒ|[ƒgİ’è
+	//ã‚½ã‚±ãƒƒãƒˆæ§‹é€ ä½“ã¸ãƒãƒ¼ãƒˆè¨­å®š
 	sockadd.sin_port = htons((u_short)port);
-	//‚h‚o‚u‚SƒAƒhƒŒƒXƒtƒ@ƒ~ƒŠ‚ğİ’è
+	//ï¼©ï¼°ï¼¶ï¼”ã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ•ã‚¡ãƒŸãƒªã‚’è¨­å®š
 	sockadd.sin_family = AF_INET;
-	//Ú‘±
+	//æ¥ç¶š
 	if (SERROR(connect(sock, (struct sockaddr*) & sockadd, sizeof(sockadd)))) {
 		sClose(sock);
 		return INVALID_SOCKET;
@@ -2180,9 +2181,9 @@ SOCKET wString::sock_connect(const char* host, const int port)
 }
 //---------------------------------------------------------------------------
 // 2004/11/17 Add start
-// ƒAƒNƒZƒX‰Â”\‚©ƒ`ƒFƒbƒN‚·‚é
-//Œ`®‚Íwww.make-it.co.jp/index.html
-//2005/12/03 ˆø”‚ğ‰ó‚µ‚Ä‚¢‚½‚Ì‚ÅC³
+// ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ã‹ãƒã‚§ãƒƒã‚¯ã™ã‚‹
+//å½¢å¼ã¯www.make-it.co.jp/index.html
+//2005/12/03 å¼•æ•°ã‚’å£Šã—ã¦ã„ãŸã®ã§ä¿®æ­£
 bool wString::checkUrl(const wString& url)
 {
 	wString buf;
@@ -2191,12 +2192,12 @@ bool wString::checkUrl(const wString& url)
 	wString host_name;
 	wString file_path;
 	int     ptr;
-	//‘Oˆ—
+	//å‰å‡¦ç†
 	ptr = url.Pos("/");
-	// ‚Í‚¶‚ß‚Éo‚Ä‚«‚½"/"‚Ì‘OŒã‚Å•ª’f
+	// ã¯ã˜ã‚ã«å‡ºã¦ããŸ"/"ã®å‰å¾Œã§åˆ†æ–­
 	host_name = url.SubString(0, ptr);
 	file_path = url.SubString(ptr, url.Length() - ptr);
-	//Œ©‚Â‚©‚ç‚È‚©‚Á‚½
+	//è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸæ™‚
 	if (file_path.Length() == 0) {
 		file_path = "/";
 	}
@@ -2218,9 +2219,9 @@ bool wString::checkUrl(const wString& url)
 			buf.SetLength(1024);
 			recv_len = recv(server_socket, buf.c_str(), buf.Total() - 1, 0);
 			buf.ResetLength(recv_len);
-			//Œ©‚Â‚©‚ç‚È‚¢
+			//è¦‹ã¤ã‹ã‚‰ãªã„
 			ptr = atoi(buf.String + (buf.Pos(" ") + 1));
-			// óMƒf[ƒ^‚ ‚è‚È‚ç‚Î(ƒtƒ@ƒCƒ‹—L‚èjAƒf[ƒ^‚ğ‰ğÍ‚·‚éB
+			// å—ä¿¡ãƒ‡ãƒ¼ã‚¿ã‚ã‚Šãªã‚‰ã°(ãƒ•ã‚¡ã‚¤ãƒ«æœ‰ã‚Šï¼‰ã€ãƒ‡ãƒ¼ã‚¿ã‚’è§£æã™ã‚‹ã€‚
 			if (200 <= ptr && ptr < 300) {
 				access_flag = true;
 			}
@@ -2230,11 +2231,11 @@ bool wString::checkUrl(const wString& url)
 	return access_flag;
 }
 //---------------------------------------------------------------------------
-//–Ú•W‚ÌƒTƒCƒYæ“¾
+//ç›®æ¨™ã®ã‚µã‚¤ã‚ºå–å¾—
 int wString::HTTPSize(const wString& url)
 {
 
-	int         recv_len;                       //“Ç‚İæ‚è’·‚³
+	int         recv_len;                       //èª­ã¿å–ã‚Šé•·ã•
 	wString     buf;
 	int         work1;
 	int         work2;
@@ -2242,14 +2243,14 @@ int wString::HTTPSize(const wString& url)
 	wString     host;
 	wString     target;
 	int         content_length = -1;
-	SOCKET      server_socket;                          //ƒT[ƒo[ƒ\ƒPƒbƒg
+	SOCKET      server_socket;                          //ã‚µãƒ¼ãƒãƒ¼ã‚½ã‚±ãƒƒãƒˆ
 	int         server_port = HTTP_SERVER_PORT;
-	//o—Íƒtƒ@ƒCƒ‹‚Ìİ’è
+	//å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã®è¨­å®š
 	// ================
-	// À‘Ì“]‘—ŠJn
+	// å®Ÿä½“è»¢é€é–‹å§‹
 	// ================
-	//€”õ
-	//ƒAƒhƒŒƒX‚©‚çAƒzƒXƒg–¼‚Æƒ^[ƒQƒbƒg‚ğæ“¾
+	//æº–å‚™
+	//ã‚¢ãƒ‰ãƒ¬ã‚¹ã‹ã‚‰ã€ãƒ›ã‚¹ãƒˆåã¨ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’å–å¾—
 	work2 = url.Pos("://") + 3;
 	work1 = url.Pos("/", work2);
 	work3 = url.Pos(":", work1);
@@ -2265,10 +2266,10 @@ int wString::HTTPSize(const wString& url)
 	//*work1 = 0;
 	//strcpy( host, work2 );
 
-	//ƒ\ƒPƒbƒgì¬‚ÆÚ‘±
+	//ã‚½ã‚±ãƒƒãƒˆä½œæˆã¨æ¥ç¶š
 	server_socket = sock_connect(host.c_str(), server_port);
 	if (!SERROR(server_socket)) {
-		//HTTP1.0 GET”­s
+		//HTTP1.0 GETç™ºè¡Œ
 		buf.sprintf("HEAD %s HTTP/1.0\r\n"
 			"Accept: */*\r\n"
 			"User-Agent: %s%s\r\n"
@@ -2282,18 +2283,18 @@ int wString::HTTPSize(const wString& url)
 			host.c_str()
 			//                        GetAuthorization(void),
 		);
-		//ƒT[ƒo‚ÉŒq‚ª‚Á‚½
+		//ã‚µãƒ¼ãƒã«ç¹‹ãŒã£ãŸ
 		if (send(server_socket, buf.c_str(), buf.Length(), 0) != SOCKET_ERROR) {
-			//‰‰ñ•ª‚©‚çƒwƒbƒ_‚ğíœ
+			//åˆå›åˆ†ã‹ã‚‰ãƒ˜ãƒƒãƒ€ã‚’å‰Šé™¤
 			buf.SetLength(HTTP_STR_BUF_SIZE);
 			recv_len = recv(server_socket, buf.c_str(), buf.Total() - 1, 0);
-			//\r\n\r\n‚ğ’T‚·
-			buf.ResetLength(recv_len);      //…~‚ß
+			//\r\n\r\nã‚’æ¢ã™
+			buf.ResetLength(recv_len);      //ç³¸æ­¢ã‚
 			work1 = atoi(buf.String + (buf.Pos(" ") + 1));
 			int pos = buf.Pos("Content-Length:");
 			if (pos >= 0) {
 				if (200 <= work1 && work1 < 300) {
-					//ƒRƒ“ƒeƒ“ƒc’·‚³ TODO Content-Length‚ª‚È‚¢ê‡
+					//ã‚³ãƒ³ãƒ†ãƒ³ãƒ„é•·ã• TODO Content-LengthãŒãªã„å ´åˆ
 					content_length = atoi(buf.c_str() + pos + 16);
 				}
 			}
@@ -2309,12 +2310,12 @@ int wString::HTTPSize(const wString& url)
 		}
 		sClose(server_socket);
 	}
-	//I—¹
+	//çµ‚äº†
 	return content_length;
 }
 #endif
 //---------------------------------------------------------------------------
-// linux—pƒtƒ@ƒCƒ‹–¼‚É•ÏŠ·
+// linuxç”¨ãƒ•ã‚¡ã‚¤ãƒ«åã«å¤‰æ›
 //---------------------------------------------------------------------------
 char* wString::WindowsFileName(char* FileName)
 {
@@ -2333,7 +2334,7 @@ char* wString::WindowsFileName(char* FileName)
 #endif
 }
 //---------------------------------------------------------------------------
-// Linux—pƒtƒ@ƒCƒ‹–¼‚É•ÏŠ·
+// Linuxç”¨ãƒ•ã‚¡ã‚¤ãƒ«åã«å¤‰æ›
 //---------------------------------------------------------------------------
 char* wString::LinuxFileName(char* FileName)
 {
@@ -2353,23 +2354,23 @@ char* wString::LinuxFileName(char* FileName)
 }
 #if 0
 //---------------------------------------------------------------------------
-// Linux—pƒtƒ@ƒCƒ‹–¼‚É•ÏŠ·
+// Linuxç”¨ãƒ•ã‚¡ã‚¤ãƒ«åã«å¤‰æ›
 //---------------------------------------------------------------------------
 char* wString::GetLocalAddress(void)
 {
 #ifdef linux
-	//TODO linux”Ô‚Ì©IP/ƒzƒXƒg–¼‚ğİ’è‚·‚é‚±‚Æ
+	//TODO linuxç•ªã®è‡ªIP/ãƒ›ã‚¹ãƒˆåã‚’è¨­å®šã™ã‚‹ã“ã¨
 	return (char*)"neon.cx";
 #else
 
-	//ƒzƒXƒg–¼‚ğæ“¾‚·‚é
+	//ãƒ›ã‚¹ãƒˆåã‚’å–å¾—ã™ã‚‹
 	char hostname[256];
 	if (gethostname(hostname, sizeof(hostname)) != 0) {
 		return 0;
 	}
 	//puts(hostname);
 
-	//ƒzƒXƒg–¼‚©‚çIPƒAƒhƒŒƒX‚ğæ“¾‚·‚é
+	//ãƒ›ã‚¹ãƒˆåã‹ã‚‰IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–å¾—ã™ã‚‹
 	HOSTENT* hostend = gethostbyname(hostname);
 	if (hostend == NULL) {
 		return 0;
@@ -2392,10 +2393,10 @@ size_t wString::copy(char* str, size_t slen, size_t index) const
 wString& wString::replace(size_t index, size_t slen, const wString& repstr)
 {
 	size_t rlen = repstr.len;
-	//“¯‚¶
+	//åŒã˜
 	if (slen == rlen) {
 		memcpy((void*)(String + index), (void*)repstr.String, rlen);
-		//‘O‹l‚ß’uŠ·‚»‚Ì‚Ü‚ÜƒRƒs[‚·‚ê‚Î‚¢‚¢
+		//å‰è©°ã‚ç½®æ›ãã®ã¾ã¾ã‚³ãƒ”ãƒ¼ã™ã‚Œã°ã„ã„
 	}
 	else if (slen > rlen) {
 		size_t num = slen - rlen;
@@ -2407,7 +2408,7 @@ wString& wString::replace(size_t index, size_t slen, const wString& repstr)
 		memcpy((void*)(String + index), (void*)(repstr.String), rlen);
 		len -= num;
 		String[len] = 0;
-		//’uŠ·•¶š‚ª’·‚¢‚Ì‚ÅŒã‹l‚ß‚·‚é
+		//ç½®æ›æ–‡å­—ãŒé•·ã„ã®ã§å¾Œè©°ã‚ã™ã‚‹
 	}
 	else {
 		size_t num = rlen - slen;
