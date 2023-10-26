@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -g -pg -Wall -D_DEBUG
+CFLAGS=-c -g -pg -Wswitch -Wall -Dlinux -D_DEBUG -std=c++11
 #CFLAGS=-c -O1 -Wall
 LDFLAGS=-g -pg
 #LDFLAGS= 
@@ -9,7 +9,7 @@ TinyJS.cpp \
 TinyJS_Functions.cpp \
 TinyJS_MathFunctions.cpp \
 dregex.cpp \
-wizd_String.cpp
+cbl_String.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

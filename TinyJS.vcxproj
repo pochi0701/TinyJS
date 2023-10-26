@@ -153,14 +153,14 @@
     <ClCompile Include="TinyJS.cpp" />
     <ClCompile Include="TinyJS_Functions.cpp" />
     <ClCompile Include="TinyJS_MathFunctions.cpp" />
-    <ClCompile Include="wizd_String.cpp" />
+    <ClCompile Include="cbl_String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="define.h" />
     <ClInclude Include="TinyJS.h" />
     <ClInclude Include="TinyJS_Functions.h" />
     <ClInclude Include="TinyJS_MathFunctions.h" />
-    <ClInclude Include="wizd_String.h" />
+    <ClInclude Include="cbl_String.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

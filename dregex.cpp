@@ -1,5 +1,5 @@
 #include "dregex.h"
-#include "wizd_String.h"
+#include "cbl_String.h"
 using namespace std;
 
 // ------------------------------------------------------------

@@ -24,7 +24,7 @@
     <ClCompile Include="TinyJS_MathFunctions.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="wizd_String.cpp">
+    <ClCompile Include="cbl_String.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="run_tests.cpp">
@@ -41,7 +41,7 @@
     <ClInclude Include="TinyJS_MathFunctions.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="wizd_String.h">
+    <ClInclude Include="cbl_String.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="define.h">

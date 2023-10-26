@@ -1,5 +1,5 @@
-﻿#ifndef WIZDSTRINGH
-#define WIZDSTRINGH
+﻿#ifndef CBLSTRINGH
+#define CBLSTRINGH
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -37,8 +37,9 @@ private:
     unsigned int total;	//保存領域の長さ
     char* String;
 
-    void replace_character_len(const char *sentence,int slen,const char* p,int klen,const char *rep);
-    void replace_str(const char *sentence,int slen,const char* p,int klen,const char *rep);
+    void replace_character_len(const char *sentence,unsigned int slen,const char* p,unsigned int klen,const char *rep);
+    void replace_str(const char *sentence,unsigned int slen,const char* p,unsigned int klen,const char *rep);
+
     #ifndef va_copy
     int tsprintf_string(char* str);
     //int tsprintf_string(wString& str);
@@ -52,7 +53,7 @@ private:
     public:
     const static int npos;
     wString(void);
-    wString(int mylen);
+    explicit wString(int mylen);
     wString(const char* str);
     wString(const wString& str);
     ~wString(void);
@@ -62,11 +63,11 @@ private:
 //    static void     wStringInit(void);
 //    static void     wStringEnd(void);
 //    static wString* NextSac(void);
-    void   myrealloc(const int newSize);
+    void   resize(const unsigned int newSize);
     //OPERATION OVERLOAD
     wString  operator+(const wString& str) const;
     wString  operator+(const char* str) const;
-    friend wString operator+(const char* str1, const wString str2 );
+    friend wString operator+(const char* str1, const wString& str2 );
     void     operator=(const wString& str);
     void     operator=(const char* str);
     void     operator=(const int num);
@@ -100,12 +101,12 @@ private:
     int             Pos(const char* pattern,int pos=0) const;
 //    int             Pos(const wString& pattern,int pos);
     size_t          copy( char *str, size_t slen, size_t index ) const;
-    wString&        replace( size_t index, size_t len, const wString& repstr);
+    wString&        replace( unsigned int index, unsigned int len, const wString& repstr);
 
     size_t          size(void) const;
-    size_t          length(void) const;
-    int             Length(void) const ;
-    int             Total(void) const;
+    unsigned int    length(void) const;
+    unsigned int    Length(void) const ;
+    unsigned int    Total(void) const;
     char*           c_str(void) const;
     wString&        SetLength(const unsigned int num);
 
@@ -154,12 +155,12 @@ private:
     static wString  FileStats(const wString& str, int mode = 0 );
     static int      FileExists(const char* str);
     static int      FileExists(const wString& str);
-    static wString  ExtractFileDir(wString& str);
+    static wString  ExtractFileDir(const wString& str);
     static wString  ExtractFileName(const char* str, const char* delim = DELIMITER);
     static wString  ExtractFileName(const wString& str, const char* delim = DELIMITER);
     static wString  ExtractFileExt(const wString& str );
     static int      CreateDir(const wString& str);
-    static wString  ChangeFileExt(wString& str, const char* ext);
+    static wString  ChangeFileExt(const wString& str, const char* ext);
     static unsigned long FileSizeByName(char* str);
     static unsigned long FileSizeByName(wString& str);
     static wString  EnumFolder(const wString& Path);

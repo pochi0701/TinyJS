@@ -34,6 +34,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <time.h>
+#include <ctype.h>
  //#include "dregex.h"
 using namespace std;
 // ----------------------------------------------- Actual Functions
@@ -138,9 +139,9 @@ void scStringSubstring(CScriptVar* c, void* userdata) {
 	int lo = c->getParameter("lo")->getInt();
 	int hi = c->getParameter("hi")->getInt();
 
-	int l = hi - lo;
-	if (l > 0 && lo >= 0 && lo + l <= (int)str.length())
-		c->getReturnVar()->setString(str.substr(lo, l));
+	int lex = hi - lo;
+	if (lex > 0 && lo >= 0 && lo + lex <= (int)str.length())
+		c->getReturnVar()->setString(str.substr(lo, lex));
 	else
 		c->getReturnVar()->setString("");
 }
@@ -157,6 +158,13 @@ void scStringSubstr(CScriptVar* c, void* userdata) {
 		c->getReturnVar()->setString("");
 }
 //AT
+
+/// <summary>
+/// function String.charAt(pos)
+/// pos位置の文字を取得（byte単位）
+/// </summary>
+/// <param name="c">引き渡しデータ</param>
+/// <param name="userdata"></param>
 void scStringCharAt(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
@@ -223,10 +231,9 @@ void scPregStringReplace(CScriptVar* c, void* userdata) {
 	vector<wString> patterns;
 	vector<wString> replaces;
 	int pn = arrp->getArrayLength();
-	int rn;
 	if (pn) {
 		CScriptVar* arrr = c->getParameter("replace");
-		rn = arrr->getArrayLength();
+		auto rn = arrr->getArrayLength();
 		if (pn == rn) {
 			for (int i = 0; i < pn; i++) {
 				patterns.push_back(arrp->getArrayIndex(i)->getString());
@@ -256,7 +263,7 @@ void scGetLocalAddress(CScriptVar* c, void* userdata) {
 }
 void scStringFromCharCode(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
-	char str[2] = { 0 };
+	char str[2] = {};
 	str[0] = (char)c->getParameter("char")->getInt();
 	c->getReturnVar()->setString(str);
 }
@@ -291,9 +298,13 @@ void scIntegerToDateString(CScriptVar* c, void* userdata) {
 }
 void scStringDate(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
-	time_t t = time(NULL);
+	auto t = time(NULL);
 	char s[128];
-	sprintf(s, "%ld", t);
+#ifdef linux
+    sprintf(s, "%ld", t);
+#else
+	sprintf(s, "%lld", t);
+#endif
 	c->getReturnVar()->setString(s);
 }
 void scNKFConv(CScriptVar* c, void* userdata) {
@@ -411,8 +422,8 @@ void scArrayJoin(CScriptVar* c, void* userdata) {
 	CScriptVar* arr = c->getParameter("this");
 
 	wString sstr;
-	int l = arr->getArrayLength();
-	for (int i = 0; i < l; i++) {
+	int lex = arr->getArrayLength();
+	for (int i = 0; i < lex; i++) {
 		if (i > 0) {
 			sstr += sep;
 		}
@@ -496,7 +507,7 @@ void scToLowerCase(CScriptVar* c, void* userdata) {
 	wString str = c->getParameter("this")->getString();
 	char* String = str.c_str();
 	for (unsigned int i = 0; i < str.length(); i++) {
-		//String[i] = (unsigned char)tolower(String[i]);
+		String[i] = (unsigned char)tolower(String[i]);
 	}
 	c->getReturnVar()->setString(str);
 }

@@ -9,7 +9,7 @@
 #define REG_EXTENDED 0
 #define REG_NOSUB 0
 #endif
-#include "wizd_String.h"
+#include "cbl_String.h"
 
 using namespace std;
 

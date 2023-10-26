@@ -39,14 +39,13 @@
 #include <string>
 #include <sstream>
 #include <stdio.h>
-#include "wizd_String.h"
+#include "cbl_String.h"
 bool
 run_test(const char* filename)
 {
 	printf("TEST %s ", filename);
 	struct stat results;
-	if (!stat(filename, &results) == 0)
-	{
+    if (stat(filename, &results) != 0) {
 		printf("Cannot stat file! '%s'\n", filename);
 		return false;
 	}
@@ -54,8 +53,7 @@ run_test(const char* filename)
 	FILE* file = fopen(filename, "rb");
 
 	/* if we open as text, the number of bytes read may be > the size we read */
-	if (!file)
-	{
+    if( !file ) {
 		printf("Unable to open file! '%s'\n", filename);
 		return false;
 	}
@@ -67,26 +65,20 @@ run_test(const char* filename)
 	CTinyJS s;
 	registerFunctions(&s);
 	registerMathFunctions(&s);
-	s.root->addChild("result", new CScriptVar("0", (int)SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER));
-	try
-	{
+	s.root->addChild("result", new CScriptVar("0", SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER));
+	try {
 		s.execute(buffer);
-	}
-	catch (CScriptException* e)
-	{
+	}catch (CScriptException* e){
 		printf("ERROR: %s\n", e->text.c_str());
 	}
 	bool pass = s.root->getParameter("result")->getBool();
 	if (pass) {
 		printf("PASS\n");
-	}
-	else
-	{
+	}else{
 		char fn[64];
 		sprintf(fn, "%s.fail.js", filename);
 		FILE* f = fopen(fn, "wt");
-		if (f)
-		{
+		if (f){
 			wString symbols;
 			s.root->getJSON(symbols);
 			fprintf(f, "%s", symbols.c_str());
@@ -98,8 +90,7 @@ run_test(const char* filename)
 	return pass;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
 	printf("TinyJS test runner\n");
 	printf("USAGE:\n");
