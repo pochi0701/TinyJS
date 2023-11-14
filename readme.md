@@ -100,7 +100,20 @@ Built-in functions
     result = foo.length()==13 && foo.indexOf("bar")==4 && foo.substring(8,13)=="stuff" && parsed==42 && 
     Integer.valueOf(aChar)==65 && obj1.food=="cake" && obj2.desert=="pie";
 
-new!
+New features
+
+break,continue
+
+    var a = 0;
+    for (var i=1;i<10;i++) {
+        if ( i == 2 ) continue;
+        if ( i == 3 ) break;
+        a = a + i;
+    }
+    
+regurar expression
+
+
 break in for,while support
 regurar expression support
    preg_replace like PHP

@@ -1098,16 +1098,10 @@ const wString& CScriptVar::getString() {
 	/* Because we can't return a wString that is generated on demand.
 	 * I should really just use char* :) */
 	if (isInt()) {
-		//char buffer[32];
-		//snprintf(buffer, sizeof(buffer), "%ld", intData);
-		//data = buffer;
 		data.sprintf("%ld", intData);
 		return data;
 	}
 	if (isDouble()) {
-		//char buffer[32];
-		//snprintf(buffer, sizeof(buffer), "%f", doubleData);
-		//data = buffer;
 		data.sprintf("%f", doubleData);
 		return data;
 	}
@@ -1141,9 +1135,7 @@ void CScriptVar::setString(const wString& str) {
 	doubleData = 0;
 }
 
-/// <summary>
-/// undefinedの値を設定
-/// </summary>
+/// <summary>undefinedの値を設定</summary>
 void CScriptVar::setUndefined() {
 	// name sure it's not still a number or integer
 	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED;
@@ -1153,9 +1145,7 @@ void CScriptVar::setUndefined() {
 	removeAllChildren();
 }
 
-/// <summary>
-/// 配列を設定
-/// </summary>
+/// <summary>配列を設定</summary>
 void CScriptVar::setArray() {
 	// name sure it's not still a number or integer
 	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_ARRAY;

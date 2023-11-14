@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 		sprintf(fn, "tests/test%03d.js", test_num);
 
 		// check if the file exists - if not, assume we're at the end of our tests
-		if (!wString::FileExists(fn)) {
+		if (!wString::file_exists(fn)) {
 			break;
 		}
 		FILE* f = fopen(fn, "r");

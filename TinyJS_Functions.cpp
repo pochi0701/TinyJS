@@ -74,7 +74,7 @@ void scKeys(CScriptVar* c, void* userdata) {
 	int length = 0;
 	int count = list.getLines();
 	for (int i = 0; i < count; i++) {
-		result->setArrayIndex(length++, new CScriptVar(list.GetListString(i)));
+		result->setArrayIndex(length++, new CScriptVar(list.get_list_string(i)));
 	}
 }
 
@@ -106,7 +106,7 @@ void scTrim(CScriptVar* c, void*) {
 //
 void scRTrim(CScriptVar* c, void*) {
 	wString val = c->getParameter("this")->getString();
-	c->getReturnVar()->setString(val.RTrim());
+	c->getReturnVar()->setString(val.rtrim());
 }
 //
 void scLTrim(CScriptVar* c, void*) {
@@ -254,12 +254,12 @@ void scPregStringReplace(CScriptVar* c, void* userdata) {
 void scAddShashes(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
-	c->getReturnVar()->setString(str.addSlashes());
+	c->getReturnVar()->setString(str.add_slashes());
 }
 //getLocalAddress
 void scGetLocalAddress(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
-	//c->getReturnVar()->setString(wString::GetLocalAddress());
+	//c->getReturnVar()->setString(wString::get_local_address());
 }
 void scStringFromCharCode(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
@@ -436,14 +436,14 @@ void scArrayJoin(CScriptVar* c, void* userdata) {
 void scFileExists(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int flag = wString::FileExists(path);
+	int flag = wString::file_exists(path);
 	c->getReturnVar()->setInt(flag);
 }
 //ディレクトリ存在チェック
 void scDirExists(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int flag = wString::DirectoryExists(path);
+	int flag = wString::directory_exists(path);
 	c->getReturnVar()->setInt(flag);
 }
 //htmlspecialchars
@@ -491,14 +491,14 @@ void scBasename(CScriptVar* c, void* userdata) {
 void scScanDir(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
-	uri = wString::EnumFolderjson(uri);
+	uri = wString::enum_folder_json(uri);
 	c->getReturnVar()->setString(uri);
 }
-//ExtractFileExt
+//extract_file_ext
 void scExtractFileExt(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
-	uri = wString::ExtractFileExt(uri);
+	uri = wString::extract_file_ext(uri);
 	c->getReturnVar()->setString(uri);
 }
 //toLowerCase
@@ -525,14 +525,14 @@ void scToUpperCase(CScriptVar* c, void* userdata) {
 void scFileStats(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	wString json = wString::FileStats(path);
+	wString json = wString::file_stats(path);
 	c->getReturnVar()->setString(json);
 }
 //ファイル属性など
 void scFileDate(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	wString json = wString::FileStats(path, 1);
+	wString json = wString::file_stats(path, 1);
 	c->getReturnVar()->setString(json);
 }
 //ファイル内容取得
@@ -540,7 +540,7 @@ void scLoadFromFile(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data;
-	data.LoadFromFile(path);
+	data.load_from_file(path);
 	c->getReturnVar()->setString(data);
 }
 //CSV内容取得
@@ -548,7 +548,7 @@ void scLoadFromCSV(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data;
-	data.LoadFromCSV(path);
+	data.load_from_csv(path);
 	c->getReturnVar()->setString(data);
 }
 //ファイル削除
@@ -578,14 +578,14 @@ void scRename(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString pathf = c->getParameter("pathf")->getString();
 	wString patht = c->getParameter("patht")->getString();
-	int ret = wString::RenameFile(pathf, patht);
+	int ret = wString::rename_file(pathf, patht);
 	c->getReturnVar()->setInt(ret);
 }
 //フォルダ作成
 void scMkdir(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int ret = wString::CreateDir(path);
+	int ret = wString::create_dir(path);
 	c->getReturnVar()->setInt(ret);
 }
 //フォルダ削除
@@ -601,7 +601,7 @@ void scSaveToFile(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data = c->getParameter("data")->getString();
-	int res = data.SaveToFile(path);
+	int res = data.save_to_file(path);
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
