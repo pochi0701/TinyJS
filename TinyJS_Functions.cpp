@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 /*
  * TinyJS
  *
@@ -161,9 +161,9 @@ void scStringSubstr(CScriptVar* c, void* userdata) {
 
 /// <summary>
 /// function String.charAt(pos)
-/// posˆÊ’u‚Ì•¶š‚ğæ“¾ibyte’PˆÊj
+/// posä½ç½®ã®æ–‡å­—ã‚’å–å¾—ï¼ˆbyteå˜ä½ï¼‰
 /// </summary>
-/// <param name="c">ˆø‚«“n‚µƒf[ƒ^</param>
+/// <param name="c">å¼•ãæ¸¡ã—ãƒ‡ãƒ¼ã‚¿</param>
 /// <param name="userdata"></param>
 void scStringCharAt(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
@@ -214,7 +214,7 @@ void scStringReplace(CScriptVar* c, void* userdata) {
 	wString str = c->getParameter("this")->getString();
 	wString before = c->getParameter("before")->getString();
 	wString after = c->getParameter("after")->getString();
-	//str‚Ì’†‚Ìbefore‚ğ’T‚·
+	//strã®ä¸­ã®beforeã‚’æ¢ã™
 	int pos = str.find(before);
 	while (pos != wString::npos) {
 		str = str.substr(0, pos) + after + str.substr(pos + before.length());
@@ -301,7 +301,7 @@ void scStringDate(CScriptVar* c, void* userdata) {
 	auto t = time(NULL);
 	char s[128];
 #ifdef linux
-    sprintf(s, "%ld", t);
+	sprintf(s, "%ld", t);
 #else
 	sprintf(s, "%lld", t);
 #endif
@@ -432,14 +432,14 @@ void scArrayJoin(CScriptVar* c, void* userdata) {
 
 	c->getReturnVar()->setString(sstr.c_str());
 }
-//ƒtƒ@ƒCƒ‹‘¶İƒ`ƒFƒbƒN
+//ãƒ•ã‚¡ã‚¤ãƒ«å­˜åœ¨ãƒã‚§ãƒƒã‚¯
 void scFileExists(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int flag = wString::file_exists(path);
 	c->getReturnVar()->setInt(flag);
 }
-//ƒfƒBƒŒƒNƒgƒŠ‘¶İƒ`ƒFƒbƒN
+//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå­˜åœ¨ãƒã‚§ãƒƒã‚¯
 void scDirExists(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -521,21 +521,21 @@ void scToUpperCase(CScriptVar* c, void* userdata) {
 	}
 	c->getReturnVar()->setString(str);
 }
-//ƒtƒ@ƒCƒ‹‘®«‚È‚Ç
+//ãƒ•ã‚¡ã‚¤ãƒ«å±æ€§ãªã©
 void scFileStats(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString json = wString::file_stats(path);
 	c->getReturnVar()->setString(json);
 }
-//ƒtƒ@ƒCƒ‹‘®«‚È‚Ç
+//ãƒ•ã‚¡ã‚¤ãƒ«å±æ€§ãªã©
 void scFileDate(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString json = wString::file_stats(path, 1);
 	c->getReturnVar()->setString(json);
 }
-//ƒtƒ@ƒCƒ‹“à—eæ“¾
+//ãƒ•ã‚¡ã‚¤ãƒ«å†…å®¹å–å¾—
 void scLoadFromFile(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -543,7 +543,7 @@ void scLoadFromFile(CScriptVar* c, void* userdata) {
 	data.load_from_file(path);
 	c->getReturnVar()->setString(data);
 }
-//CSV“à—eæ“¾
+//CSVå†…å®¹å–å¾—
 void scLoadFromCSV(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -551,7 +551,7 @@ void scLoadFromCSV(CScriptVar* c, void* userdata) {
 	data.load_from_csv(path);
 	c->getReturnVar()->setString(data);
 }
-//ƒtƒ@ƒCƒ‹íœ
+//ãƒ•ã‚¡ã‚¤ãƒ«å‰Šé™¤
 void scUnlink(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -559,7 +559,7 @@ void scUnlink(CScriptVar* c, void* userdata) {
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
-//ƒtƒ@ƒCƒ‹ì¬
+//ãƒ•ã‚¡ã‚¤ãƒ«ä½œæˆ
 void scTouch(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -573,7 +573,7 @@ void scTouch(CScriptVar* c, void* userdata) {
 	}
 	c->getReturnVar()->setInt(ret);
 }
-//ƒŠƒl[ƒ€
+//ãƒªãƒãƒ¼ãƒ 
 void scRename(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString pathf = c->getParameter("pathf")->getString();
@@ -581,14 +581,14 @@ void scRename(CScriptVar* c, void* userdata) {
 	int ret = wString::rename_file(pathf, patht);
 	c->getReturnVar()->setInt(ret);
 }
-//ƒtƒHƒ‹ƒ_ì¬
+//ãƒ•ã‚©ãƒ«ãƒ€ä½œæˆ
 void scMkdir(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int ret = wString::create_dir(path);
 	c->getReturnVar()->setInt(ret);
 }
-//ƒtƒHƒ‹ƒ_íœ
+//ãƒ•ã‚©ãƒ«ãƒ€å‰Šé™¤
 void scRmdir(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -596,7 +596,7 @@ void scRmdir(CScriptVar* c, void* userdata) {
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
-//ƒtƒ@ƒCƒ‹•Û‘¶
+//ãƒ•ã‚¡ã‚¤ãƒ«ä¿å­˜
 void scSaveToFile(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
@@ -605,7 +605,7 @@ void scSaveToFile(CScriptVar* c, void* userdata) {
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
-//commandÀs
+//commandå®Ÿè¡Œ
 void scCommand(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString ppath = c->getParameter("path")->getString();
@@ -630,7 +630,7 @@ void scSessionStart(CScriptVar* c, void* userdata) {
 	const static char material[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	CTinyJS* js = (CTinyJS*)userdata;
 	int ret = 0;
-	//sid‚ ‚éH
+	//sidã‚ã‚‹ï¼Ÿ
 	wString jssessid = js->evaluate("JSSESSID");
 	if (jssessid != "undefined") {
 		if (session.count(jssessid) > 0) {
@@ -648,12 +648,12 @@ void scSessionStart(CScriptVar* c, void* userdata) {
 			for (int i = 0; i < 26; i++) {
 				work[i] = material[rand() % (sizeof(material) - 1)];
 			}
-			//“¯‚¶ƒ‚ƒm‚Íƒ_ƒ
+			//åŒã˜ãƒ¢ãƒã¯ãƒ€ãƒ¡
 			if (session.count(work) == 0) break;
 		}
 		jssessid = work;
 		js->execute("var _SESSION={};var sid=\"" + jssessid + "\";");
-		//V‹K‚ÉƒZƒbƒVƒ‡ƒ“‚ğì‚é‚Ícookie‚ğ‘—o(ƒuƒ‰ƒEƒU•Â‚¶‚é‚Ü‚Å)
+		//æ–°è¦ã«ã‚»ãƒƒã‚·ãƒ§ãƒ³ã‚’ä½œã‚‹æ™‚ã¯cookieã‚’é€å‡º(ãƒ–ãƒ©ã‚¦ã‚¶é–‰ã˜ã‚‹ã¾ã§)
 		headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
 		wString str;
 		str.sprintf("Set-Cookie: sid=%s;", jssessid.c_str());
@@ -728,7 +728,7 @@ void registerFunctions(CTinyJS* tinyJS) {
 	tinyJS->addNative("function String.DisConnect()", scDBDisConnect, 0); // DisConnect to DB
 	tinyJS->addNative("function String.SQL(sqltext)", scDBSQL, 0); // Execute SQL
 
-//    tinyJS->addNative("function JSON.mp3id3tag(path)",                scMp3Id3Tag,           0 );
+	//    tinyJS->addNative("function JSON.mp3id3tag(path)",                scMp3Id3Tag,           0 );
 	tinyJS->addNative("function JSON.stringify(obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment
 
 	// JSON.parse is left out as you can (unsafely!) use eval instead

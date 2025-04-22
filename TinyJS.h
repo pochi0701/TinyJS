@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * TinyJS
  *
  * A single-file Javascript-alike engine
@@ -143,11 +143,11 @@ enum class SCRIPTVAR_FLAGS {
 	SCRIPTVAR_NULL,
 
 };
-// ˜_—ƒIƒyƒŒ[ƒ^OR
+// ï¿½_ï¿½ï¿½ï¿½Iï¿½yï¿½ï¿½ï¿½[ï¿½^OR
 SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
-// ˜_—ƒIƒyƒŒ[ƒ^&
+// ï¿½_ï¿½ï¿½ï¿½Iï¿½yï¿½ï¿½ï¿½[ï¿½^&
 SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
-// ˜_—ƒIƒyƒŒ[ƒ^~
+// ï¿½_ï¿½ï¿½ï¿½Iï¿½yï¿½ï¿½ï¿½[ï¿½^~
 SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L);
 
 #define TINYJS_RETURN_VAR      "return"
@@ -207,16 +207,16 @@ class CScriptVar;
 typedef void (*JSCallback)(CScriptVar* var, void* userdata);
 
 /// <summary>
-/// •Ï”ƒŠƒXƒg
+/// ï¿½Ïï¿½ï¿½ï¿½ï¿½Xï¿½g
 /// </summary>
 class CScriptVarLink
 {
 public:
-	wString name;               //•Ï”–¼
-	CScriptVarLink* nextSibling;//Ÿ‚ÌƒŠƒ“ƒN
-	CScriptVarLink* prevSibling;//‘O‚ÌƒŠƒ“ƒN
-	CScriptVar* var;        //•Ï”‚ÌÀ‘Ì
-	bool           owned;       //ì¬Ò?
+	wString name;               //ï¿½Ïï¿½ï¿½ï¿½
+	CScriptVarLink* nextSibling;//ï¿½ï¿½ï¿½Ìƒï¿½ï¿½ï¿½ï¿½N
+	CScriptVarLink* prevSibling;//ï¿½Oï¿½Ìƒï¿½ï¿½ï¿½ï¿½N
+	CScriptVar* var;        //ï¿½Ïï¿½ï¿½Ìï¿½ï¿½ï¿½
+	bool           owned;       //ï¿½ì¬ï¿½ï¿½?
 
 	CScriptVarLink(CScriptVar* var, const wString& name = TINYJS_TEMP_NAME);
 	CScriptVarLink(const CScriptVarLink& link); ///< Copy constructor
@@ -228,7 +228,7 @@ public:
 };
 
 /// <summary>
-/// •Ï”ƒNƒ‰ƒXi“ñdƒŠƒ“ƒN‚ÌqƒŠƒXƒg‚ğŠÜ‚Şj
+/// ï¿½Ïï¿½ï¿½Nï¿½ï¿½ï¿½Xï¿½iï¿½ï¿½dï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½Ìqï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Ü‚Şj
 /// </summary>
 class CScriptVar
 {
