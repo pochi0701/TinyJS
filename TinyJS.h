@@ -41,7 +41,8 @@
 
 //const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
 
-enum class  LEX_TYPES {
+enum class  LEX_TYPES
+{
 	LEX_EOF = 0,
 	LEX_LF = '\r',
 	LEX_CR = '\n',
@@ -111,6 +112,7 @@ enum class  LEX_TYPES {
 	LEX_R_FUNCTION,
 	LEX_R_RETURN,
 	LEX_R_VAR,
+	LEX_R_LET,
 	LEX_R_TRUE,
 	LEX_R_FALSE,
 	LEX_R_NULL,
@@ -120,7 +122,8 @@ enum class  LEX_TYPES {
 	LEX_R_LIST_END /* always the last entry */
 };
 
-enum class SCRIPTVAR_FLAGS {
+enum class SCRIPTVAR_FLAGS
+{
 	SCRIPTVAR_UNDEFINED = 0,
 	SCRIPTVAR_FUNCTION = 1,
 	SCRIPTVAR_OBJECT = 2,
@@ -143,11 +146,11 @@ enum class SCRIPTVAR_FLAGS {
 	SCRIPTVAR_NULL,
 
 };
-// �_���I�y���[�^OR
+// 論理オペレータOR
 SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
-// �_���I�y���[�^&
+// 論理オペレータ&
 SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
-// �_���I�y���[�^~
+// 論理オペレータ~
 SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L);
 
 #define TINYJS_RETURN_VAR      "return"
@@ -178,7 +181,7 @@ public:
 	int tokenEnd;                            ///< Position in the data at the last character of the token we have here
 	int tokenLastEnd;                        ///< Position in the data at the last character of the last token
 	wString tkStr;                           ///< Data contained in the token we have here
-	void match(LEX_TYPES expected_tk);           ///< Lexical match wotsit
+	void match(LEX_TYPES expected_tk);       ///< Lexical match wotsit
 	static wString getTokenStr(LEX_TYPES token);   ///< Get the string representation of the given token
 	void reset();                            ///< Reset this lex so we can start again
 
@@ -207,16 +210,16 @@ class CScriptVar;
 typedef void (*JSCallback)(CScriptVar* var, void* userdata);
 
 /// <summary>
-/// �ϐ����X�g
+/// 変数リスト
 /// </summary>
 class CScriptVarLink
 {
 public:
-	wString name;               //�ϐ���
-	CScriptVarLink* nextSibling;//���̃����N
-	CScriptVarLink* prevSibling;//�O�̃����N
-	CScriptVar* var;        //�ϐ��̎���
-	bool           owned;       //�쐬��?
+	wString name;               //変数名
+	CScriptVarLink* nextSibling;//次のリンク
+	CScriptVarLink* prevSibling;//前のリンク
+	CScriptVar* var;        //変数の実体
+	bool           owned;       //作成者?
 
 	CScriptVarLink(CScriptVar* var, const wString& name = TINYJS_TEMP_NAME);
 	CScriptVarLink(const CScriptVarLink& link); ///< Copy constructor
@@ -228,7 +231,7 @@ public:
 };
 
 /// <summary>
-/// �ϐ��N���X�i��d�����N�̎q���X�g���܂ށj
+/// 変数クラス（二重リンクの子リストを含む）
 /// </summary>
 class CScriptVar
 {
@@ -314,12 +317,13 @@ protected:
 
 	/** Copy the basic data and flags from the variable given, with no
 	  * children. Should be used internally only - by copyValue and deepCopy */
-	void copySimpleData(CScriptVar* val);
+	void copySimpleData(const CScriptVar* val);
 
 	friend class CTinyJS;
 };
 
-class CTinyJS {
+class CTinyJS
+{
 public:
 	CTinyJS();
 	~CTinyJS();

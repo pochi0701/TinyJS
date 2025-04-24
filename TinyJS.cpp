@@ -127,27 +127,34 @@
 #define ASSERT(X) assert(X)
 #endif
   //#define TINYJS_CALL_STACK
-/* Frees the given link IF it isn't owned by anything else */
-//#define CLEAN(x) { CScriptVarLink *__v = x; if (__v && !__v->owned) { delete __v; } }
-inline void CLEAN(CScriptVarLink* x) {
-	auto __v = x;
-	if (__v && !__v->owned) {
-		delete __v;
+
+ /// <summary>
+ /// Frees the given link IF it isn't owned by anything else
+ /// </summary>
+ /// <param name="x"></param>
+inline void CLEAN(CScriptVarLink* x)
+{
+	auto link = x;
+	if (link && !link->owned) {
+		delete link;
 	}
 }
 /* Create a LINK to point to VAR and free the old link.
  * BUT this is more clever - it tries to keep the old link if it's not owned to save allocations */
 #define CREATE_LINK(LINK, VAR) { if (!LINK || LINK->owned) LINK = new CScriptVarLink(VAR); else LINK->replaceWith(VAR); }
  // 論理オペレータOR
-SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R) {
+SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R)
+{
 	return static_cast<SCRIPTVAR_FLAGS>(static_cast<int>(L) | static_cast<int>(R));
 }
 // 論理オペレータ&
-SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R) {
+SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R)
+{
 	return static_cast<SCRIPTVAR_FLAGS>(static_cast<int>(L) & static_cast<int>(R));
 }
 // 論理オペレータ~
-SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L) {
+SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L)
+{
 	return static_cast<SCRIPTVAR_FLAGS>(~static_cast<int>(L));
 }
 
@@ -170,32 +177,25 @@ static unsigned char cmap[256] = {
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//E0
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//F0
 };
-//#define web
-//#include <string>
-//#include <string.h>
-//#include <sstream>
-//#include <cstdlib>
-//#include <stdio.h>
+
 using namespace std;
 
-#ifdef __GNUC__
-#define vsprintf_s vsnprintf
-#define sprintf_s snprintf
-#define _strdup strdup
-#endif
 
 // ----------------------------------------------------------------------------------- Utils
-inline bool isWhitespace(unsigned char ch) {
+inline bool isWhitespace(unsigned char ch)
+{
 	return (cmap[ch] & 1);//(ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
 }
 ////////////////////////////////////////////////////////////////////////////////
 //数字チェック
-inline bool isNumeric(unsigned char  ch) {
+inline bool isNumeric(unsigned char  ch)
+{
 	return (cmap[ch] & 2);//(ch>='0') && (ch<='9');
 }
 ////////////////////////////////////////////////////////////////////////////////
 //数値チェック
-inline bool isNumber(const wString& str) {
+inline bool isNumber(const wString& str)
+{
 	for (auto i = 0U; i < str.size(); i++) {
 		if (!isNumeric(str[i])) return false;
 	}
@@ -203,30 +203,19 @@ inline bool isNumber(const wString& str) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 //１６進チェック
-inline bool isHexadecimal(unsigned char ch) {
+inline bool isHexadecimal(unsigned char ch)
+{
 	return ((ch >= '0') && (ch <= '9')) ||
 		((ch >= 'a') && (ch <= 'f')) ||
 		((ch >= 'A') && (ch <= 'F'));
 }
 ////////////////////////////////////////////////////////////////////////////////
 //アルファベットチェック
-inline bool isAlpha(unsigned char ch) {
+inline bool isAlpha(unsigned char ch)
+{
 	return (cmap[ch] & 4);//((ch>='a') && (ch<='z')) || ((ch>='A') && (ch<='Z')) || ch=='_';
 }
-////////////////////////////////////////////////////////////////////////////////
-//ID文字列になるかチェック
-//bool isIDString(const char *s) {
-//    if (!isAlpha(*s)){
-//        return false;
-//    }
-//    while (*s) {
-//        if (!(isAlpha(*s) || isNumeric(*s))){
-//            return false;
-//        }
-//        s++;
-//    }
-//    return true;
-//}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// <summary>
@@ -261,7 +250,8 @@ wString oneLine(const char* s, int ptr, int end)
 /// </summary>
 /// <param name="str"></param>
 /// <returns></returns>
-wString getJSString(const wString& str) {
+wString getJSString(const wString& str)
+{
 	wString nStr = str;
 	char buffer[5] = { 0 };
 	for (auto i = 0U; i < nStr.size(); i++) {
@@ -303,7 +293,8 @@ wString getJSString(const wString& str) {
 /// </summary>
 /// <param name="str"></param>
 /// <returns></returns>
-bool isAlphaNum(const wString& str) {
+bool isAlphaNum(const wString& str)
+{
 	if (str.size() == 0) {
 		return true;
 	}
@@ -331,7 +322,8 @@ void JSTRACE(SOCKET socket, const char* format, ...)
 #endif
 // ----------------------------------------------------------------------------------- CSCRIPTEXCEPTION
 // 例外はtextに格納
-CScriptException::CScriptException(const wString& exceptionText) {
+CScriptException::CScriptException(const wString& exceptionText)
+{
 	text = exceptionText;
 }
 
@@ -370,7 +362,8 @@ CScriptLex::~CScriptLex(void)
 	}
 }
 
-void CScriptLex::reset() {
+void CScriptLex::reset()
+{
 	dataPos = dataStart;
 	tokenStart = 0;
 	tokenEnd = 0;
@@ -383,7 +376,8 @@ void CScriptLex::reset() {
 }
 //期待する語をチェックして次の１トークンを先読み
 //期待はずれなら例外
-void CScriptLex::match(LEX_TYPES expected_tk) {
+void CScriptLex::match(LEX_TYPES expected_tk)
+{
 	if (tk != expected_tk) {
 		wString errorString;
 		errorString.sprintf("Got %s expected %s at %s(%s)\n", getTokenStr(tk).c_str(), getTokenStr(expected_tk).c_str(), getPosition(tokenStart).c_str(), oneLine(data, dataPos, dataEnd).c_str());
@@ -410,7 +404,8 @@ void headerCheckPrint(int socket, int* printed, wString* headerBuf, int flag)
 /// </summary>
 /// <param name="token">LEX_TYPES token</param>
 /// <returns>wString</returns>
-wString CScriptLex::getTokenStr(LEX_TYPES token) {
+wString CScriptLex::getTokenStr(LEX_TYPES token)
+{
 	if (static_cast<int>(token) > 32 && static_cast<int>(token) < 256) {
 		char buf[4] = "' '";
 		buf[1] = (char)token;
@@ -453,6 +448,7 @@ wString CScriptLex::getTokenStr(LEX_TYPES token) {
 	case LEX_TYPES::LEX_R_FUNCTION: return "function";
 	case LEX_TYPES::LEX_R_RETURN: return "return";
 	case LEX_TYPES::LEX_R_VAR: return "var";
+	case LEX_TYPES::LEX_R_LET: return "let";
 	case LEX_TYPES::LEX_R_TRUE: return "true";
 	case LEX_TYPES::LEX_R_FALSE: return "false";
 	case LEX_TYPES::LEX_R_NULL: return "null";
@@ -470,7 +466,8 @@ wString CScriptLex::getTokenStr(LEX_TYPES token) {
 /// 次の１文字を取り込む。
 /// </summary>
 /// <returns>取り込み前の1文字</returns>
-LEX_TYPES CScriptLex::getNextCh() {
+LEX_TYPES CScriptLex::getNextCh()
+{
 	currCh = nextCh;
 	if (dataPos < dataEnd) {
 #if 0
@@ -540,6 +537,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr == "function")  tk = LEX_TYPES::LEX_R_FUNCTION;
 		else if (tkStr == "return")    tk = LEX_TYPES::LEX_R_RETURN;
 		else if (tkStr == "var")       tk = LEX_TYPES::LEX_R_VAR;
+		else if (tkStr == "let")       tk = LEX_TYPES::LEX_R_LET;
 		else if (tkStr == "true")      tk = LEX_TYPES::LEX_R_TRUE;
 		else if (tkStr == "false")     tk = LEX_TYPES::LEX_R_FALSE;
 		else if (tkStr == "null")      tk = LEX_TYPES::LEX_R_NULL;
@@ -592,7 +590,7 @@ void CScriptLex::getNextToken() {
 				getNextCh();
 				switch (currCh) {
 				case static_cast<LEX_TYPES>('n'): tkStr += '\n'; break;
-				case static_cast<LEX_TYPES>('a'): tkStr += '\n'; break;
+				case static_cast<LEX_TYPES>('a'): tkStr += '\a'; break;
 				case static_cast<LEX_TYPES>('r'): tkStr += '\r'; break;
 				case static_cast<LEX_TYPES>('t'): tkStr += '\t'; break;
 				case LEX_TYPES::LEX_D_QUOTE: tkStr += '"'; break;
@@ -738,7 +736,8 @@ void CScriptLex::getNextToken() {
 	tokenEnd = dataPos - 3;
 }
 /// <summary>部分文字列を返す</summary>
-wString CScriptLex::getSubString(int lastPosition) {
+wString CScriptLex::getSubString(int lastPosition)
+{
 	int lastCharIdx = tokenLastEnd + 1;
 	if (lastCharIdx < dataEnd) {
 		/* save a memory alloc by using our data array to create the
@@ -759,7 +758,8 @@ wString CScriptLex::getSubString(int lastPosition) {
 /// </summary>
 /// <param name="lastPosition"></param>
 /// <returns></returns>
-CScriptLex* CScriptLex::getSubLex(int lastPosition) {
+CScriptLex* CScriptLex::getSubLex(int lastPosition)
+{
 	int lastCharIdx = tokenLastEnd + 1;
 	if (lastCharIdx < dataEnd) {
 		return new CScriptLex(this, lastPosition, lastCharIdx);
@@ -769,7 +769,8 @@ CScriptLex* CScriptLex::getSubLex(int lastPosition) {
 	}
 }
 /// <summary>指定位置を行数、列数に変換</summary>
-wString CScriptLex::getPosition(int pos) {
+wString CScriptLex::getPosition(int pos)
+{
 	if (pos < 0) pos = tokenLastEnd;
 	int line = 1;
 	int col = 1;
@@ -798,7 +799,8 @@ wString CScriptLex::getPosition(int pos) {
 /// </summary>
 /// <param name="var"></param>
 /// <param name="myname"></param>
-CScriptVarLink::CScriptVarLink(CScriptVar* var, const wString& myname) {
+CScriptVarLink::CScriptVarLink(CScriptVar* var, const wString& myname)
+{
 	this->name = myname;
 	this->nextSibling = 0;
 	this->prevSibling = 0;
@@ -810,7 +812,8 @@ CScriptVarLink::CScriptVarLink(CScriptVar* var, const wString& myname) {
 /// 変数のコピー（浅い参照）
 /// </summary>
 /// <param name="link"></param>
-CScriptVarLink::CScriptVarLink(const CScriptVarLink& link) {
+CScriptVarLink::CScriptVarLink(const CScriptVarLink& link)
+{
 	// Copy constructor
 	this->name = link.name;
 	this->nextSibling = 0;
@@ -820,28 +823,33 @@ CScriptVarLink::CScriptVarLink(const CScriptVarLink& link) {
 }
 
 /// <summary>デストラクタ</summary>
-CScriptVarLink::~CScriptVarLink() {
+CScriptVarLink::~CScriptVarLink()
+{
 	var->unref();
 }
 
-void CScriptVarLink::replaceWith(CScriptVar* newVar) {
+void CScriptVarLink::replaceWith(CScriptVar* newVar)
+{
 	CScriptVar* oldVar = var;
 	var = newVar->setRef();
 	oldVar->unref();
 }
 
-void CScriptVarLink::replaceWith(CScriptVarLink* newVar) {
+void CScriptVarLink::replaceWith(CScriptVarLink* newVar)
+{
 	if (newVar)
 		replaceWith(newVar->var);
 	else
 		replaceWith(new CScriptVar());
 }
 /// <summary>名前を数値に変換</summary>
-int CScriptVarLink::getIntName() {
+int CScriptVarLink::getIntName()
+{
 	return atoi(name.c_str());
 }
 /// <summary>変数に整数を設定</summary>
-void CScriptVarLink::setIntName(int n) {
+void CScriptVarLink::setIntName(int n)
+{
 	char sIdx[64];
 	snprintf(sIdx, sizeof(sIdx), "%d", n);
 	name = sIdx;
@@ -849,13 +857,15 @@ void CScriptVarLink::setIntName(int n) {
 
 // ----------------------------------------------------------------------------------- CSCRIPTVAR
 
-CScriptVar::CScriptVar() {
+CScriptVar::CScriptVar()
+{
 	refs = 0;
 	init();
 	flags = SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED;
 }
 
-CScriptVar::CScriptVar(const wString& str) {
+CScriptVar::CScriptVar(const wString& str)
+{
 	refs = 0;
 	init();
 	flags = SCRIPTVAR_FLAGS::SCRIPTVAR_STRING;
@@ -863,7 +873,8 @@ CScriptVar::CScriptVar(const wString& str) {
 }
 
 
-CScriptVar::CScriptVar(const wString& varData, SCRIPTVAR_FLAGS varFlags) {
+CScriptVar::CScriptVar(const wString& varData, SCRIPTVAR_FLAGS varFlags)
+{
 	refs = 0;
 	init();
 	flags = varFlags;
@@ -878,28 +889,33 @@ CScriptVar::CScriptVar(const wString& varData, SCRIPTVAR_FLAGS varFlags) {
 	}
 }
 
-CScriptVar::CScriptVar(double val) {
+CScriptVar::CScriptVar(double val)
+{
 	refs = 0;
 	init();
 	setDouble(val);
 }
 
-CScriptVar::CScriptVar(int val) {
+CScriptVar::CScriptVar(int val)
+{
 	refs = 0;
 	init();
 	setInt(val);
 }
-CScriptVar::CScriptVar(bool val) {
+CScriptVar::CScriptVar(bool val)
+{
 	refs = 0;
 	init();
 	setInt(val);
 }
 
-CScriptVar::~CScriptVar(void) {
+CScriptVar::~CScriptVar(void)
+{
 	removeAllChildren();
 }
 
-void CScriptVar::init() {
+void CScriptVar::init()
+{
 	firstChild = 0;
 	lastChild = 0;
 	flags = SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED;
@@ -910,20 +926,24 @@ void CScriptVar::init() {
 	doubleData = 0;
 }
 
-CScriptVar* CScriptVar::getReturnVar() {
+CScriptVar* CScriptVar::getReturnVar()
+{
 	return getParameter(TINYJS_RETURN_VAR);
 }
 
-void CScriptVar::setReturnVar(CScriptVar* var) {
+void CScriptVar::setReturnVar(CScriptVar* var)
+{
 	findChildOrCreate(TINYJS_RETURN_VAR)->replaceWith(var);
 }
 
 
-CScriptVar* CScriptVar::getParameter(const wString& name) {
+CScriptVar* CScriptVar::getParameter(const wString& name)
+{
 	return findChildOrCreate(name)->var;
 }
 //親変数で子供が見つかったらlinkを返す。なければ0
-CScriptVarLink* CScriptVar::findChild(const wString& childName) {
+CScriptVarLink* CScriptVar::findChild(const wString& childName)
+{
 	CScriptVarLink* v = firstChild;
 	while (v) {
 		if (v->name.compare(childName) == 0)
@@ -933,22 +953,26 @@ CScriptVarLink* CScriptVar::findChild(const wString& childName) {
 	return 0;
 }
 
-CScriptVarLink* CScriptVar::findChildOrCreate(const wString& childName, SCRIPTVAR_FLAGS varFlags) {
+CScriptVarLink* CScriptVar::findChildOrCreate(const wString& childName, SCRIPTVAR_FLAGS varFlags)
+{
 	CScriptVarLink* lex = findChild(childName);
 	if (lex) return lex;
 
 	return addChild(childName, new CScriptVar(TINYJS_BLANK_DATA, varFlags));
 }
 
-CScriptVarLink* CScriptVar::findChildOrCreateByPath(const wString& path) {
+CScriptVarLink* CScriptVar::findChildOrCreateByPath(const wString& path)
+{
 	int p = path.find(static_cast<unsigned char>(LEX_TYPES::LEX_DOT));
 	if (p == wString::npos)
 		return findChildOrCreate(path);
 
-	return findChildOrCreate(path.substr(0, p), SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT)->var->findChildOrCreateByPath(path.substr(p + 1));
+	return findChildOrCreate(path.substr(0, p), SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT)->var->
+		findChildOrCreateByPath(path.substr(p + 1));
 }
 
-CScriptVarLink* CScriptVar::addChild(const wString& childName, CScriptVar* child) {
+CScriptVarLink* CScriptVar::addChild(const wString& childName, CScriptVar* child)
+{
 	if (isUndefined()) {
 		flags = SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT;
 	}
@@ -971,7 +995,8 @@ CScriptVarLink* CScriptVar::addChild(const wString& childName, CScriptVar* child
 	return link;
 }
 
-CScriptVarLink* CScriptVar::addChildNoDup(const wString& childName, CScriptVar* child) {
+CScriptVarLink* CScriptVar::addChildNoDup(const wString& childName, CScriptVar* child)
+{
 	// if no child supplied, create one
 	if (!child)
 		child = new CScriptVar();
@@ -987,7 +1012,8 @@ CScriptVarLink* CScriptVar::addChildNoDup(const wString& childName, CScriptVar* 
 	return v;
 }
 
-void CScriptVar::removeChild(const CScriptVar* child) {
+void CScriptVar::removeChild(const CScriptVar* child)
+{
 	CScriptVarLink* link = firstChild;
 	while (link) {
 		if (link->var == child) {
@@ -999,7 +1025,8 @@ void CScriptVar::removeChild(const CScriptVar* child) {
 	removeLink(link);
 }
 
-void CScriptVar::removeLink(CScriptVarLink* link) {
+void CScriptVar::removeLink(CScriptVarLink* link)
+{
 	if (!link) return;
 	if (link->nextSibling) {
 		link->nextSibling->prevSibling = link->prevSibling;
@@ -1016,7 +1043,8 @@ void CScriptVar::removeLink(CScriptVarLink* link) {
 	delete link;
 }
 
-void CScriptVar::removeAllChildren() {
+void CScriptVar::removeAllChildren()
+{
 	CScriptVarLink* c = firstChild;
 	while (c) {
 		CScriptVarLink* t = c->nextSibling;
@@ -1027,7 +1055,8 @@ void CScriptVar::removeAllChildren() {
 	lastChild = 0;
 }
 
-CScriptVar* CScriptVar::getArrayIndex(int idx) {
+CScriptVar* CScriptVar::getArrayIndex(int idx)
+{
 	char sIdx[64] = {};
 	snprintf(sIdx, sizeof(sIdx), "%d", idx);
 	CScriptVarLink* link = findChild(sIdx);
@@ -1035,7 +1064,8 @@ CScriptVar* CScriptVar::getArrayIndex(int idx) {
 	else return new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_NULL); // undefined
 }
 
-void CScriptVar::setArrayIndex(int idx, CScriptVar* value) {
+void CScriptVar::setArrayIndex(int idx, CScriptVar* value)
+{
 	char sIdx[64] = {};
 	snprintf(sIdx, sizeof(sIdx), "%d", idx);
 	CScriptVarLink* link = findChild(sIdx);
@@ -1052,7 +1082,8 @@ void CScriptVar::setArrayIndex(int idx, CScriptVar* value) {
 	}
 }
 
-int CScriptVar::getArrayLength() {
+int CScriptVar::getArrayLength()
+{
 	int highest = -1;
 	if (!isArray()) return 0;
 
@@ -1067,7 +1098,8 @@ int CScriptVar::getArrayLength() {
 	return highest + 1;
 }
 
-int CScriptVar::getChildren() {
+int CScriptVar::getChildren()
+{
 	int n = 0;
 	CScriptVarLink* link = firstChild;
 	while (link) {
@@ -1077,7 +1109,8 @@ int CScriptVar::getChildren() {
 	return n;
 }
 
-int CScriptVar::getInt() {
+int CScriptVar::getInt()
+{
 	/* strtol understands about hex and octal */
 	if (isInt()) return intData;
 	if (isNull()) return 0;
@@ -1086,7 +1119,8 @@ int CScriptVar::getInt() {
 	return 0;
 }
 
-double CScriptVar::getDouble() {
+double CScriptVar::getDouble()
+{
 	if (isDouble()) return doubleData;
 	if (isInt()) return intData;
 	if (isNull()) return 0;
@@ -1094,7 +1128,8 @@ double CScriptVar::getDouble() {
 	return 0; /* or NaN? */
 }
 
-const wString& CScriptVar::getString() {
+const wString& CScriptVar::getString()
+{
 	/* Because we can't return a wString that is generated on demand.
 	 * I should really just use char* :) */
 	if (isInt()) {
@@ -1113,32 +1148,36 @@ const wString& CScriptVar::getString() {
 	return data;
 }
 
-void CScriptVar::setInt(int val) {
-	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER;
+void CScriptVar::setInt(int val)
+{
+	flags = flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK | SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER;
 	intData = val;
 	doubleData = 0;
 	data = TINYJS_BLANK_DATA;
 }
 
-void CScriptVar::setDouble(double val) {
-	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_DOUBLE;
+void CScriptVar::setDouble(double val)
+{
+	flags = flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK | SCRIPTVAR_FLAGS::SCRIPTVAR_DOUBLE;
 	doubleData = val;
 	intData = 0;
 	data = TINYJS_BLANK_DATA;
 }
 
-void CScriptVar::setString(const wString& str) {
+void CScriptVar::setString(const wString& str)
+{
 	// name sure it's not still a number or integer
-	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_STRING;
+	flags = flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK | SCRIPTVAR_FLAGS::SCRIPTVAR_STRING;
 	data = str;
 	intData = 0;
 	doubleData = 0;
 }
 
 /// <summary>undefinedの値を設定</summary>
-void CScriptVar::setUndefined() {
+void CScriptVar::setUndefined()
+{
 	// name sure it's not still a number or integer
-	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED;
+	flags = flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK | SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED;
 	data = TINYJS_BLANK_DATA;
 	intData = 0;
 	doubleData = 0;
@@ -1146,7 +1185,8 @@ void CScriptVar::setUndefined() {
 }
 
 /// <summary>配列を設定</summary>
-void CScriptVar::setArray() {
+void CScriptVar::setArray()
+{
 	// name sure it's not still a number or integer
 	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_FLAGS::SCRIPTVAR_ARRAY;
 	data = TINYJS_BLANK_DATA;
@@ -1160,7 +1200,8 @@ void CScriptVar::setArray() {
 /// </summary>
 /// <param name="v">比較する変数</param>
 /// <returns>同一なら真、さもなくば偽</returns>:
-bool CScriptVar::equals(CScriptVar* v) {
+bool CScriptVar::equals(CScriptVar* v)
+{
 	CScriptVar* resV = mathsOp(v, LEX_TYPES::LEX_EQUAL);
 	bool res = resV->getBool();
 	delete resV;
@@ -1173,7 +1214,8 @@ bool CScriptVar::equals(CScriptVar* v) {
 /// <param name="b">変数の値</param>
 /// <param name="op">演算子</param>
 /// <returns>this,op,bの演算結果true/false</returns>
-CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op) {
+CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op)
+{
 	CScriptVar* a = this;
 	// Type equality check
 	if (op == LEX_TYPES::LEX_TYPEEQUAL || op == LEX_TYPES::LEX_NTYPEEQUAL) {
@@ -1209,7 +1251,7 @@ CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op) {
 			case LEX_TYPES::LEX_PLUS:  return new CScriptVar(da + db);
 			case LEX_TYPES::LEX_MINUS: return new CScriptVar(da - db);
 			case LEX_TYPES::LEX_MUL:   return new CScriptVar(da * db);
-			case LEX_TYPES::LEX_DIV:   return new CScriptVar(da / db);
+			case LEX_TYPES::LEX_DIV:   return new CScriptVar((db != 0) ? (da / db) : 0);
 			case LEX_TYPES::LEX_AND:   return new CScriptVar(da & db);
 			case LEX_TYPES::LEX_OR:    return new CScriptVar(da | db);
 			case LEX_TYPES::LEX_XOR:   return new CScriptVar(da ^ db);
@@ -1228,15 +1270,15 @@ CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op) {
 			double da = a->getDouble();
 			double db = b->getDouble();
 			switch (op) {
-			case LEX_TYPES::LEX_PLUS: return new CScriptVar(da + db);
-			case LEX_TYPES::LEX_MINUS: return new CScriptVar(da - db);
-			case LEX_TYPES::LEX_MUL: return new CScriptVar(da * db);
-			case LEX_TYPES::LEX_DIV: return new CScriptVar(da / db);
+			case LEX_TYPES::LEX_PLUS:      return new CScriptVar(da + db);
+			case LEX_TYPES::LEX_MINUS:     return new CScriptVar(da - db);
+			case LEX_TYPES::LEX_MUL:       return new CScriptVar(da * db);
+			case LEX_TYPES::LEX_DIV:       return new CScriptVar((db != 0) ? (da / db) : 0);
 			case LEX_TYPES::LEX_EQUAL:     return new CScriptVar(da == db);
 			case LEX_TYPES::LEX_NEQUAL:    return new CScriptVar(da != db);
-			case LEX_TYPES::LEX_L_THAN:     return new CScriptVar(da < db);
+			case LEX_TYPES::LEX_L_THAN:    return new CScriptVar(da < db);
 			case LEX_TYPES::LEX_LEQUAL:    return new CScriptVar(da <= db);
-			case LEX_TYPES::LEX_G_THAN:     return new CScriptVar(da > db);
+			case LEX_TYPES::LEX_G_THAN:    return new CScriptVar(da > db);
 			case LEX_TYPES::LEX_GEQUAL:    return new CScriptVar(da >= db);
 			default: throw new CScriptException("Operation " + CScriptLex::getTokenStr(op) + " not supported on the Double datatype");
 			}
@@ -1282,14 +1324,16 @@ CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op) {
 /// copy value of val to this.
 /// </summary>
 /// <param name="val">varable copy from.</param>
-void CScriptVar::copySimpleData(CScriptVar* val) {
+void CScriptVar::copySimpleData(const CScriptVar* val)
+{
 	data = val->data;
 	intData = val->intData;
 	doubleData = val->doubleData;
 	flags = (flags & ~SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) | (val->flags & SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK);
 }
 
-void CScriptVar::copyValue(CScriptVar* val) {
+void CScriptVar::copyValue(CScriptVar* val)
+{
 	if (val) {
 		copySimpleData(val);
 		// remove all current children
@@ -1320,7 +1364,8 @@ void CScriptVar::copyValue(CScriptVar* val) {
 /// Deep copy
 /// </summary>
 /// <returns>new variable.</returns>
-CScriptVar* CScriptVar::deepCopy() {
+CScriptVar* CScriptVar::deepCopy()
+{
 	CScriptVar* newVar = new CScriptVar();
 	newVar->copySimpleData(this);
 	// copy children
@@ -1339,7 +1384,8 @@ CScriptVar* CScriptVar::deepCopy() {
 	return newVar;
 }
 
-void CScriptVar::trace(const wString& indentStr, const wString& name) {
+void CScriptVar::trace(const wString& indentStr, const wString& name)
+{
 	TRACE("%s'%s' = '%s' %s\n",
 		indentStr.c_str(),
 		name.c_str(),
@@ -1352,7 +1398,8 @@ void CScriptVar::trace(const wString& indentStr, const wString& name) {
 		link = link->nextSibling;
 	}
 }
-wString CScriptVar::trace2(void) {
+wString CScriptVar::trace2(void)
+{
 	wString str;
 	CScriptVarLink* link = firstChild;
 	while (link) {
@@ -1362,7 +1409,8 @@ wString CScriptVar::trace2(void) {
 	return str;
 }
 
-wString CScriptVar::getFlagsAsString() {
+wString CScriptVar::getFlagsAsString()
+{
 	wString flagstr = "";
 	if ((flags & SCRIPTVAR_FLAGS::SCRIPTVAR_FUNCTION) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED) flagstr += "FUNCTION ";
 	if ((flags & SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED)   flagstr += "OBJECT ";
@@ -1378,7 +1426,8 @@ wString CScriptVar::getFlagsAsString() {
 /// 解析可能な文字列の出力
 /// </summary>
 /// <returns></returns>
-wString CScriptVar::getParsableString() {
+wString CScriptVar::getParsableString()
+{
 	// Numbers can just be put in directly
 	if (isNumeric()) {
 		return getString();
@@ -1413,7 +1462,8 @@ wString CScriptVar::getParsableString() {
 /// </summary>
 /// <param name="destination">出力するJSON</param>
 /// <param name="linePrefix">行毎に付与する文字</param>
-void CScriptVar::getJSON(wString& destination, const wString& linePrefix) {
+void CScriptVar::getJSON(wString& destination, const wString& linePrefix)
+{
 	if (isObject()) {
 		wString indentedLinePrefix = linePrefix + "  ";
 		// children - handle with bracketed list
@@ -1455,7 +1505,8 @@ void CScriptVar::getJSON(wString& destination, const wString& linePrefix) {
 }
 
 
-void CScriptVar::setCallback(JSCallback callback, void* userdata) {
+void CScriptVar::setCallback(JSCallback callback, void* userdata)
+{
 	jsCallback = callback;
 	jsCallbackUserData = userdata;
 }
@@ -1464,19 +1515,22 @@ void CScriptVar::setCallback(JSCallback callback, void* userdata) {
 /// 参照設定
 /// </summary>
 /// <returns></returns>
-CScriptVar* CScriptVar::setRef() {
+CScriptVar* CScriptVar::setRef()
+{
 	refs++;
 	return this;
 }
 
-void CScriptVar::unref() {
+void CScriptVar::unref()
+{
 	if (refs <= 0) printf("OMFG, we have unreffed too far!\n");
 	if ((--refs) == 0) {
 		delete this;
 	}
 }
 
-int CScriptVar::getRefs() {
+int CScriptVar::getRefs()
+{
 	return refs;
 }
 
@@ -1485,7 +1539,8 @@ int CScriptVar::getRefs() {
 /// <summary>
 /// CSCRIPT CONSTRUCTOR
 /// </summary>
-CTinyJS::CTinyJS() {
+CTinyJS::CTinyJS()
+{
 	lex = 0;
 	root = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT))->setRef();
 	// Add built-in classes
@@ -1500,7 +1555,8 @@ CTinyJS::CTinyJS() {
 /// <summary>
 /// DESTRUCTOR
 /// </summary>
-CTinyJS::~CTinyJS() {
+CTinyJS::~CTinyJS()
+{
 	ASSERT(!lex);
 	scopes.clear();
 	stringClass->unref();
@@ -1510,7 +1566,8 @@ CTinyJS::~CTinyJS() {
 
 }
 
-void CTinyJS::trace() {
+void CTinyJS::trace()
+{
 	root->trace();
 }
 
@@ -1518,7 +1575,8 @@ void CTinyJS::trace() {
 /// コードの実行
 /// </summary>
 /// <param name="code">実行するステートメント</param>
-void CTinyJS::execute(const wString& code) {
+void CTinyJS::execute(const wString& code)
+{
 	//退避する
 	CScriptLex* oldLex = lex;
 	std::vector<CScriptVar*> oldScopes = scopes;
@@ -1562,7 +1620,8 @@ void CTinyJS::execute(const wString& code) {
 	scopes = oldScopes;
 }
 //複合式
-CScriptVarLink CTinyJS::evaluateComplex(const wString& code) {
+CScriptVarLink CTinyJS::evaluateComplex(const wString& code)
+{
 	CScriptLex* oldLex = lex;
 	std::vector<CScriptVar*> oldScopes = scopes;
 
@@ -1612,11 +1671,13 @@ CScriptVarLink CTinyJS::evaluateComplex(const wString& code) {
 /// </summary>
 /// <param name="code">評価する文字列</param>
 /// <returns>評価結果</returns>
-wString CTinyJS::evaluate(const wString& code) {
+wString CTinyJS::evaluate(const wString& code)
+{
 	return evaluateComplex(code).var->getString();
 }
 
-void CTinyJS::parseFunctionArguments(CScriptVar* funcVar) {
+void CTinyJS::parseFunctionArguments(CScriptVar* funcVar)
+{
 	lex->match(LEX_TYPES::LEX_L_PARENTHESIS);
 	while (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) {
 		funcVar->addChildNoDup(lex->tkStr);
@@ -1632,7 +1693,8 @@ void CTinyJS::parseFunctionArguments(CScriptVar* funcVar) {
 /// <param name="funcDesc"></param>
 /// <param name="ptr"></param>
 /// <param name="userdata"></param>
-void CTinyJS::addNative(const wString& funcDesc, JSCallback ptr, void* userdata) {
+void CTinyJS::addNative(const wString& funcDesc, JSCallback ptr, void* userdata)
+{
 	CScriptLex* oldLex = lex;
 	lex = new CScriptLex(funcDesc);
 
@@ -1661,7 +1723,8 @@ void CTinyJS::addNative(const wString& funcDesc, JSCallback ptr, void* userdata)
 	base_variable->addChild(funcName, funcVar);
 }
 
-CScriptVarLink* CTinyJS::parseFunctionDefinition() {
+CScriptVarLink* CTinyJS::parseFunctionDefinition()
+{
 	// actually parse a function...
 	lex->match(LEX_TYPES::LEX_R_FUNCTION);
 	wString funcName = TINYJS_TEMP_NAME;
@@ -1688,7 +1751,8 @@ CScriptVarLink* CTinyJS::parseFunctionDefinition() {
 /// <param name="function"></param>
 /// <param name="parent"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, CScriptVar* parent) {
+CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, CScriptVar* parent)
+{
 	if (execute) {
 		if (!function->var->isFunction()) {
 			wString errorMsg = "Expecting '" + function->name + "' to be a function";
@@ -1789,7 +1853,8 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 	}
 }
 
-CScriptVarLink* CTinyJS::factor(bool& execute) {
+CScriptVarLink* CTinyJS::factor(bool& execute)
+{
 	if (lex->tk == LEX_TYPES::LEX_L_PARENTHESIS) {
 		lex->match(LEX_TYPES::LEX_L_PARENTHESIS);
 		CScriptVarLink* a = base(execute);
@@ -1818,7 +1883,7 @@ CScriptVarLink* CTinyJS::factor(bool& execute) {
 		/* The parent if we're executing a method call */
 		CScriptVar* parent = 0;
 
-		void* alone = NULL;
+		const void* alone = NULL;
 		if (execute && !a) {
 			/* Variable doesn't exist! JavaScript says we should create it
 			 * (we won't add it here. This is done in the assignment operator)*/
@@ -1986,7 +2051,8 @@ CScriptVarLink* CTinyJS::factor(bool& execute) {
 /// </summary>
 /// <param name="execute">実行フラグ</param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::unary(bool& execute) {
+CScriptVarLink* CTinyJS::unary(bool& execute)
+{
 	CScriptVarLink* a;
 	if (lex->tk == LEX_TYPES::LEX_EXCLAMATION) {
 		lex->match(LEX_TYPES::LEX_EXCLAMATION); // binary not
@@ -2008,7 +2074,8 @@ CScriptVarLink* CTinyJS::unary(bool& execute) {
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::term(bool& execute) {
+CScriptVarLink* CTinyJS::term(bool& execute)
+{
 	CScriptVarLink* a = unary(execute);
 	while (lex->tk == LEX_TYPES::LEX_MUL || lex->tk == LEX_TYPES::LEX_DIV || lex->tk == LEX_TYPES::LEX_MOD) {
 		LEX_TYPES op = lex->tk;
@@ -2028,7 +2095,8 @@ CScriptVarLink* CTinyJS::term(bool& execute) {
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::expression(bool& execute) {
+CScriptVarLink* CTinyJS::expression(bool& execute)
+{
 	bool negate = false;
 	if (lex->tk == LEX_TYPES::LEX_MINUS) {
 		lex->match(LEX_TYPES::LEX_MINUS);
@@ -2074,7 +2142,8 @@ CScriptVarLink* CTinyJS::expression(bool& execute) {
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::shift(bool& execute) {
+CScriptVarLink* CTinyJS::shift(bool& execute)
+{
 	CScriptVarLink* a = expression(execute);
 	if (lex->tk == LEX_TYPES::LEX_LSHIFT || lex->tk == LEX_TYPES::LEX_RSHIFT || lex->tk == LEX_TYPES::LEX_RSHIFTUNSIGNED) {
 		LEX_TYPES op = lex->tk;
@@ -2096,7 +2165,8 @@ CScriptVarLink* CTinyJS::shift(bool& execute) {
 /// </summary>
 /// <param name="execute">実行の有無</param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::condition(bool& execute) {
+CScriptVarLink* CTinyJS::condition(bool& execute)
+{
 	CScriptVarLink* a = shift(execute);
 	CScriptVarLink* b = NULL;
 	while (lex->tk == LEX_TYPES::LEX_EQUAL || lex->tk == LEX_TYPES::LEX_NEQUAL ||
@@ -2120,7 +2190,8 @@ CScriptVarLink* CTinyJS::condition(bool& execute) {
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::logic(bool& execute) {
+CScriptVarLink* CTinyJS::logic(bool& execute)
+{
 	CScriptVarLink* a = condition(execute);
 	while (lex->tk == LEX_TYPES::LEX_AND ||
 		lex->tk == LEX_TYPES::LEX_OR ||
@@ -2166,7 +2237,8 @@ CScriptVarLink* CTinyJS::logic(bool& execute) {
 /// </summary>
 /// <param name="execute">実行の有無</param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::ternary(bool& execute) {
+CScriptVarLink* CTinyJS::ternary(bool& execute)
+{
 	CScriptVarLink* lhs = logic(execute);
 	if (lex->tk == LEX_TYPES::LEX_QUESTION) {
 		bool noexec = false;
@@ -2196,7 +2268,8 @@ CScriptVarLink* CTinyJS::ternary(bool& execute) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 //a=1、a+=1、a-=等
-CScriptVarLink* CTinyJS::base(bool& execute) {
+CScriptVarLink* CTinyJS::base(bool& execute)
+{
 	CScriptVarLink* lhs = ternary(execute);
 	if (lex->tk == LEX_TYPES::LEX_EQ || lex->tk == LEX_TYPES::LEX_PLUSEQUAL || lex->tk == LEX_TYPES::LEX_MINUSEQUAL) {
 		/* If we're assigning to this and we don't have a parent,
@@ -2233,7 +2306,8 @@ CScriptVarLink* CTinyJS::base(bool& execute) {
 	return lhs;
 }
 //execute==trueならblock内を実施
-LEX_TYPES CTinyJS::block(bool& execute) {
+LEX_TYPES CTinyJS::block(bool& execute)
+{
 	LEX_TYPES ret = LEX_TYPES::LEX_EOF;
 	lex->match(LEX_TYPES::LEX_L_BRACE);
 	int brackets = 1;
@@ -2263,7 +2337,8 @@ LEX_TYPES CTinyJS::block(bool& execute) {
 	return ret;
 }
 //記述
-LEX_TYPES  CTinyJS::statement(bool& execute) {
+LEX_TYPES  CTinyJS::statement(bool& execute)
+{
 	LEX_TYPES ret;
 	if (lex->tk == LEX_TYPES::LEX_ID ||
 		lex->tk == LEX_TYPES::LEX_INT ||
@@ -2313,6 +2388,39 @@ LEX_TYPES  CTinyJS::statement(bool& execute) {
 		 * hand side. Maybe just have a flag called can_create_var that we
 		 * set and then we parse as if we're doing a normal equals.*/
 		lex->match(LEX_TYPES::LEX_R_VAR);
+		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
+			CScriptVarLink* a = 0;
+			if (execute)
+				a = scopes.back()->findChildOrCreate(lex->tkStr);
+			lex->match(LEX_TYPES::LEX_ID);
+			// now do stuff defined with dots
+			while (lex->tk == LEX_TYPES::LEX_DOT) {
+				lex->match(LEX_TYPES::LEX_DOT);
+				if (execute) {
+					CScriptVarLink* lastA = a;
+					a = lastA->var->findChildOrCreate(lex->tkStr);
+				}
+				lex->match(LEX_TYPES::LEX_ID);
+			}
+			// sort out initialiser
+			if (lex->tk == LEX_TYPES::LEX_EQ) {
+				lex->match(LEX_TYPES::LEX_EQ);
+				CScriptVarLink* var = base(execute);
+				if (execute) {
+					a->replaceWith(var);
+				}
+				CLEAN(var);
+			}
+			if (lex->tk != LEX_TYPES::LEX_SEMICOLON)
+				lex->match(LEX_TYPES::LEX_COMMA);
+		}
+		lex->match(LEX_TYPES::LEX_SEMICOLON);
+	}
+	else if (lex->tk == LEX_TYPES::LEX_R_LET) {
+		/* variable creation. TODO - we need a better way of parsing the left
+		 * hand side. Maybe just have a flag called can_create_var that we
+		 * set and then we parse as if we're doing a normal equals.*/
+		lex->match(LEX_TYPES::LEX_R_LET);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
 			if (execute)
@@ -2443,8 +2551,7 @@ LEX_TYPES  CTinyJS::statement(bool& execute) {
 		}
 		//int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
 		//while (execute && loopCond && loopCount-- > 0) {
-		if (ret != LEX_TYPES::LEX_R_BREAK)
-		{
+		if (ret != LEX_TYPES::LEX_R_BREAK) {
 			while (execute && loopCond) {
 				forCond->reset();
 				lex = forCond;
@@ -2507,7 +2614,8 @@ LEX_TYPES  CTinyJS::statement(bool& execute) {
 }
 
 /// Get the given variable specified by a path (var1.var2.etc), or return 0
-CScriptVar* CTinyJS::getScriptVariable(const wString& path) {
+CScriptVar* CTinyJS::getScriptVariable(const wString& path)
+{
 	// traverse path
 	unsigned int prevIdx = 0;
 	int    thisIdx = path.find(static_cast<unsigned char>(LEX_TYPES::LEX_DOT));
@@ -2544,7 +2652,8 @@ CScriptVar* CTinyJS::getScriptVariable(const wString& path) {
 /// <param name="path"></param>
 /// <param name="varData"></param>
 /// <returns></returns>
-bool CTinyJS::setVariable(const wString& path, const wString& varData) {
+bool CTinyJS::setVariable(const wString& path, const wString& varData)
+{
 	CScriptVar* var = getScriptVariable(path);
 	// return result
 	if (var) {
@@ -2566,7 +2675,8 @@ bool CTinyJS::setVariable(const wString& path, const wString& varData) {
 /// </summary>
 /// <param name="childName"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::findInScopes(const wString& childName) {
+CScriptVarLink* CTinyJS::findInScopes(const wString& childName)
+{
 	for (auto s = (int)scopes.size() - 1; s >= 0; s--) {
 		CScriptVarLink* v = scopes[s]->findChild(childName);
 		if (v) return v;
@@ -2579,7 +2689,8 @@ CScriptVarLink* CTinyJS::findInScopes(const wString& childName) {
 /// <param name="object"></param>
 /// <param name="name"></param>
 /// <returns></returns>
-CScriptVarLink* CTinyJS::findInParentClasses(CScriptVar* object, const wString& name) {
+CScriptVarLink* CTinyJS::findInParentClasses(CScriptVar* object, const wString& name)
+{
 	// Look for links to actual parent classes
 	CScriptVarLink* parentClass = object->findChild(TINYJS_PROTOTYPE_CLASS);
 	while (parentClass) {
