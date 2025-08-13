@@ -449,6 +449,7 @@ wString CScriptLex::getTokenStr(LEX_TYPES token)
 	case LEX_TYPES::LEX_R_RETURN: return "return";
 	case LEX_TYPES::LEX_R_VAR: return "var";
 	case LEX_TYPES::LEX_R_LET: return "let";
+	case LEX_TYPES::LEX_R_CONST: return "const";
 	case LEX_TYPES::LEX_R_TRUE: return "true";
 	case LEX_TYPES::LEX_R_FALSE: return "false";
 	case LEX_TYPES::LEX_R_NULL: return "null";
@@ -538,6 +539,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr == "return")    tk = LEX_TYPES::LEX_R_RETURN;
 		else if (tkStr == "var")       tk = LEX_TYPES::LEX_R_VAR;
 		else if (tkStr == "let")       tk = LEX_TYPES::LEX_R_LET;
+		else if (tkStr == "const")     tk = LEX_TYPES::LEX_R_CONST;
 		else if (tkStr == "true")      tk = LEX_TYPES::LEX_R_TRUE;
 		else if (tkStr == "false")     tk = LEX_TYPES::LEX_R_FALSE;
 		else if (tkStr == "null")      tk = LEX_TYPES::LEX_R_NULL;
@@ -2419,6 +2421,43 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 	else if (lex->tk == LEX_TYPES::LEX_R_LET) {
 		/* let: ブロックスコープに変数を追加（現状通り） */
 		lex->match(LEX_TYPES::LEX_R_LET);
+		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
+			CScriptVarLink* a = 0;
+			if (execute) {
+				// 既に同一スコープ内に同名変数があればエラー
+				if (scopes.back()->findChild(lex->tkStr)) {
+					wString errorMsg = "Identifier '" + lex->tkStr + "' has already been declared";
+					throw new CScriptException(errorMsg.c_str());
+				}
+				a = scopes.back()->findChildOrCreate(lex->tkStr);
+			}
+			lex->match(LEX_TYPES::LEX_ID);
+			// now do stuff defined with dots
+			while (lex->tk == LEX_TYPES::LEX_DOT) {
+				lex->match(LEX_TYPES::LEX_DOT);
+				if (execute) {
+					CScriptVarLink* lastA = a;
+					a = lastA->var->findChildOrCreate(lex->tkStr);
+				}
+				lex->match(LEX_TYPES::LEX_ID);
+			}
+			// sort out initialiser
+			if (lex->tk == LEX_TYPES::LEX_EQ) {
+				lex->match(LEX_TYPES::LEX_EQ);
+				CScriptVarLink* var = base(execute);
+				if (execute) {
+					a->replaceWith(var);
+				}
+				CLEAN(var);
+			}
+			if (lex->tk != LEX_TYPES::LEX_SEMICOLON)
+				lex->match(LEX_TYPES::LEX_COMMA);
+		}
+		lex->match(LEX_TYPES::LEX_SEMICOLON);
+	}
+	else if (lex->tk == LEX_TYPES::LEX_R_CONST) {
+		/* let: ブロックスコープに変数を追加（現状通り） */
+		lex->match(LEX_TYPES::LEX_R_CONST);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
 			if (execute) {
