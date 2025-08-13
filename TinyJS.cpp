@@ -1706,10 +1706,10 @@ void CTinyJS::addNative(const wString& funcDesc, JSCallback ptr, void* userdata)
 	/* Check for dots, we might want to do something like function String.subwString ... */
 	while (lex->tk == LEX_TYPES::LEX_DOT) {
 		lex->match(LEX_TYPES::LEX_DOT);
-		CScriptVarLink* link = base_variable->findChild(funcName);
+		CScriptVarLink* child = base_variable->findChild(funcName);
 		// if it doesn't exist, make an object class
-		if (!link) link = base_variable->addChild(funcName, new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT));
-		base_variable = link->var;
+		if (!child) child = base_variable->addChild(funcName, new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT));
+		base_variable = child->var;
 		funcName = lex->tkStr;
 		lex->match(LEX_TYPES::LEX_ID);
 	}
@@ -2311,7 +2311,11 @@ LEX_TYPES CTinyJS::block(bool& execute)
 	LEX_TYPES ret = LEX_TYPES::LEX_EOF;
 	lex->match(LEX_TYPES::LEX_L_BRACE);
 	int brackets = 1;
+	CScriptVar* blockScope = nullptr;
 	if (execute) {
+		// 新しいスコープをpush（let用）
+		blockScope = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT);
+		scopes.push_back(blockScope);
 		while (lex->tk != LEX_TYPES::LEX_EOF && lex->tk != LEX_TYPES::LEX_R_BRACE) {
 			ret = statement(execute);
 			//この場合のみ末尾まで読み飛ばし
@@ -2321,10 +2325,16 @@ LEX_TYPES CTinyJS::block(bool& execute)
 					if (lex->tk == LEX_TYPES::LEX_R_BRACE) brackets--;
 					lex->match(lex->tk);
 				}
+				// スコープpop
+				scopes.pop_back();
+				delete blockScope;
 				return ret;
 			}
 		}
 		lex->match(LEX_TYPES::LEX_R_BRACE);
+		// スコープpop
+		scopes.pop_back();
+		delete blockScope;
 	}
 	else {
 		// fast skip of blocks
@@ -2384,14 +2394,22 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		}
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_VAR) {
-		/* variable creation. TODO - we need a better way of parsing the left
-		 * hand side. Maybe just have a flag called can_create_var that we
-		 * set and then we parse as if we're doing a normal equals.*/
+		/* var: 関数スコープに変数を追加 */
 		lex->match(LEX_TYPES::LEX_R_VAR);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
-			if (execute)
-				a = scopes.back()->findChildOrCreate(lex->tkStr);
+			if (execute) {
+				// 関数スコープを探す
+				CScriptVar* funcScope = nullptr;
+				for (int i = (int)scopes.size() - 1; i >= 0; --i) {
+					if ((scopes[i]->isFunction())) {
+						funcScope = scopes[i];
+						break;
+					}
+				}
+				if (!funcScope) funcScope = scopes.front(); // グローバル
+				a = funcScope->findChildOrCreate(lex->tkStr);
+			}
 			lex->match(LEX_TYPES::LEX_ID);
 			// now do stuff defined with dots
 			while (lex->tk == LEX_TYPES::LEX_DOT) {
@@ -2417,9 +2435,7 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		lex->match(LEX_TYPES::LEX_SEMICOLON);
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_LET) {
-		/* variable creation. TODO - we need a better way of parsing the left
-		 * hand side. Maybe just have a flag called can_create_var that we
-		 * set and then we parse as if we're doing a normal equals.*/
+		/* let: ブロックスコープに変数を追加（現状通り） */
 		lex->match(LEX_TYPES::LEX_R_LET);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
@@ -2587,11 +2603,23 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		if (lex->tk != LEX_TYPES::LEX_SEMICOLON)
 			result = base(execute);
 		if (execute) {
-			CScriptVarLink* resultVar = scopes.back()->findChild(TINYJS_RETURN_VAR);
-			if (resultVar)
+			// 関数スコープを探す
+			CScriptVar* funcScope = nullptr;
+			for (int i = (int)scopes.size() - 1; i >= 0; --i) {
+				if (scopes[i]->isFunction()) {
+					funcScope = scopes[i];
+					break;
+				}
+			}
+			if (funcScope) {
+				CScriptVarLink* resultVar = funcScope->findChild(TINYJS_RETURN_VAR);
+				if (!resultVar) {
+					resultVar = funcScope->addChild(TINYJS_RETURN_VAR, new CScriptVar());
+				}
 				resultVar->replaceWith(result);
-			else
+			} else {
 				TRACE("RETURN statement, but not in a function.\n");
+			}
 			execute = false;
 		}
 		CLEAN(result);
