@@ -90,6 +90,15 @@ run_test(const char* filename)
 	return pass;
 }
 
+void js_print2(CScriptVar* v, void* userdata) {
+	printf("> %s\n", v->getParameter("text")->getString().c_str());
+}
+
+void js_dump(CScriptVar* v, void* userdata) {
+	CTinyJS* js = (CTinyJS*)userdata;
+	js->root->trace(">  ");
+}
+
 int main(int argc, char** argv)
 {
 	printf("TinyJS test runner\n");
@@ -123,8 +132,35 @@ int main(int argc, char** argv)
 		count++;
 		test_num++;
 	}
-	printf("Done. %d tests, %d pass, %d fail\n", count, passed,
-		count - passed);
-	int _a = getchar();
+	printf("Done. %d tests, %d pass, %d fail\n", count, passed,	count - passed);
+
+	// Now run the interactive mode
+	CTinyJS* js = new CTinyJS();
+	/* add the functions from TinyJS_Functions.cpp */
+	registerFunctions(js);
+	/* Add a native function */
+	js->addNative("function print(text)", js_print2, 0);
+	js->addNative("function dump()", js_dump, js);
+	/* Execute out bit of code - we could call 'evaluate' here if
+	   we wanted something returned */
+	try {
+		js->execute("var lets_quit = 0; function quit() { lets_quit = 1; }");
+		js->execute("print(\"Interactive mode... Type quit(); to exit, or print(...); \nto print something, or dump() to dump the symbol table!\n\");");
+	}
+	catch (CScriptException* e) {
+		printf("ERROR: %s\n", e->text.c_str());
+	}
+
+	while (js->evaluate("lets_quit") == "0") {
+		char buffer[2048];
+		fgets(buffer, 2048, stdin);
+		try {
+			js->execute(buffer);
+		}
+		catch (CScriptException* e) {
+			printf("ERROR: %s\n", e->text.c_str());
+		}
+	}
+	delete js;
 	return 0;
 }

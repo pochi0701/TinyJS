@@ -153,10 +153,10 @@ SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
 // 論理オペレータ~
 SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L);
 
-#define TINYJS_RETURN_VAR      "return"
-#define TINYJS_PROTOTYPE_CLASS "prototype"
-#define TINYJS_TEMP_NAME       ""
-#define TINYJS_BLANK_DATA      ""
+constexpr auto TINYJS_RETURN_VAR = "return";
+constexpr auto TINYJS_PROTOTYPE_CLASS = "prototype";
+constexpr auto TINYJS_TEMP_NAME = "";
+constexpr auto TINYJS_BLANK_DATA = "";
 
 /// convert the given wString into a quoted string suitable for javascript
 wString getJSString(const wString& str);
