@@ -1320,10 +1320,6 @@ CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op)
 	//return 0;
 }
 
-/// <summary>
-/// copy value of val to this.
-/// </summary>
-/// <param name="val">varable copy from.</param>
 void CScriptVar::copySimpleData(const CScriptVar* val)
 {
 	data = val->data;
@@ -1457,11 +1453,6 @@ wString CScriptVar::getParsableString()
 	return "undefined";
 }
 
-/// <summary>
-/// JSON出力
-/// </summary>
-/// <param name="destination">出力するJSON</param>
-/// <param name="linePrefix">行毎に付与する文字</param>
 void CScriptVar::getJSON(wString& destination, const wString& linePrefix)
 {
 	if (isObject()) {
@@ -2047,9 +2038,9 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 	return 0;
 }
 /// <summary>
-/// 単項演算子"!"
+///
 /// </summary>
-/// <param name="execute">実行フラグ</param>
+/// <param name="execute"></param>
 /// <returns></returns>
 CScriptVarLink* CTinyJS::unary(bool& execute)
 {
@@ -2069,11 +2060,6 @@ CScriptVarLink* CTinyJS::unary(bool& execute)
 	return a;
 }
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="execute"></param>
-/// <returns></returns>
 CScriptVarLink* CTinyJS::term(bool& execute)
 {
 	CScriptVarLink* a = unary(execute);
@@ -2137,11 +2123,7 @@ CScriptVarLink* CTinyJS::expression(bool& execute)
 	return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-/// <summary>
-/// Shift Operator.
-/// </summary>
-/// <param name="execute"></param>
-/// <returns></returns>
+//Shift Operator.
 CScriptVarLink* CTinyJS::shift(bool& execute)
 {
 	CScriptVarLink* a = expression(execute);
@@ -2439,8 +2421,14 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		lex->match(LEX_TYPES::LEX_R_LET);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
-			if (execute)
+			if (execute) {
+				// 既に同一スコープ内に同名変数があればエラー
+				if (scopes.back()->findChild(lex->tkStr)) {
+					wString errorMsg = "Identifier '" + lex->tkStr + "' has already been declared";
+					throw new CScriptException(errorMsg.c_str());
+				}
 				a = scopes.back()->findChildOrCreate(lex->tkStr);
+			}
 			lex->match(LEX_TYPES::LEX_ID);
 			// now do stuff defined with dots
 			while (lex->tk == LEX_TYPES::LEX_DOT) {
