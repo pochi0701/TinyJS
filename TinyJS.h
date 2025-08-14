@@ -135,16 +135,17 @@ enum class SCRIPTVAR_FLAGS
 	SCRIPTVAR_NULL = 64, // it seems null is its own data type
 
 	SCRIPTVAR_NATIVE = 128, // to specify this is a native function
+	SCRIPTVAR_CONST = 256, // const variable (追加)
 	SCRIPTVAR_NUMERICMASK = SCRIPTVAR_NULL |
 	SCRIPTVAR_DOUBLE |
 	SCRIPTVAR_INTEGER,
 	SCRIPTVAR_VARTYPEMASK = SCRIPTVAR_DOUBLE |
-	SCRIPTVAR_INTEGER |
-	SCRIPTVAR_STRING |
-	SCRIPTVAR_FUNCTION |
-	SCRIPTVAR_OBJECT |
-	SCRIPTVAR_ARRAY |
-	SCRIPTVAR_NULL,
+	                        SCRIPTVAR_INTEGER |
+	                        SCRIPTVAR_STRING |
+	                        SCRIPTVAR_FUNCTION |
+	                        SCRIPTVAR_OBJECT |
+	                        SCRIPTVAR_ARRAY |
+	                        SCRIPTVAR_NULL,
 
 };
 // 論理オペレータOR
