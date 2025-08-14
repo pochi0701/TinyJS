@@ -2503,7 +2503,7 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 					wString errorMsg = "Identifier '" + lex->tkStr + "' has already been declared";
 					throw new CScriptException(errorMsg.c_str());
 				}
-				a = scopes.back()->findChildOrCreate(lex->tkStr);
+				a = scopes.back()->findChildOrCreate(lex->tkStr,SCRIPTVAR_FLAGS::SCRIPTVAR_CONST);
 			}
 			lex->match(LEX_TYPES::LEX_ID);
 			// now do stuff defined with dots
