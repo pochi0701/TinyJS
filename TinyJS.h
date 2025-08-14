@@ -272,6 +272,7 @@ public:
 	double getDouble();
 	const wString& getString();
 	wString getParsableString(); ///< get Data as a parsable javascript string
+	void setConst();
 	void setInt(int num);
 	void setDouble(double val);
 	void setString(const wString& str);
@@ -290,6 +291,7 @@ public:
 	bool isUndefined() { return (flags & SCRIPTVAR_FLAGS::SCRIPTVAR_VARTYPEMASK) == SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
 	bool isNull() { return (flags & SCRIPTVAR_FLAGS::SCRIPTVAR_NULL) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
 	bool isBasic() { return firstChild == 0; } ///< Is this *not* an array/object/etc
+	bool isConst() { return (flags & SCRIPTVAR_FLAGS::SCRIPTVAR_CONST) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
 
 	CScriptVar* mathsOp(CScriptVar* b, LEX_TYPES op); ///< do a maths op with another script variable
 	void copyValue(CScriptVar* val); ///< copy the value from the value given

@@ -139,8 +139,8 @@ inline void CLEAN(CScriptVarLink* x)
 		delete link;
 	}
 }
- //Create a LINK to point to VAR and free the old link.
- //BUT this is more clever - it tries to keep the old link if it's not owned to save allocations
+//Create a LINK to point to VAR and free the old link.
+//BUT this is more clever - it tries to keep the old link if it's not owned to save allocations
 inline void CREATE_LINK(CScriptVarLink*& LINK, CScriptVar* VAR)
 {
 	if (!LINK || LINK->owned) {
@@ -846,6 +846,9 @@ CScriptVarLink::~CScriptVarLink()
 
 void CScriptVarLink::replaceWith(CScriptVar* newVar)
 {
+	if (var->isConst()) {
+		throw new CScriptException("Cannot replace a constant variable");
+	}
 	CScriptVar* oldVar = var;
 	var = newVar->setRef();
 	oldVar->unref();
@@ -1162,6 +1165,11 @@ const wString& CScriptVar::getString()
 	if (isUndefined()) return s_undefined;
 	// are we just a wString here?
 	return data;
+}
+
+void CScriptVar::setConst()
+{
+	flags = flags | SCRIPTVAR_FLAGS::SCRIPTVAR_CONST;
 }
 
 void CScriptVar::setInt(int val)
@@ -1531,7 +1539,7 @@ void CScriptVar::setCallback(JSCallback callback, void* userdata)
 /// 参照設定
 /// </summary>
 /// <returns></returns>
-CScriptVar* CScriptVar::setRef()
+inline CScriptVar* CScriptVar::setRef()
 {
 	refs++;
 	return this;
@@ -2503,7 +2511,8 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 					wString errorMsg = "Identifier '" + lex->tkStr + "' has already been declared";
 					throw new CScriptException(errorMsg.c_str());
 				}
-				a = scopes.back()->findChildOrCreate(lex->tkStr,SCRIPTVAR_FLAGS::SCRIPTVAR_CONST);
+				// 先に値を設定
+				a = scopes.back()->findChildOrCreate(lex->tkStr);
 			}
 			lex->match(LEX_TYPES::LEX_ID);
 			// now do stuff defined with dots
@@ -2521,8 +2530,13 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 				CScriptVarLink* var = base(execute);
 				if (execute) {
 					a->replaceWith(var);
+					a->var->setConst(); // 定数にする
 				}
 				CLEAN(var);
+			}
+			/// Value not set.
+			if (a != nullptr && !a->var->isConst()) {
+				throw new CScriptException("value is not set to constant");
 			}
 			if (lex->tk != LEX_TYPES::LEX_SEMICOLON)
 				lex->match(LEX_TYPES::LEX_COMMA);
@@ -2681,7 +2695,8 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 					resultVar = funcScope->addChild(TINYJS_RETURN_VAR, new CScriptVar());
 				}
 				resultVar->replaceWith(result);
-			} else {
+			}
+			else {
 				TRACE("RETURN statement, but not in a function.\n");
 			}
 			execute = false;
