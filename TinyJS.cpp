@@ -139,9 +139,18 @@ inline void CLEAN(CScriptVarLink* x)
 		delete link;
 	}
 }
-/* Create a LINK to point to VAR and free the old link.
- * BUT this is more clever - it tries to keep the old link if it's not owned to save allocations */
-#define CREATE_LINK(LINK, VAR) { if (!LINK || LINK->owned) LINK = new CScriptVarLink(VAR); else LINK->replaceWith(VAR); }
+ //Create a LINK to point to VAR and free the old link.
+ //BUT this is more clever - it tries to keep the old link if it's not owned to save allocations
+inline void CREATE_LINK(CScriptVarLink*& LINK, CScriptVar* VAR)
+{
+	if (!LINK || LINK->owned) {
+		LINK = new CScriptVarLink(VAR);
+	}
+	else {
+		LINK->replaceWith(VAR);
+	}
+}
+//#define CREATE_LINK(LINK, VAR) { if (!LINK || LINK->owned) LINK = new CScriptVarLink(VAR); else LINK->replaceWith(VAR); }
  // 論理オペレータOR
 SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R)
 {
@@ -158,7 +167,7 @@ SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L)
 	return static_cast<SCRIPTVAR_FLAGS>(~static_cast<int>(L));
 }
 
-static unsigned char cmap[256] = {
+const static unsigned char cmap[256] = {
 	//+0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,//00
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
@@ -315,7 +324,7 @@ void JSTRACE(SOCKET socket, const char* format, ...)
 	char work[1024];
 	va_list ap;
 	va_start(ap, format);
-	vsprintf(work, format, ap);
+	vsnprintf(work, sizeof(work), format, ap);
 	va_end(ap);
 	send(socket, work, static_cast<int>(strlen(work)), 0);
 }
@@ -374,8 +383,11 @@ void CScriptLex::reset()
 	getNextCh();//currch,nextch設定
 	getNextToken();//１ワード取り込んだ状態で開始
 }
-//期待する語をチェックして次の１トークンを先読み
-//期待はずれなら例外
+/// <summary>
+/// 期待する語をチェックして次の１トークンを先読み
+/// 期待はずれなら例外
+/// </summary>
+/// <param name="expected_tk">期待するトークン</param>
 void CScriptLex::match(LEX_TYPES expected_tk)
 {
 	if (tk != expected_tk) {
@@ -491,7 +503,8 @@ LEX_TYPES CScriptLex::getNextCh()
 	return currCh;
 }
 /// <summary>１トークン取得</summary>
-void CScriptLex::getNextToken() {
+void CScriptLex::getNextToken()
+{
 	// octal digits
 	char buf[4] = "???";
 	tk = LEX_TYPES::LEX_EOF;
@@ -613,6 +626,7 @@ void CScriptLex::getNextToken() {
 		getNextCh();
 		while (currCh != LEX_TYPES::LEX_EOF && currCh != LEX_TYPES::LEX_S_QUOTE) {
 			if (currCh == LEX_TYPES::LEX_ESC) {
+				char buf[4] = "???";
 				getNextCh();
 				switch (currCh) {
 				case static_cast<LEX_TYPES>('n'): tkStr += '\n'; break;
@@ -650,7 +664,7 @@ void CScriptLex::getNextToken() {
 	}
 	else {
 		// single chars
-		tk = currCh;
+		tk = (LEX_TYPES)currCh;
 		if (currCh != LEX_TYPES::LEX_EOF) getNextCh();
 		if (tk == LEX_TYPES::LEX_EQ && currCh == LEX_TYPES::LEX_EQ) { // ==
 			tk = LEX_TYPES::LEX_EQUAL;
@@ -1322,6 +1336,10 @@ CScriptVar* CScriptVar::mathsOp(CScriptVar* b, LEX_TYPES op)
 	//return 0;
 }
 
+/// <summary>
+/// copy value of val to this.
+/// </summary>
+/// <param name="val">varable copy from.</param>
 void CScriptVar::copySimpleData(const CScriptVar* val)
 {
 	data = val->data;
@@ -1455,6 +1473,11 @@ wString CScriptVar::getParsableString()
 	return "undefined";
 }
 
+/// <summary>
+/// JSON出力
+/// </summary>
+/// <param name="destination">出力するJSON</param>
+/// <param name="linePrefix">行毎に付与する文字</param>
 void CScriptVar::getJSON(wString& destination, const wString& linePrefix)
 {
 	if (isObject()) {
@@ -1480,7 +1503,7 @@ void CScriptVar::getJSON(wString& destination, const wString& linePrefix)
 		wString indentedLinePrefix = linePrefix + "  ";
 		destination += "[\n";
 		int len = getArrayLength();
-		if (len > 10000) len = 10000; // we don't want to get stuck here!
+		//if (len > 10000) len = 10000; // we don't want to get stuck here!
 
 		for (int i = 0; i < len; i++) {
 			getArrayIndex(i)->getJSON(destination, indentedLinePrefix);
@@ -1532,6 +1555,7 @@ int CScriptVar::getRefs()
 /// <summary>
 /// CSCRIPT CONSTRUCTOR
 /// </summary>
+/// <param name="mysocket">出力先ディスクリプタ</param>
 CTinyJS::CTinyJS()
 {
 	lex = 0;
@@ -1559,6 +1583,10 @@ CTinyJS::~CTinyJS()
 
 }
 
+/// <summary>
+/// 送信バッファクリア
+/// </summary>
+/// <param name=""></param>
 void CTinyJS::trace()
 {
 	root->trace();
@@ -2062,6 +2090,11 @@ CScriptVarLink* CTinyJS::unary(bool& execute)
 	return a;
 }
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="execute"></param>
+/// <returns></returns>
 CScriptVarLink* CTinyJS::term(bool& execute)
 {
 	CScriptVarLink* a = unary(execute);
@@ -2125,7 +2158,11 @@ CScriptVarLink* CTinyJS::expression(bool& execute)
 	return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//Shift Operator.
+/// <summary>
+/// Shift Operator.
+/// </summary>
+/// <param name="execute">実行の有無</param>
+/// <returns></returns>
 CScriptVarLink* CTinyJS::shift(bool& execute)
 {
 	CScriptVarLink* a = expression(execute);

@@ -162,7 +162,8 @@ constexpr auto TINYJS_BLANK_DATA = "";
 /// convert the given wString into a quoted string suitable for javascript
 wString getJSString(const wString& str);
 
-class CScriptException {
+class CScriptException
+{
 public:
 	wString text;
 	explicit CScriptException(const wString& exceptionText);

@@ -136,9 +136,18 @@ void scStringIndexOf(CScriptVar* c, void* userdata) {
 void scStringSubstring(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
+	int len = str.length();
 	int lo = c->getParameter("lo")->getInt();
 	int hi = c->getParameter("hi")->getInt();
-
+	if (lo < 0) lo = 0;
+	if (lo > len) lo = str.length();
+	if (hi < 0) hi = 0;
+	if (hi > len) hi = str.length();
+	if (lo > hi) {
+		auto temp = hi;
+		hi = lo;
+		lo = temp;
+	}
 	int lex = hi - lo;
 	if (lex > 0 && lo >= 0 && lo + lex <= (int)str.length())
 		c->getReturnVar()->setString(str.substr(lo, lex));
