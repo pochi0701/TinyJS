@@ -1826,8 +1826,7 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			function->var->jsCallback(functionRoot, function->var->jsCallbackUserData);
 		}
 		else {
-			/* we just want to execute the block, but something could
-			 * have messed up and left us with the wrong ScriptLex, so
+			/* we just want to execute the block, but something could have messed up and left us with the wrong ScriptLex, so
 			 * we want to be careful here... */
 			CScriptException* exception = 0;
 			CScriptLex* oldLex = lex;
@@ -1871,6 +1870,7 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			CScriptVarLink* value = base(execute);
 			CLEAN(value);
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
+			value = 0;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
 		if (lex->tk == LEX_TYPES::LEX_L_BRACE) { // TODO: why is this here?
@@ -2011,7 +2011,7 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 		lex->match(LEX_TYPES::LEX_R_BRACE);
 		return new CScriptVarLink(contents);
 	}
-	if (lex->tk == LEX_TYPES::LEX_L_BRAKET) {
+	else if (lex->tk == LEX_TYPES::LEX_L_BRAKET) {
 		CScriptVar* contents = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_ARRAY);
 		/* JSON-style array */
 		lex->match(LEX_TYPES::LEX_L_BRAKET);
@@ -2085,11 +2085,31 @@ CScriptVarLink* CTinyJS::unary(bool& execute)
 	CScriptVarLink* a;
 	if (lex->tk == LEX_TYPES::LEX_EXCLAMATION) {
 		lex->match(LEX_TYPES::LEX_EXCLAMATION); // binary not
-		a = factor(execute);
+		a = unary(execute);
 		if (execute) {
 			CScriptVar zero(0);
 			CScriptVar* res = a->var->mathsOp(&zero, LEX_TYPES::LEX_EQUAL);
 			CREATE_LINK(a, res);
+		}
+	}
+	else if (lex->tk == LEX_TYPES::LEX_PLUSPLUS) {
+		// 前置インクリメント (++a)
+		lex->match(LEX_TYPES::LEX_PLUSPLUS);
+		a = unary(execute);
+		if (execute) {
+			CScriptVar one(1);
+			CScriptVar* res = a->var->mathsOp(&one, LEX_TYPES::LEX_PLUS);
+			a->replaceWith(res);
+		}
+	}
+	else if (lex->tk == LEX_TYPES::LEX_MINUSMINUS) {
+		// 前置デクリメント (--a)
+		lex->match(LEX_TYPES::LEX_MINUSMINUS);
+		a = unary(execute);
+		if (execute) {
+			CScriptVar one(1);
+			CScriptVar* res = a->var->mathsOp(&one, LEX_TYPES::LEX_MINUS);
+			a->replaceWith(res);
 		}
 	}
 	else {
