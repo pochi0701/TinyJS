@@ -39,7 +39,7 @@
 #include <string>
 #include <sstream>
 #include <stdio.h>
-#include "cbl_String.h"
+#include "ltn_String.h"
 bool
 run_test(const char* filename)
 {

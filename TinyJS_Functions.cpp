@@ -38,7 +38,8 @@
  //#include "dregex.h"
 using namespace std;
 // ----------------------------------------------- Actual Functions
-void js_print(CScriptVar* v, void* userdata) {
+void js_print(CScriptVar* v, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	//headerCheck(js->socket, &(js->printed), js->headerBuf,1);
 	wString str = v->getParameter("text")->getString();
@@ -50,42 +51,50 @@ void js_print(CScriptVar* v, void* userdata) {
 	printf("%s", v->getParameter("text")->getString().c_str());
 }
 
-void scTrace(CScriptVar* c, void* userdata) {
+void scTrace(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
 	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	js->root->trace();
 }
 
-void scObjectDump(CScriptVar* c, void* userdata) {
+void scObjectDump(CScriptVar* c, void* userdata)
+{
 	c->getParameter("this")->trace("> ");
 }
 
-void scObjectClone(CScriptVar* c, void* userdata) {
+void scObjectClone(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	CScriptVar* obj = c->getParameter("this");
 	c->getReturnVar()->copyValue(obj);
 }
-void scKeys(CScriptVar* c, void* userdata) {
+void scKeys(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString list = c->getParameter("obj")->trace2();
 	CScriptVar* result = c->getReturnVar();
 	result->setArray();
 	int length = 0;
-	int count = list.getLines();
+	int count = list.lines();
 	for (int i = 0; i < count; i++) {
 		result->setArrayIndex(length++, new CScriptVar(list.get_list_string(i)));
 	}
 }
 
 
-void scMathRand(CScriptVar* c, void* userdata) {
+void scMathRand(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
+	//srand((unsigned int)time(NULL));
 	c->getReturnVar()->setDouble((double)rand() / RAND_MAX);
 }
 
-void scMathRandInt(CScriptVar* c, void* userdata) {
+void scMathRandInt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
+	//srand((unsigned int)time(NULL));
 	int min = c->getParameter("min")->getInt();
 	int max = c->getParameter("max")->getInt();
 	int val = min + (int)(rand() % (1 + max - min));
@@ -93,28 +102,33 @@ void scMathRandInt(CScriptVar* c, void* userdata) {
 }
 /////////////////////////////////////////////////////////////////////////
 
-void scPrint(CScriptVar* c, void*) {
+void scPrint(CScriptVar* c, void*)
+{
 	wString val = c->getParameter("val")->getString();
 	printf("%s", val.c_str());
 	c->getReturnVar()->setString(val);
 }
 /////////////////////////////////////////////////////////////////////////
-void scTrim(CScriptVar* c, void*) {
+void scTrim(CScriptVar* c, void*)
+{
 	wString val = c->getParameter("this")->getString();
-	c->getReturnVar()->setString(val.Trim());
+	c->getReturnVar()->setString(val.trim());
 }
 //
-void scRTrim(CScriptVar* c, void*) {
+void scRTrim(CScriptVar* c, void*)
+{
 	wString val = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(val.rtrim());
 }
 //
-void scLTrim(CScriptVar* c, void*) {
+void scLTrim(CScriptVar* c, void*)
+{
 	wString val = c->getParameter("this")->getString();
-	c->getReturnVar()->setString(val.LTrim());
+	c->getReturnVar()->setString(val.ltrim());
 }
 /////////////////////////////////////////////////////////////////////////
-void scCharToInt(CScriptVar* c, void* userdata) {
+void scCharToInt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("ch")->getString();
 	int val = 0;
@@ -124,7 +138,8 @@ void scCharToInt(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(val);
 }
 
-void scStringIndexOf(CScriptVar* c, void* userdata) {
+void scStringIndexOf(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	wString search = c->getParameter("search")->getString();
@@ -133,7 +148,8 @@ void scStringIndexOf(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(val);
 }
 //Substring
-void scStringSubstring(CScriptVar* c, void* userdata) {
+void scStringSubstring(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	int len = str.length();
@@ -155,7 +171,8 @@ void scStringSubstring(CScriptVar* c, void* userdata) {
 		c->getReturnVar()->setString("");
 }
 //SubStr
-void scStringSubstr(CScriptVar* c, void* userdata) {
+void scStringSubstr(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	int lo = c->getParameter("lo")->getInt();
@@ -174,7 +191,8 @@ void scStringSubstr(CScriptVar* c, void* userdata) {
 /// </summary>
 /// <param name="c">引き渡しデータ</param>
 /// <param name="userdata"></param>
-void scStringCharAt(CScriptVar* c, void* userdata) {
+void scStringCharAt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	int p = c->getParameter("pos")->getInt();
@@ -186,7 +204,8 @@ void scStringCharAt(CScriptVar* c, void* userdata) {
 	}
 }
 
-void scStringCharCodeAt(CScriptVar* c, void* userdata) {
+void scStringCharCodeAt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	int p = c->getParameter("pos")->getInt();
@@ -196,7 +215,8 @@ void scStringCharCodeAt(CScriptVar* c, void* userdata) {
 		c->getReturnVar()->setInt(0);
 }
 
-void scStringSplit(CScriptVar* c, void* userdata) {
+void scStringSplit(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	wString sep = c->getParameter("separator")->getString();
@@ -218,7 +238,8 @@ void scStringSplit(CScriptVar* c, void* userdata) {
 	}
 }
 //Replace
-void scStringReplace(CScriptVar* c, void* userdata) {
+void scStringReplace(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	wString before = c->getParameter("before")->getString();
@@ -232,7 +253,8 @@ void scStringReplace(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(str);
 }
 //PregReplace
-void scPregStringReplace(CScriptVar* c, void* userdata) {
+void scPregStringReplace(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString result;
 	wString str = c->getParameter("this")->getString();
@@ -260,31 +282,36 @@ void scPregStringReplace(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(result);
 }
 //AddShashes
-void scAddShashes(CScriptVar* c, void* userdata) {
+void scAddShashes(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(str.add_slashes());
 }
 //getLocalAddress
-void scGetLocalAddress(CScriptVar* c, void* userdata) {
+void scGetLocalAddress(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	//c->getReturnVar()->setString(wString::get_local_address());
 }
-void scStringFromCharCode(CScriptVar* c, void* userdata) {
+void scStringFromCharCode(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	char str[2] = {};
 	str[0] = (char)c->getParameter("char")->getInt();
 	c->getReturnVar()->setString(str);
 }
 
-void scIntegerParseInt(CScriptVar* c, void* userdata) {
+void scIntegerParseInt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("str")->getString();
 	int val = strtol(str.c_str(), 0, 0);
 	c->getReturnVar()->setInt(val);
 }
 
-void scIntegerValueOf(CScriptVar* c, void* userdata) {
+void scIntegerValueOf(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("str")->getString();
 
@@ -294,7 +321,8 @@ void scIntegerValueOf(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(val);
 }
 //
-void scIntegerToDateString(CScriptVar* c, void* userdata) {
+void scIntegerToDateString(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	//wString times = c->getParameter("this")->getString();
 	//wString format = c->getParameter("format")->getString();
@@ -305,7 +333,8 @@ void scIntegerToDateString(CScriptVar* c, void* userdata) {
 	//strftime(s, 128, format.c_str(), timeptr);
 	//c->getReturnVar()->setString(s);
 }
-void scStringDate(CScriptVar* c, void* userdata) {
+void scStringDate(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	auto t = time(NULL);
 	char s[128];
@@ -316,7 +345,8 @@ void scStringDate(CScriptVar* c, void* userdata) {
 #endif
 	c->getReturnVar()->setString(s);
 }
-void scNKFConv(CScriptVar* c, void* userdata) {
+void scNKFConv(CScriptVar* c, void* userdata)
+{
 #ifdef WEB
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
@@ -326,7 +356,8 @@ void scNKFConv(CScriptVar* c, void* userdata) {
 #endif
 }
 
-void scDBConnect(CScriptVar* c, void* userdata) {
+void scDBConnect(CScriptVar* c, void* userdata)
+{
 #ifdef DB
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
@@ -341,7 +372,8 @@ void scDBConnect(CScriptVar* c, void* userdata) {
 #endif
 }
 
-void scDBDisConnect(CScriptVar* c, void* userdata) {
+void scDBDisConnect(CScriptVar* c, void* userdata)
+{
 #ifdef DB
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
@@ -350,7 +382,8 @@ void scDBDisConnect(CScriptVar* c, void* userdata) {
 #endif
 }
 
-void scDBSQL(CScriptVar* c, void* userdata) {
+void scDBSQL(CScriptVar* c, void* userdata)
+{
 #ifdef DB
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
@@ -361,27 +394,31 @@ void scDBSQL(CScriptVar* c, void* userdata) {
 }
 
 
-void scJSONStringify(CScriptVar* c, void* userdata) {
+void scJSONStringify(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString result;
 	c->getParameter("obj")->getJSON(result);
 	c->getReturnVar()->setString(result.c_str());
 }
 
-void scExec(CScriptVar* c, void* userdata) {
+void scExec(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	CTinyJS* tinyJS = static_cast<CTinyJS*>(userdata);
 	wString str = c->getParameter("jsCode")->getString();
 	tinyJS->execute(str);
 }
 
-void scEval(CScriptVar* c, void* userdata) {
+void scEval(CScriptVar* c, void* userdata)
+{
 
 	CTinyJS* tinyJS = static_cast<CTinyJS*>(userdata);
 	c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("jsCode")->getString()).var);
 }
 
-void scArrayContains(CScriptVar* c, void* userdata) {
+void scArrayContains(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	CScriptVar* obj = c->getParameter("obj");
 	CScriptVarLink* v = c->getParameter("this")->firstChild;
@@ -398,7 +435,8 @@ void scArrayContains(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(contains);
 }
 
-void scArrayRemove(CScriptVar* c, void* userdata) {
+void scArrayRemove(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	CScriptVar* obj = c->getParameter("obj");
 	vector<int> removedIndices;
@@ -425,7 +463,8 @@ void scArrayRemove(CScriptVar* c, void* userdata) {
 	}
 }
 
-void scArrayJoin(CScriptVar* c, void* userdata) {
+void scArrayJoin(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString sep = c->getParameter("separator")->getString();
 	CScriptVar* arr = c->getParameter("this");
@@ -442,35 +481,40 @@ void scArrayJoin(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(sstr.c_str());
 }
 //ファイル存在チェック
-void scFileExists(CScriptVar* c, void* userdata) {
+void scFileExists(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int flag = wString::file_exists(path);
 	c->getReturnVar()->setInt(flag);
 }
 //ディレクトリ存在チェック
-void scDirExists(CScriptVar* c, void* userdata) {
+void scDirExists(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int flag = wString::directory_exists(path);
 	c->getReturnVar()->setInt(flag);
 }
 //htmlspecialchars
-void scHtmlSpecialChars(CScriptVar* c, void* userdata) {
+void scHtmlSpecialChars(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	uri = uri.htmlspecialchars();
 	c->getReturnVar()->setString(uri);
 }
 //encodeURI
-void scEncodeURI(CScriptVar* c, void* userdata) {
+void scEncodeURI(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	uri = uri.uri_encode();
 	c->getReturnVar()->setString(uri);
 }
 //dirname
-void scDirname(CScriptVar* c, void* userdata) {
+void scDirname(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	while (uri.length() > 0 && uri[uri.length() - 1] != '/') {
@@ -485,7 +529,8 @@ void scDirname(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(uri);
 }
 //base
-void scBasename(CScriptVar* c, void* userdata) {
+void scBasename(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	int len = uri.length() - 1;
@@ -497,21 +542,24 @@ void scBasename(CScriptVar* c, void* userdata) {
 }
 
 //ScanDir
-void scScanDir(CScriptVar* c, void* userdata) {
+void scScanDir(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	uri = wString::enum_folder_json(uri);
 	c->getReturnVar()->setString(uri);
 }
 //extract_file_ext
-void scExtractFileExt(CScriptVar* c, void* userdata) {
+void scExtractFileExt(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
 	uri = wString::extract_file_ext(uri);
 	c->getReturnVar()->setString(uri);
 }
 //toLowerCase
-void scToLowerCase(CScriptVar* c, void* userdata) {
+void scToLowerCase(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	char* String = str.c_str();
@@ -521,7 +569,8 @@ void scToLowerCase(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(str);
 }
 //toUpperCase
-void scToUpperCase(CScriptVar* c, void* userdata) {
+void scToUpperCase(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	char* String = str.c_str();
@@ -531,21 +580,24 @@ void scToUpperCase(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(str);
 }
 //ファイル属性など
-void scFileStats(CScriptVar* c, void* userdata) {
+void scFileStats(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString json = wString::file_stats(path);
 	c->getReturnVar()->setString(json);
 }
 //ファイル属性など
-void scFileDate(CScriptVar* c, void* userdata) {
+void scFileDate(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString json = wString::file_stats(path, 1);
 	c->getReturnVar()->setString(json);
 }
 //ファイル内容取得
-void scLoadFromFile(CScriptVar* c, void* userdata) {
+void scLoadFromFile(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data;
@@ -553,7 +605,8 @@ void scLoadFromFile(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(data);
 }
 //CSV内容取得
-void scLoadFromCSV(CScriptVar* c, void* userdata) {
+void scLoadFromCSV(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data;
@@ -561,7 +614,8 @@ void scLoadFromCSV(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setString(data);
 }
 //ファイル削除
-void scUnlink(CScriptVar* c, void* userdata) {
+void scUnlink(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int res = unlink(path.c_str());
@@ -569,7 +623,8 @@ void scUnlink(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //ファイル作成
-void scTouch(CScriptVar* c, void* userdata) {
+void scTouch(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int ret = true;
@@ -583,7 +638,8 @@ void scTouch(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //リネーム
-void scRename(CScriptVar* c, void* userdata) {
+void scRename(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString pathf = c->getParameter("pathf")->getString();
 	wString patht = c->getParameter("patht")->getString();
@@ -591,14 +647,16 @@ void scRename(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //フォルダ作成
-void scMkdir(CScriptVar* c, void* userdata) {
+void scMkdir(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int ret = wString::create_dir(path);
 	c->getReturnVar()->setInt(ret);
 }
 //フォルダ削除
-void scRmdir(CScriptVar* c, void* userdata) {
+void scRmdir(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int res = rmdir(path.c_str());
@@ -606,7 +664,8 @@ void scRmdir(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //ファイル保存
-void scSaveToFile(CScriptVar* c, void* userdata) {
+void scSaveToFile(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	wString data = c->getParameter("data")->getString();
@@ -615,7 +674,8 @@ void scSaveToFile(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //command実行
-void scCommand(CScriptVar* c, void* userdata) {
+void scCommand(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString ppath = c->getParameter("path")->getString();
 	int res = system(ppath.c_str());
@@ -623,7 +683,8 @@ void scCommand(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 //Header
-void scHeader(CScriptVar* c, void* userdata) {
+void scHeader(CScriptVar* c, void* userdata)
+{
 #ifdef WEB
 	CTinyJS* js = (CTinyJS*)userdata;
 	headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
@@ -634,7 +695,8 @@ void scHeader(CScriptVar* c, void* userdata) {
 #endif
 }
 //SessionStart
-void scSessionStart(CScriptVar* c, void* userdata) {
+void scSessionStart(CScriptVar* c, void* userdata)
+{
 #ifdef WEB
 	const static char material[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	CTinyJS* js = (CTinyJS*)userdata;
@@ -652,7 +714,7 @@ void scSessionStart(CScriptVar* c, void* userdata) {
 	}
 	else {
 		srand((unsigned)time(NULL));
-		char work[27] = { 0 };
+		char work[27] = {};
 		while (1) {
 			for (int i = 0; i < 26; i++) {
 				work[i] = material[rand() % (sizeof(material) - 1)];
@@ -672,8 +734,14 @@ void scSessionStart(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 #endif
 }
+
+/// <summary>
+/// ブラウザへのCookieの設定
+/// </summary>
+/// <param name="c"></param>
 //SetCookie
-void scSetCookie(CScriptVar* c, void* userdata) {
+void scSetCookie(CScriptVar* c, void* userdata)
+{
 #ifdef WEB
 	CTinyJS* js = (CTinyJS*)userdata;
 	wString str;
@@ -688,7 +756,8 @@ void scSetCookie(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 #endif
 }
-void scFileCopy(CScriptVar* c, void* userdata) {
+void scFileCopy(CScriptVar* c, void* userdata)
+{
 	IGNORE_PARAMETER(userdata);
 	wString pathf = c->getParameter("pathf")->getString();
 	wString patht = c->getParameter("patht")->getString();
@@ -697,7 +766,8 @@ void scFileCopy(CScriptVar* c, void* userdata) {
 	c->getReturnVar()->setInt(ret);
 }
 // ----------------------------------------------- Register Functions
-void registerFunctions(CTinyJS* tinyJS) {
+void registerFunctions(CTinyJS* tinyJS)
+{
 	tinyJS->addNative("function exec(jsCode)", scExec, tinyJS); // execute the given code
 	tinyJS->addNative("function eval(jsCode)", scEval, tinyJS); // execute the given wString (an expression) and return the result
 	tinyJS->addNative("function trace()", scTrace, tinyJS);

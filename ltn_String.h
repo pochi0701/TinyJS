@@ -1,5 +1,5 @@
-﻿#ifndef CBLSTRINGH
-#define CBLSTRINGH
+﻿#ifndef LTN_STRINGH
+#define LTN_STRINGH
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -57,12 +57,6 @@ public:
 	wString(const char* str);
 	wString(const wString& str);
 	~wString(void);
-	//    static void     copy(wString* src,const wString* dst);
-	//   static void     copy(wString* src,const wString& dst);
-		//Initialze SAC
-	//    static void     wStringInit(void);
-	//    static void     wStringEnd(void);
-	//    static wString* NextSac(void);
 	void   resize(const int newSize);
 	//OPERATION OVERLOAD
 	wString  operator+(const wString& str) const;
@@ -94,27 +88,23 @@ public:
 	char            at(unsigned int index) const;
 	wString        SubString(int start, int mylen)   const;
 	wString        substr(int start, int mylen = -1) const;
-	//    wString        substr(int index) const;
 	int             compare(const wString& str) const;
 	int             compare(const char* str) const;
 	void            clear(void);
-	//    int             Pos(const char* pattern);
 	int             Pos(const wString& pattern, int pos = 0) const;
 	int             Pos(const char* pattern, int pos = 0) const;
-	//    int             Pos(const wString& pattern,int pos);
 	size_t          copy(char* str, size_t slen, size_t index) const;
 	wString& replace(unsigned int index, unsigned int len, const wString& repstr);
 
-	unsigned int          size(void) const;
+	unsigned int    size(void) const;
 	unsigned int    length(void) const;
-
 	unsigned int    Total(void) const;
-	char* c_str(void) const;
-	wString& SetLength(const unsigned int num);
+	char*           c_str(void) const;
+	wString& set_length(const unsigned int num);
 
-	wString         Trim(void);
+	wString         trim(void);
 	wString         rtrim(void);
-	wString         LTrim(void);
+	wString         ltrim(void);
 	static void     Rtrimch(char* sentence, const char cut_char);
 	int             sprintf(const char* format, ...);
 	int             cat_sprintf(const char* format, ...);
@@ -137,14 +127,14 @@ public:
 	bool            insert_list_string(wString& src, int pos);
 	bool            insert_list_string(const char* src, int pos);
 	wString         get_list_string(const int pos);
-	int             getLines(void);
+	int             lines(void);
 	//    int             Count(void);
 	void            ResetLength(unsigned int num);
 	void            Add(const wString& str);
 	void            Add(const char* str);
 	//HEADER
-	void            headerInit(size_t content_length, int expire = 1, const char* mime_type = "text/html");
-	void            headerPrint(int socket, int endflag);
+	void            init_header(size_t content_length, int expire = 1, const char* mime_type = "text/html");
+	void            send_header(int socket, int endflag);
 	wString         headerPrintMem(void);
 	int             header(const char* str, int flag = true, int status = 0);
 	//FILE OPERATION

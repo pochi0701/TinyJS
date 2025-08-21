@@ -13,7 +13,9 @@
   },
   "ExpandedNodes": [
     "",
-    "\\out"
+    "\\out",
+    "\\src"
   ],
+  "SelectedNode": "\\TinyJS.h",
   "PreviewInSolutionExplorer": false
 }

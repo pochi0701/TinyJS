@@ -17,11 +17,11 @@ add_executable (TinyJS
 "TinyJS.cpp"
 "TinyJS_Functions.cpp"
 "TinyJS_MathFunctions.cpp"
-"cbl_String.cpp"
+"ltn_String.cpp"
 "TinyJS.h"
 "TinyJS_Functions.h"
 "TinyJS_MathFunctions.h"
-"cbl_String.h"
+"ltn_String.h"
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

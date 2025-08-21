@@ -402,11 +402,11 @@ void CScriptLex::match(LEX_TYPES expected_tk)
 void headerCheckPrint(int socket, int* printed, wString* headerBuf, int flag)
 {
 	if (headerBuf->length() == 0) {
-		headerBuf->headerInit(0, 0);
+		headerBuf->init_header(0, 0);
 	}
 	if (flag && *printed == 0) {
 		*printed = 1;
-		headerBuf->headerPrint(socket, 1);
+		headerBuf->send_header(socket, 1);
 	}
 }
 #endif
@@ -604,10 +604,10 @@ void CScriptLex::getNextToken()
 			if (currCh == LEX_TYPES::LEX_ESC) {
 				getNextCh();
 				switch (currCh) {
-				case static_cast<LEX_TYPES>('n'): tkStr += '\n'; break;
-				case static_cast<LEX_TYPES>('a'): tkStr += '\a'; break;
-				case static_cast<LEX_TYPES>('r'): tkStr += '\r'; break;
-				case static_cast<LEX_TYPES>('t'): tkStr += '\t'; break;
+				case LEX_TYPES::LEX_n: tkStr += '\n'; break;
+				case LEX_TYPES::LEX_a: tkStr += '\a'; break;
+				case LEX_TYPES::LEX_r: tkStr += '\r'; break;
+				case LEX_TYPES::LEX_t: tkStr += '\t'; break;
 				case LEX_TYPES::LEX_D_QUOTE: tkStr += '"'; break;
 				case LEX_TYPES::LEX_ESC: tkStr += '\\'; break;
 				default: tkStr += static_cast<unsigned char>(currCh);
@@ -629,13 +629,15 @@ void CScriptLex::getNextToken()
 				char buf[4] = "???";
 				getNextCh();
 				switch (currCh) {
-				case static_cast<LEX_TYPES>('n'): tkStr += '\n'; break;
-				case static_cast<LEX_TYPES>('a'): tkStr += '\a'; break;
-				case static_cast<LEX_TYPES>('r'): tkStr += '\r'; break;
-				case static_cast<LEX_TYPES>('t'): tkStr += '\t'; break;
+				case LEX_TYPES::LEX_n: tkStr += '\n'; break;
+				case LEX_TYPES::LEX_a: tkStr += '\a'; break;
+				case LEX_TYPES::LEX_r: tkStr += '\r'; break;
+				case LEX_TYPES::LEX_t: tkStr += '\t'; break;
 				case LEX_TYPES::LEX_S_QUOTE: tkStr += '\''; break;
 				case LEX_TYPES::LEX_ESC: tkStr += '\\'; break;
-				case static_cast<LEX_TYPES>('x'): { // hex digits
+				case LEX_TYPES::LEX_x:
+				{ // hex digits
+
 					getNextCh(); buf[0] = static_cast<char>(currCh);
 					getNextCh(); buf[1] = static_cast<char>(currCh);
 					tkStr += (char)strtol(buf, 0, 16);

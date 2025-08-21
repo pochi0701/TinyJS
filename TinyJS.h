@@ -33,7 +33,7 @@
 #define TINYJS_CALL_STACK
 
 #include <vector>
-#include "cbl_String.h"
+#include "ltn_String.h"
 #ifndef TRACE
 #define TRACE printf
 #endif // TRACE
@@ -73,7 +73,11 @@ enum class  LEX_TYPES
 	LEX_OR = '|',
 	LEX_R_BRACE = '}',
 	LEX_TILDA = '~',
-
+	LEX_a = 'a',
+	LEX_n = 'n',
+	LEX_r = 'r',
+	LEX_t = 't',
+	LEX_x = 'x',
 
 	LEX_ID = 256,
 	LEX_INT,
@@ -140,12 +144,12 @@ enum class SCRIPTVAR_FLAGS
 	SCRIPTVAR_DOUBLE |
 	SCRIPTVAR_INTEGER,
 	SCRIPTVAR_VARTYPEMASK = SCRIPTVAR_DOUBLE |
-	                        SCRIPTVAR_INTEGER |
-	                        SCRIPTVAR_STRING |
-	                        SCRIPTVAR_FUNCTION |
-	                        SCRIPTVAR_OBJECT |
-	                        SCRIPTVAR_ARRAY |
-	                        SCRIPTVAR_NULL,
+	SCRIPTVAR_INTEGER |
+	SCRIPTVAR_STRING |
+	SCRIPTVAR_FUNCTION |
+	SCRIPTVAR_OBJECT |
+	SCRIPTVAR_ARRAY |
+	SCRIPTVAR_NULL,
 
 };
 // 論理オペレータOR
@@ -334,11 +338,15 @@ public:
 	~CTinyJS();
 
 	void execute(const wString& code);
-	/** Evaluate the given code and return a link to a javascript object,
-	 * useful for (dangerous) JSON parsing. If nothing to return, will return
-	 * 'undefined' variable type. CScriptVarLink is returned as this will
-	 * automatically unref the result as it goes out of scope. If you want to
-	 * keep it, you must use ref() and unref() */
+	/// <summary>
+	/// Evaluate the given code and return a link to a javascript object,
+	/// useful for (dangerous) JSON parsing. If nothing to return, will return
+	/// 'undefined' variable type. CScriptVarLink is returned as this will
+	/// automatically unref the result as it goes out of scope. If you want to
+	/// keep it, you must use setRef() and unref()
+	/// </summary>
+	/// <param name="code"></param>
+	/// <returns></returns>
 	CScriptVarLink evaluateComplex(const wString& code);
 	/** Evaluate the given code and return a string. If nothing to return, will return
 	 * 'undefined' */
@@ -363,7 +371,7 @@ public:
 	/// Get the given variable specified by a path (var1.var2.etc), or return 0
 	CScriptVar* getScriptVariable(const wString& path);
 	/// Get the value of the given variable, or return 0
-	const wString* getVariable(const wString& path);
+//    const wString *getVariable(const wString &path);
 	/// set the value of the given variable, return trur if it exists and gets set
 	bool setVariable(const wString& path, const wString& varData);
 

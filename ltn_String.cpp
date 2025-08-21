@@ -28,7 +28,7 @@
 #include <io.h>
 #endif
 #include <time.h>
-#include "cbl_String.h"
+#include "ltn_String.h"
 #include "define.h"
 
 //linux/windows共用オープン
@@ -506,7 +506,7 @@ char wString::at(unsigned int index) const
 	}
 }
 //---------------------------------------------------------------------------
-wString& wString::SetLength(const unsigned int num)
+wString& wString::set_length(const unsigned int num)
 {
 	resize(num);
 	return *this;
@@ -578,7 +578,7 @@ wString wString::substr(int start, int mylen) const
 //---------------------------------------------------------------------------
 int wString::find(const wString& str, int index) const
 {
-	char* ptr = strstr(String + index, str.String);
+	const char* ptr = strstr (String + index, str.String);
 	if (ptr == NULL) {
 		return npos;
 	}
@@ -589,9 +589,15 @@ int wString::find(const wString& str, int index) const
 //---------------------------------------------------------------------------
 // 位置
 //---------------------------------------------------------------------------
+/// <summary>
+/// 文字列の検索
+/// </summary>
+/// <param name="ch">検索文字列</param>
+/// <param name="index">検索開始位置</param>
+/// <returns>見つかった場合先頭からの文字位置（0スタート)、見つからなかった場合wString:npos</returns>
 int wString::find(const char* str, int index) const
 {
-	auto ptr = strstr(String + index, str);
+	const char* ptr = strstr (String + index, str);
 	if (ptr == NULL) {
 		return npos;
 	}
@@ -604,7 +610,7 @@ int wString::find(const char* str, int index) const
 //---------------------------------------------------------------------------
 int wString::find(char ch, int index) const
 {
-	auto ptr = strchr(String + index, ch);
+	const char* ptr = strchr (String + index, ch);
 	if (ptr == NULL) {
 		return npos;
 	}
@@ -617,7 +623,7 @@ int wString::find(char ch, int index) const
 //---------------------------------------------------------------------------
 int wString::rfind(const wString& str, size_t index) const
 {
-	auto ptr = strrstr(String + index, str.String);
+	const char* ptr = strrstr (String + index, str.String);
 	if (ptr == NULL) {
 		return npos;
 	}
@@ -706,9 +712,12 @@ unsigned int  wString::size(void) const
 {
 	return len;
 }
-//---------------------------------------------------------------------------
-//　Size
-//---------------------------------------------------------------------------
+
+/// <summary>
+/// 文字長
+/// </summary>
+/// <param name=""></param>
+/// <returns>文字列の長さ</returns>
 unsigned int wString::length(void) const
 {
 	return len;
@@ -749,7 +758,7 @@ int wString::load_from_file(const char* FileName)
 		}
 		flen = lseek(handle, 0, SEEK_END);
 		lseek(handle, 0, SEEK_SET);
-		SetLength(flen + 1);
+		set_length(flen + 1);
 		len = read(handle, String, flen);
 		close(handle);
 		String[len] = 0;
@@ -853,12 +862,12 @@ int wString::save_to_file(const char* FileName)
 //---------------------------------------------------------------------------
 // トリム
 //---------------------------------------------------------------------------
-wString wString::Trim(void)
+wString wString::trim(void)
 {
 	wString temp(*this);
 	if (temp.len) {
 		//先頭の空白等を抜く
-		while (temp.len && *temp.String <= ' ') {
+		while (temp.len && *reinterpret_cast<unsigned char*>(temp.String) <= ' ') {
 #ifdef linux
 			char* src = temp.String;
 			char* dst = src + 1;
@@ -871,7 +880,7 @@ wString wString::Trim(void)
 			temp.len--;
 		}
 		//末尾の空白等を抜く
-		while (temp.len && temp.String[temp.len - 1] <= ' ') {
+		while (temp.len && reinterpret_cast<unsigned char*>(temp.String)[temp.len - 1] <= ' ') {
 			temp.String[--temp.len] = 0;
 		}
 	}
@@ -885,7 +894,7 @@ wString wString::rtrim(void)
 	wString temp(*this);
 	if (temp.len) {
 		//末尾の空白等を抜く
-		while (temp.len && temp.String[temp.len - 1] <= ' ') {
+		while (temp.len && reinterpret_cast<unsigned char*>(temp.String)[temp.len - 1] <= ' ') {
 			temp.String[--temp.len] = 0;
 		}
 	}
@@ -914,12 +923,12 @@ void wString::Rtrimch(char* sentence, char cut_char)
 //---------------------------------------------------------------------------
 // トリム
 //---------------------------------------------------------------------------
-wString wString::LTrim(void)
+wString wString::ltrim(void)
 {
 	wString temp(*this);
 	if (temp.len) {
 		//先頭の空白等を抜く
-		while (temp.len && *temp.String <= ' ') {
+		while (temp.len && *reinterpret_cast<unsigned char*>(temp.String) <= ' ') {
 			char* src = temp.String;
 			char* dst = src + 1;
 			while (*src) {
@@ -1326,7 +1335,6 @@ int wString::vtsprintf(const char* fmt, va_list arg) {
 
 			//lluもluもuも同じ
 			while (*fmt == 'l' || *fmt == 'z') {
-				//*fmt++;
 				fmt++;
 			}
 
@@ -1611,7 +1619,7 @@ int wString::sprintf(const char* format, ...)
 	va_copy(ap2, ap1);
 	//最初はダミーで文字列長をシミュレート
 	stat = vsnprintf(String, 0, format, ap1);
-	SetLength(stat + 1);
+	set_length(stat + 1);
 	//実際に出力
 	stat = vsprintf(String, format, ap2);
 	va_end(ap1);
@@ -1639,7 +1647,7 @@ int wString::cat_sprintf(const char* format, ...)
 	va_copy(ap2, ap1);
 	//最初はダミーで文字列長をシミュレート
 	stat = vsnprintf(String, 0, format, ap1);
-	SetLength(stat + len + 1);
+	set_length(stat + len + 1);
 	//実際に出力
 	stat = vsprintf(String + len, format, ap2);
 	va_end(ap1);
@@ -1836,7 +1844,7 @@ wString wString::uri_decode()
 	return dst;
 }
 #ifdef WEB
-void wString::headerInit(size_t content_length, int expire, const char* mime_type)
+void wString::init_header(size_t content_length, int expire, const char* mime_type)
 {
 	sprintf("%s", HTTP_OK);
 	cat_sprintf("%s", HTTP_CONNECTION);
@@ -1865,7 +1873,7 @@ void wString::headerInit(size_t content_length, int expire, const char* mime_typ
 		this->cat_sprintf(HTTP_CONTENT_LENGTH, content_length);
 	}
 }
-void wString::headerPrint(int socket, int endflag)
+void wString::send_header(int socket, int endflag)
 {
 	send(socket, String, len, 0);
 	if (endflag) {
@@ -1908,7 +1916,7 @@ int wString::header(const char* str, int flag, int status)
 					header("HTTP/1.0 302 Found", true);
 				}
 			}
-			int count = getLines();
+			int count = lines();
 			wString str2;
 			str2.sprintf("%s%s", head, body);
 			//あれば入れ替え
@@ -2020,7 +2028,7 @@ void wString::Add(const wString& str)
 //　TStringList対策
 //  行数を返す
 //---------------------------------------------------------------------------
-int wString::getLines(void)
+int wString::lines(void)
 {
 	int count = 0;
 	char* ptr = String;
@@ -2156,7 +2164,7 @@ wString wString::http_get(const char* url, off_t offset)
 	//ptr = buf;
 	//準備
 	//アドレスから、ホスト名とターゲットを取得
-	ptr.SetLength(HTTP_STR_BUF_SIZE + 1);
+	ptr.set_length(HTTP_STR_BUF_SIZE + 1);
 	buf = url;
 	//ptr = 0;
 	work1 = buf.Pos("://") + 3;
@@ -2305,7 +2313,7 @@ bool wString::check_url(const wString& url)
 		);
 		int dd = send(server_socket, buf.c_str(), buf.Length(), 0);
 		if (dd != SOCKET_ERROR) {
-			buf.SetLength(1024);
+			buf.set_length(1024);
 			recv_len = recv(server_socket, buf.c_str(), buf.Total() - 1, 0);
 			buf.ResetLength(recv_len);
 			//見つからない
@@ -2375,7 +2383,7 @@ int wString::http_size(const wString& url)
 		//サーバに繋がった
 		if (send(server_socket, buf.c_str(), buf.Length(), 0) != SOCKET_ERROR) {
 			//初回分からヘッダを削除
-			buf.SetLength(HTTP_STR_BUF_SIZE);
+			buf.set_length(HTTP_STR_BUF_SIZE);
 			recv_len = recv(server_socket, buf.c_str(), buf.Total() - 1, 0);
 			//\r\n\r\nを探す
 			buf.ResetLength(recv_len);      //糸止め
