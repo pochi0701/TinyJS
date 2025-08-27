@@ -103,6 +103,7 @@
 					Fixed postfix increment operator
 	Version 0.32 :  Fixed Math.randInt on 32 bit PCs, where it was broken
 	Version 0.33 :  Fixed Memory leak + brokenness on === comparison
+	Version 0.34 :  Added const let variable type
 
 	 NOTE:
 		   Constructing an array with an initial length 'Array(5)' doesn't work
@@ -150,7 +151,7 @@ inline void CREATE_LINK(CScriptVarLink*& LINK, CScriptVar* VAR)
 		LINK->replaceWith(VAR);
 	}
 }
-//#define CREATE_LINK(LINK, VAR) { if (!LINK || LINK->owned) LINK = new CScriptVarLink(VAR); else LINK->replaceWith(VAR); }
+
  // 論理オペレータOR
 SCRIPTVAR_FLAGS operator|(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R)
 {
@@ -1884,6 +1885,11 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 	}
 }
 
+/// <summary>
+/// 与えられた条件に基づいてJavaScriptの変数やオブジェクトを解析し、対応するCScriptVarLinkを返すメソッド
+/// </summary>
+/// <param name="execute"></param>
+/// <returns></returns>
 CScriptVarLink* CTinyJS::factor(bool& execute)
 {
 	if (lex->tk == LEX_TYPES::LEX_L_PARENTHESIS) {
@@ -1929,7 +1935,6 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 			else if (lex->tk == LEX_TYPES::LEX_DOT) { // ------------------------------------- Record Access
 				lex->match(LEX_TYPES::LEX_DOT);
 				if (execute) {
-					int aa = 0;
 					const wString& name = lex->tkStr;
 					CScriptVarLink* child = a->var->findChild(name);
 					if (!child) child = findInParentClasses(a->var, name);
@@ -1938,7 +1943,6 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 						   'length' properly */
 						if (a->var->isArray() && name == "length") {
 							int ll = static_cast<int>(a->var->getArrayLength());
-							//aa = 1;
 							child = new CScriptVarLink(new CScriptVar(ll));
 						}
 						else if (a->var->isString() && name == "length") {
@@ -1956,10 +1960,6 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 						wString errorMsg = "Object variable not defined '";
 						errorMsg = errorMsg + a->name + "' must be defined";
 						throw new CScriptException(errorMsg.c_str());
-					}
-					//多分aをCLEANしないとメモリーリーク ひでえ実装
-					if (aa == 1) {
-						CLEAN(a);
 					}
 					a = child;
 				}
@@ -2078,7 +2078,7 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 	return 0;
 }
 /// <summary>
-///
+/// 単項演算子
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
@@ -2121,7 +2121,7 @@ CScriptVarLink* CTinyJS::unary(bool& execute)
 }
 
 /// <summary>
-/// 
+///	項：*,/,%
 /// </summary>
 /// <param name="execute"></param>
 /// <returns></returns>
@@ -2763,17 +2763,6 @@ CScriptVar* CTinyJS::getScriptVariable(const wString& path)
 	}
 	return var;
 }
-
-/// Get the value of the given variable, or return 0
-//const wString *CTinyJS::getVariable(const wString &path) {
-//    CScriptVar *var = getScriptVariable(path);
-//    // return result
-//    if (var){
-//        return &var->getString();
-//    }else{
-//        return 0;
-//    }
-//}
 
 /// <summary>
 /// set the value of the given variable, return trur if it exists and gets set
