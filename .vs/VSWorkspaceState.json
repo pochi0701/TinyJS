@@ -13,9 +13,8 @@
   },
   "ExpandedNodes": [
     "",
-    "\\out",
-    "\\src"
+    "\\out"
   ],
-  "SelectedNode": "\\TinyJS_MathFunctions.cpp",
+  "SelectedNode": "\\CMakeLists.txt",
   "PreviewInSolutionExplorer": false
 }
