@@ -1886,7 +1886,6 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			CScriptVarLink* value = base(execute);
 			CLEAN(value);
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
-			value = 0;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
 		if (lex->tk == LEX_TYPES::LEX_L_BRACE) { // TODO: why is this here?
@@ -2651,6 +2650,14 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		// for(statement condition; iterator)
 		lex->match(LEX_TYPES::LEX_R_FOR);
 		lex->match(LEX_TYPES::LEX_L_PARENTHESIS);
+
+		// Create a new block scope for `for` header variables declared with let/const
+		CScriptVar* forScope = nullptr;
+		if (execute) {
+			forScope = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT);
+			scopes.push_back(forScope);
+		}
+
 		ret = statement(execute); // initialisation
 		if (ret > LEX_TYPES::LEX_EOF) {
 			wString errorString;
@@ -2716,6 +2723,13 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		forCond = nullptr;
 		forIter = nullptr;
 		forBody = nullptr;
+
+        // Pop `for` scope so that header `let/const` do not leak outside
+        if (execute) {
+            scopes.pop_back();
+            delete forScope;
+            forScope = nullptr;
+        }
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_RETURN) {
 		lex->match(LEX_TYPES::LEX_R_RETURN);
