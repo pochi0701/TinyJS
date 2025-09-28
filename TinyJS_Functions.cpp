@@ -765,6 +765,132 @@ void scFileCopy(CScriptVar* c, void* userdata)
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
+// --- Array Methods ---
+void scArrayPush(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    CScriptVar* val = c->getParameter("val");
+    arr->setArrayIndex(len, val);
+    c->getReturnVar()->setInt(len + 1);
+}
+
+void scArrayPop(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    if (len > 0) {
+        CScriptVar* val = arr->getArrayIndex(len - 1);
+        c->getReturnVar()->copyValue(val);
+        arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
+    } else {
+        c->getReturnVar()->setUndefined();
+    }
+}
+
+void scArrayShift(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    if (len > 0) {
+        CScriptVar* val = arr->getArrayIndex(0);
+        c->getReturnVar()->copyValue(val);
+        // Shift all elements left
+        for (int i = 1; i < len; ++i) {
+            arr->setArrayIndex(i - 1, arr->getArrayIndex(i));
+        }
+        arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
+    } else {
+        c->getReturnVar()->setUndefined();
+    }
+}
+
+void scArrayUnshift(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    CScriptVar* val = c->getParameter("val");
+    // Shift all elements right
+    for (int i = len; i > 0; --i) {
+        arr->setArrayIndex(i, arr->getArrayIndex(i - 1));
+    }
+    arr->setArrayIndex(0, val);
+    c->getReturnVar()->setInt(len + 1);
+}
+
+void scArrayIndexOf(CScriptVar* c, void*) {
+	CScriptVar* arr = c->getParameter("this");
+	CScriptVar* search = c->getParameter("val");
+	int len = arr->getArrayLength();
+	int found = -1;
+	for (int i = 0; i < len; ++i) {
+		if (arr->getArrayIndex(i)->equals(search)) {
+			found = i;
+			break;
+		}
+	}
+	c->getReturnVar()->setInt(found);
+}
+
+void scArraySlice(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    int start = c->getParameter("start")->getInt();
+    int end = c->getParameter("end")->isUndefined() ? len : c->getParameter("end")->getInt();
+    if (start < 0) start = len + start;
+    if (end < 0) end = len + end;
+    if (start < 0) start = 0;
+    if (end > len) end = len;
+    if (end < start) end = start;
+    CScriptVar* result = c->getReturnVar();
+    result->setArray();
+    int idx = 0;
+    for (int i = start; i < end; ++i) {
+        result->setArrayIndex(idx++, arr->getArrayIndex(i));
+    }
+}
+
+void scArraySplice(CScriptVar* c, void*) {
+    CScriptVar* arr = c->getParameter("this");
+    int len = arr->getArrayLength();
+    int start = c->getParameter("start")->getInt();
+    int deleteCount = c->getParameter("deleteCount")->getInt();
+    if (start < 0) start = len + start;
+    if (start < 0) start = 0;
+    if (start > len) start = len;
+    if (deleteCount < 0) deleteCount = 0;
+    if (deleteCount > len - start) deleteCount = len - start;
+    // Return deleted elements
+    CScriptVar* result = c->getReturnVar();
+    result->setArray();
+    for (int i = 0; i < deleteCount; ++i) {
+        result->setArrayIndex(i, arr->getArrayIndex(start + i));
+    }
+    // Collect new items to insert
+    int numArgs = c->getChildren() - 3; // after start, deleteCount
+    std::vector<CScriptVar*> newItems;
+    for (int i = 0; i < numArgs; ++i) {
+        wString tmp;
+        tmp.sprintf("%d", 2 + i);
+        newItems.push_back(c->getParameter(tmp.c_str()));
+    }
+    // Build new array content
+    std::vector<CScriptVar*> newArr;
+    for (int i = 0; i < start; ++i) {
+        newArr.push_back(arr->getArrayIndex(i));
+    }
+    for (auto* v : newItems) {
+        newArr.push_back(v);
+    }
+    for (int i = start + deleteCount; i < len; ++i) {
+        newArr.push_back(arr->getArrayIndex(i));
+    }
+    // Set new array content
+    int newLen = (int)newArr.size();
+    arr->removeAllChildren();
+    for (int i = 0; i < newLen; ++i) {
+        arr->setArrayIndex(i, newArr[i]);
+    }
+}
+
+
+
 // ----------------------------------------------- Register Functions
 void registerFunctions(CTinyJS* tinyJS)
 {
@@ -835,4 +961,11 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function rmdir(path)", scRmdir, 0);
 	tinyJS->addNative("function saveToFile(path,data)", scSaveToFile, 0);
 	tinyJS->addNative("function copy(pathf,patht)", scFileCopy, 0);
+	tinyJS->addNative("function Array.push(val)", scArrayPush, 0);
+	tinyJS->addNative("function Array.pop()", scArrayPop, 0);
+	tinyJS->addNative("function Array.shift()", scArrayShift, 0);
+	tinyJS->addNative("function Array.unshift(val)", scArrayUnshift, 0);
+	tinyJS->addNative("function Array.indexOf(val)", scArrayIndexOf, 0);
+	tinyJS->addNative("function Array.slice(start,end)", scArraySlice, 0);
+	tinyJS->addNative("function Array.splice(start,deleteCount)", scArraySplice, 0);
 }

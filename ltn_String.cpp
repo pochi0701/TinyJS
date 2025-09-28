@@ -213,6 +213,7 @@ wString::wString(const wString& str)
 wString::~wString()
 {
 	delete[] String;
+	String = nullptr;
 }
 ///---------------------------------------------------------------------------
 /// <summary>
