@@ -1,3 +1,5 @@
 // comparison
-var a = 42;
-result = a==42;
+{
+    let a = 42;
+    result = a==42;
+}

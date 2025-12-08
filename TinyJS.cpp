@@ -507,7 +507,7 @@ LEX_TYPES CScriptLex::getNextCh()
 void CScriptLex::getNextToken()
 {
 	// octal digits
-	char buf[4] = "???";
+	//char buf[4] = "???";
 	tk = LEX_TYPES::LEX_EOF;
 	tkStr.clear();
 	//無駄文字読み飛ばし
@@ -2765,11 +2765,11 @@ CScriptVar* CTinyJS::getScriptVariable(const wString& path)
 }
 
 /// <summary>
-/// set the value of the given variable, return trur if it exists and gets set
+/// set the value of the given variable, return true if it exists and gets set
 /// </summary>
-/// <param name="path"></param>
-/// <param name="varData"></param>
-/// <returns></returns>
+/// <param name="path">変数を示すパス</param>
+/// <param name="varData">変数の内容</param>
+/// <returns>変数の内容を取得できれば真</returns>
 bool CTinyJS::setVariable(const wString& path, const wString& varData)
 {
 	CScriptVar* var = getScriptVariable(path);
