@@ -138,6 +138,7 @@ inline void CLEAN(CScriptVarLink* x)
 	auto link = x;
 	if (link && !link->owned) {
 		delete link;
+		link = nullptr;
 	}
 }
 //Create a LINK to point to VAR and free the old link.
@@ -844,7 +845,12 @@ CScriptVarLink::CScriptVarLink(const CScriptVarLink& link)
 /// <summary>デストラクタ</summary>
 CScriptVarLink::~CScriptVarLink()
 {
-	var->unref();
+	if (var->getRefs() < 0) {
+		var = nullptr;
+	}
+	else {
+		var->unref();
+	}
 }
 
 void CScriptVarLink::replaceWith(CScriptVar* newVar)
@@ -1063,6 +1069,7 @@ void CScriptVar::removeLink(CScriptVarLink* link)
 		firstChild = link->nextSibling;
 	}
 	delete link;
+	link = nullptr;
 }
 
 void CScriptVar::removeAllChildren()
@@ -1232,6 +1239,7 @@ bool CScriptVar::equals(CScriptVar* v)
 	CScriptVar* resV = mathsOp(v, LEX_TYPES::LEX_EQUAL);
 	bool res = resV->getBool();
 	delete resV;
+	resV = nullptr;
 	return res;
 }
 
@@ -1550,7 +1558,10 @@ inline CScriptVar* CScriptVar::setRef()
 
 void CScriptVar::unref()
 {
-	if (refs <= 0) printf("OMFG, we have unreffed too far!\n");
+
+	if (refs <= 0) {
+		printf("OMFG, we have unreffed too far!\n");
+	}
 	if ((--refs) == 0) {
 		delete this;
 	}
@@ -1643,6 +1654,7 @@ void CTinyJS::execute(const wString& code)
 		lex = oldLex;
 		//いらないかも
 		delete e;
+		e = nullptr;
 
 		throw new CScriptException(msg.c_str());
 	}
@@ -1859,6 +1871,7 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 		returnVar = new CScriptVarLink(returnVarLink->var);
 		functionRoot->removeLink(returnVarLink);
 		delete functionRoot;
+		functionRoot = nullptr;
 		if (returnVar) {
 			return returnVar;
 		}
@@ -1873,7 +1886,6 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			CScriptVarLink* value = base(execute);
 			CLEAN(value);
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
-			value = 0;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
 		if (lex->tk == LEX_TYPES::LEX_L_BRACE) { // TODO: why is this here?
@@ -2379,6 +2391,7 @@ LEX_TYPES CTinyJS::block(bool& execute)
 				// スコープpop
 				scopes.pop_back();
 				delete blockScope;
+				blockScope = nullptr;
 				return ret;
 			}
 		}
@@ -2386,6 +2399,7 @@ LEX_TYPES CTinyJS::block(bool& execute)
 		// スコープpop
 		scopes.pop_back();
 		delete blockScope;
+		blockScope = nullptr;
 	}
 	else {
 		// fast skip of blocks
@@ -2629,11 +2643,21 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		lex = oldLex;
 		delete whileCond;
 		delete whileBody;
+		whileCond = nullptr;
+		whileBody = nullptr;
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_FOR) {
 		// for(statement condition; iterator)
 		lex->match(LEX_TYPES::LEX_R_FOR);
 		lex->match(LEX_TYPES::LEX_L_PARENTHESIS);
+
+		// Create a new block scope for `for` header variables declared with let/const
+		CScriptVar* forScope = nullptr;
+		if (execute) {
+			forScope = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FLAGS::SCRIPTVAR_OBJECT);
+			scopes.push_back(forScope);
+		}
+
 		ret = statement(execute); // initialisation
 		if (ret > LEX_TYPES::LEX_EOF) {
 			wString errorString;
@@ -2696,6 +2720,16 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		delete forCond;
 		delete forIter;
 		delete forBody;
+		forCond = nullptr;
+		forIter = nullptr;
+		forBody = nullptr;
+
+        // Pop `for` scope so that header `let/const` do not leak outside
+        if (execute) {
+            scopes.pop_back();
+            delete forScope;
+            forScope = nullptr;
+        }
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_RETURN) {
 		lex->match(LEX_TYPES::LEX_R_RETURN);
