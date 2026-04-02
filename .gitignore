@@ -219,3 +219,5 @@ pip-log.txt
 *.vsidx
 *.lock
 *.db
+/build_vs
+/.vs/slnx.sqlite
