@@ -166,7 +166,7 @@ public:
 	int             save_to_file(const wString& str);
 	wString         nkfcnv(const wString& option);
 	//HTTP接続用
-#ifdef web
+#ifdef WEB
 	static int      http_size(const wString& url);
 	static SOCKET   sock_connect(const wString& host, const int port);
 	static SOCKET   sock_connect(const char* host, const int port);

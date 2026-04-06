@@ -120,6 +120,8 @@
 
   */
 
+//#define WEB
+//#define DB
 #include "TinyJS.h"
 #include <assert.h>
 #include "define.h"
@@ -321,7 +323,7 @@ bool isAlphaNum(const wString& str)
 	return true;
 }
 
-#ifdef web
+#ifdef WEB
 void JSTRACE(SOCKET socket, const char* format, ...)
 {
 	char work[1024];
@@ -400,7 +402,7 @@ void CScriptLex::match(LEX_TYPES expected_tk)
 	}
 	getNextToken();
 }
-#ifdef web
+#ifdef WEB
 //グローバルで申し訳ないが最初に文字を出力する際にheaderを先に出す
 void headerCheckPrint(int socket, int* printed, wString* headerBuf, int flag)
 {
@@ -509,7 +511,7 @@ LEX_TYPES CScriptLex::getNextCh()
 void CScriptLex::getNextToken()
 {
 	// octal digits
-	//char buf[4] = "???";
+
 	tk = LEX_TYPES::LEX_EOF;
 	tkStr.clear();
 	//無駄文字読み飛ばし
@@ -825,7 +827,7 @@ CScriptVarLink::CScriptVarLink(CScriptVar* var, const wString& myname)
 	this->name = myname;
 	this->nextSibling = 0;
 	this->prevSibling = 0;
-	this->var = var->setRef();//thisの参照を増やして返す
+	this->var = var->setRef();//thisを参照を増やして返す
 	this->owned = false;
 }
 
@@ -1234,7 +1236,7 @@ void CScriptVar::setArray()
 /// thisとvが同一ならtrue
 /// </summary>
 /// <param name="v">比較する変数</param>
-/// <returns>同一なら真、さもなくば偽</returns>:
+/// <returns>同一なら真、さもなくば偽</returns>
 bool CScriptVar::equals(CScriptVar* v)
 {
 	CScriptVar* resV = mathsOp(v, LEX_TYPES::LEX_EQUAL);
@@ -1926,6 +1928,7 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			CScriptVarLink* value = base(execute);
 			CLEAN(value);
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
+			value = 0;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
 		if (lex->tk == LEX_TYPES::LEX_L_BRACE) { // TODO: why is this here?
@@ -1968,7 +1971,7 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 	}
 	if (lex->tk == LEX_TYPES::LEX_ID) {
 		CScriptVarLink* a = execute ? findInScopes(lex->tkStr) : new CScriptVarLink(new CScriptVar());
-		//printf("0x%08X for %s at %s\n", (unsigned int)a, l->tkStr.c_str(), l->getPosition().c_str());
+		//printf("0x%08X for %s at %s\n", (unsigned int)a, lex->tkStr.c_str(), lex->getPosition().c_str());
 		/* The parent if we're executing a method call */
 		CScriptVar* parent = 0;
 
@@ -2706,7 +2709,7 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 			errorString.sprintf("Syntax error at %s: %s", lex->getPosition(lex->tokenStart).c_str(), lex->getTokenStr(ret).c_str());
 			throw new CScriptException(errorString.c_str());
 		}
-		//l->match(LEX_TYPES::LEX_SEMICOLON);
+		//lex->match(LEX_TYPES::LEX_SEMICOLON);
 		int forCondStart = lex->tokenStart;
 		bool noexecute = false;
 		CScriptVarLink* cond = base(execute); // condition
