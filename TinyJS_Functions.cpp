@@ -83,7 +83,6 @@ void scKeys(CScriptVar* c, void* userdata)
 	}
 }
 
-
 void scMathRand(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
@@ -405,7 +404,6 @@ void scJSONStringify(CScriptVar* c, void* userdata)
 
 void scExec(CScriptVar* c, void* userdata)
 {
-	IGNORE_PARAMETER(userdata);
 	CTinyJS* tinyJS = static_cast<CTinyJS*>(userdata);
 	wString str = c->getParameter("jsCode")->getString();
 	tinyJS->execute(str);
@@ -782,7 +780,8 @@ void scArrayPop(CScriptVar* c, void*) {
         CScriptVar* val = arr->getArrayIndex(len - 1);
         c->getReturnVar()->copyValue(val);
         arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
-    } else {
+	}
+	else {
         c->getReturnVar()->setUndefined();
     }
 }
@@ -798,7 +797,8 @@ void scArrayShift(CScriptVar* c, void*) {
             arr->setArrayIndex(i - 1, arr->getArrayIndex(i));
         }
         arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
-    } else {
+	}
+	else {
         c->getReturnVar()->setUndefined();
     }
 }
@@ -890,7 +890,13 @@ void scArraySplice(CScriptVar* c, void*) {
     }
 }
 
-
+//死亡
+void scDie(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString msg = c->getParameter("msg")->getString();
+	throw new CScriptException(msg);
+}
 
 // ----------------------------------------------- Register Functions
 void registerFunctions(CTinyJS* tinyJS)
@@ -969,4 +975,5 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function Array.indexOf(!val)", scArrayIndexOf, 0);
 	tinyJS->addNative("function Array.slice(!start,!end)", scArraySlice, 0);
 	tinyJS->addNative("function Array.splice(!start,!deleteCount)", scArraySplice, 0);
+    tinyJS->addNative("function die(msg)", scDie, 0);
 }

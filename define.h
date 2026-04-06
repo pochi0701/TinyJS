@@ -1,6 +1,9 @@
-#ifndef DEFINEH
-#ifndef __linux
+﻿#ifndef DEFINEH
 #define DEFINEH
+#ifndef IGNORE_PARAMETER
+#define IGNORE_PARAMETER(n) ((void)n)
+#endif
+#ifndef linux
 #define write _write
 #define read _read
 #define close _close

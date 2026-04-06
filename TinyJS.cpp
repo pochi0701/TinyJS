@@ -174,10 +174,10 @@ const static unsigned char cmap[256] = {
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,//00
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
 	   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//20
-	   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0,//30
-	   0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//40
+	  10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 0, 0, 0,//30
+	   0,12,12,12,12,12,12, 4, 4, 4, 4, 4, 4, 4, 4, 4,//40
 	   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4,//50
-	   0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//60
+	   0,12,12,12,12,12,12, 4, 4, 4, 4, 4, 4, 4, 4, 4,//60
 	   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,//70
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//80
 	   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//90
@@ -216,9 +216,10 @@ inline bool isNumber(const wString& str)
 //１６進チェック
 inline bool isHexadecimal(unsigned char ch)
 {
-	return ((ch >= '0') && (ch <= '9')) ||
-		((ch >= 'a') && (ch <= 'f')) ||
-		((ch >= 'A') && (ch <= 'F'));
+	return (cmap[ch] & 8);
+	//return ((ch >= '0') && (ch <= '9')) ||
+	//	((ch >= 'a') && (ch <= 'f')) ||
+	//	((ch >= 'A') && (ch <= 'F'));
 }
 ////////////////////////////////////////////////////////////////////////////////
 //アルファベットチェック
@@ -2129,9 +2130,9 @@ CScriptVarLink* CTinyJS::factor(bool& execute)
 	return 0;
 }
 /// <summary>
-/// 単項演算子
+/// 単項演算子"!"
 /// </summary>
-/// <param name="execute"></param>
+/// <param name="execute">実行フラグ</param>
 /// <returns></returns>
 CScriptVarLink* CTinyJS::unary(bool& execute)
 {
@@ -2229,7 +2230,7 @@ CScriptVarLink* CTinyJS::expression(bool& execute)
 		else {
 			CScriptVarLink* b = term(execute);
 			if (execute) {
-				// not in-place, so just replace
+				// not in-place, so just replace_flg
 				CScriptVar* res = a->var->mathsOp(b->var, op);
 				CREATE_LINK(a, res);
 			}
@@ -2290,7 +2291,7 @@ CScriptVarLink* CTinyJS::condition(bool& execute)
 /// <summary>
 /// 結合条件式
 /// </summary>
-/// <param name="execute"></param>
+/// <param name="execute">実行の有無</param>
 /// <returns></returns>
 CScriptVarLink* CTinyJS::logic(bool& execute)
 {
@@ -2498,7 +2499,9 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		}
 	}
 	else if (lex->tk == LEX_TYPES::LEX_R_VAR) {
-		/* var: 関数スコープに変数を追加 */
+		/* variable creation. TODO - we need a better way of parsing the left
+		* hand side. Maybe just have a flag called can_create_var that we
+		* set and then we parse as if we're doing a normal equals.*/
 		lex->match(LEX_TYPES::LEX_R_VAR);
 		while (lex->tk != LEX_TYPES::LEX_SEMICOLON) {
 			CScriptVarLink* a = 0;
@@ -2633,7 +2636,7 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 		}
 		if (lex->tk == LEX_TYPES::LEX_R_ELSE) {
 			lex->match(LEX_TYPES::LEX_R_ELSE);
-			//break continue対応. LEX_R_BREAK,LEX_R_CONTINUE以外ではLEX_EOFがかえる
+			//break continue対応. LEX_TYPES::LEX_R_BREAK,LEX_TYPES::LEX_R_CONTINUE以外ではLEX_TYPES::LEX_EOFがかえる
 			return statement(cond ? noexecute : execute);
 		}
 	}
