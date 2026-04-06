@@ -221,3 +221,6 @@ pip-log.txt
 *.db
 /build_vs
 /.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
+/.vs/VSWorkspaceState.json
+/.vs/VSWorkspaceState.json
