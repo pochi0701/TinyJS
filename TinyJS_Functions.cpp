@@ -54,7 +54,6 @@ void js_print(CScriptVar* v, void* userdata)
 void scTrace(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(c);
-	IGNORE_PARAMETER(userdata);
 	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	js->root->trace();
 }
@@ -738,7 +737,7 @@ void scSessionStart(CScriptVar* c, void* userdata)
 /// ブラウザへのCookieの設定
 /// </summary>
 /// <param name="c"></param>
-//SetCookie
+/// <param name="userdata"></param>
 void scSetCookie(CScriptVar* c, void* userdata)
 {
 #ifdef WEB
