@@ -1,4 +1,4 @@
-/*
+﻿/*
  * TinyJS
  *
  * A single-file Javascript-alike engine
@@ -31,7 +31,8 @@
 
 #include "TinyJS.h"
 
- /// Register useful functions with the TinyJS interpreter
-extern void registerFunctions(CTinyJS* tinyJS);
+/// Register useful functions with the TinyJS interpreter
+extern void registerFunctions(CTinyJS *tinyJS);
+
 
 #endif
