@@ -152,7 +152,9 @@ void scStringSubstring(CScriptVar* c, void* userdata)
 	wString str = c->getParameter("this")->getString();
 	int len = str.length();
 	int lo = c->getParameter("lo")->getInt();
-	int hi = c->getParameter("hi")->getInt();
+	// hi is optional; if omitted, use string length
+	CScriptVar* args = c->getParameter("arguments");
+	int hi = (args && args->getArrayLength() < 2) ? len : c->getParameter("hi")->getInt();
 	if (lo < 0) lo = 0;
 	if (lo > len) lo = str.length();
 	if (hi < 0) hi = 0;
