@@ -1727,15 +1727,7 @@ void CTinyJS::parseFunctionArguments(CScriptVar* funcVar)
 {
 	lex->match(LEX_TYPES::LEX_L_PARENTHESIS);
 	while (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) {
-		// '!' prefix marks a required parameter
-		bool required = false;
-		if (lex->tk == LEX_TYPES::LEX_EXCLAMATION) {
-			required = true;
-			lex->match(LEX_TYPES::LEX_EXCLAMATION);
-		}
-		wString paramName = lex->tkStr;
-		if (required) paramName = "!" + paramName;
-		funcVar->addChildNoDup(paramName);
+		funcVar->addChildNoDup(lex->tkStr);
 		lex->match(LEX_TYPES::LEX_ID);
 		if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
 	}
@@ -1820,54 +1812,23 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			functionRoot->addChildNoDup("this", parent);
 		// grab in all parameters
 		CScriptVarLink* v = function->var->firstChild;
-		int argIdx = 0;
-		while (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) {
+		while (v) {
 			CScriptVarLink* value = base(execute);
 			if (execute) {
-				if (v) {
-					// named parameter — strip leading '!' (required marker) for the binding name
-					wString paramName = (v->name.length() > 0 && v->name[0] == '!') ? v->name.substr(1) : v->name;
 					if (value->var->isBasic()) {
-						functionRoot->addChild(paramName, value->var->deepCopy());
+					// pass by value
+					functionRoot->addChild(v->name, value->var->deepCopy());
 					}
 					else {
-						functionRoot->addChild(paramName, value->var);
-					}
-				}
-				else {
-					// extra argument beyond declared parameters — store by index
-					char idx_str[16];
-					snprintf(idx_str, sizeof(idx_str), "%d", argIdx);
-					if (value->var->isBasic()) {
-						functionRoot->addChild(idx_str, value->var->deepCopy());
-					}
-					else {
-						functionRoot->addChild(idx_str, value->var);
-					}
+					// pass by reference
+					functionRoot->addChild(v->name, value->var);
 				}
 			}
 			CLEAN(value);
-			if (v) v = v->nextSibling;
-			argIdx++;
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
+			v = v->nextSibling;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
-		// Check required parameters: declared params whose name starts with '!'
-		// must be supplied. e.g. addNative("function foo(!a, !b, c)", ...)
-		// means a and b are required, c is optional.
-		if (execute && v) {
-			// v still points to the first unmatched declared parameter
-			while (v) {
-				if (v->name.length() > 0 && v->name[0] == '!') {
-					wString errorMsg;
-					errorMsg.sprintf("Missing required argument '%s' for %s",
-						v->name.c_str() + 1, function->name.c_str());
-					delete functionRoot;
-					throw new CScriptException(errorMsg.c_str());
-				}
-				v = v->nextSibling;
-			}
-		}
 		// setup a return variable
 		CScriptVarLink* returnVar = NULL;
 		// execute function!
@@ -1928,7 +1889,6 @@ CScriptVarLink* CTinyJS::functionCall(bool& execute, CScriptVarLink* function, C
 			CScriptVarLink* value = base(execute);
 			CLEAN(value);
 			if (lex->tk != LEX_TYPES::LEX_R_PARENTHESIS) lex->match(LEX_TYPES::LEX_COMMA);
-			value = 0;
 		}
 		lex->match(LEX_TYPES::LEX_R_PARENTHESIS);
 		if (lex->tk == LEX_TYPES::LEX_L_BRACE) { // TODO: why is this here?

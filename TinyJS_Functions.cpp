@@ -152,20 +152,19 @@ void scStringSubstring(CScriptVar* c, void* userdata)
 	wString str = c->getParameter("this")->getString();
 	int len = str.length();
 	int lo = c->getParameter("lo")->getInt();
-	CScriptVar* hiVar = c->getParameter("hi");
-	int hi = hiVar->isUndefined() ? len : hiVar->getInt();
+	int hi = c->getParameter("hi")->getInt();
 	if (lo < 0) lo = 0;
-	if (lo > len) lo = len;
+	if (lo > len) lo = str.length();
 	if (hi < 0) hi = 0;
-	if (hi > len) hi = len;
+	if (hi > len) hi = str.length();
 	if (lo > hi) {
 		auto temp = hi;
 		hi = lo;
 		lo = temp;
 	}
-	int sublen = hi - lo;
-	if (sublen > 0 && lo >= 0 && lo + sublen <= len)
-		c->getReturnVar()->setString(str.substr(lo, sublen));
+	int lex = hi - lo;
+	if (lex > 0 && lo >= 0 && lo + lex <= (int)str.length())
+		c->getReturnVar()->setString(str.substr(lo, lex));
 	else
 		c->getReturnVar()->setString("");
 }
@@ -900,79 +899,78 @@ void scDie(CScriptVar* c, void* userdata)
 // ----------------------------------------------- Register Functions
 void registerFunctions(CTinyJS* tinyJS)
 {
-	tinyJS->addNative("function exec(!jsCode)", scExec, tinyJS); // execute the given code
-	tinyJS->addNative("function eval(!jsCode)", scEval, tinyJS); // execute the given wString (an expression) and return the result
+	tinyJS->addNative("function exec(jsCode)", scExec, tinyJS); // execute the given code
+	tinyJS->addNative("function eval(jsCode)", scEval, tinyJS); // execute the given wString (an expression) and return the result
 	tinyJS->addNative("function trace()", scTrace, tinyJS);
 	tinyJS->addNative("function Object.dump()", scObjectDump, tinyJS);
 	tinyJS->addNative("function Object.clone()", scObjectClone, 0);
-	tinyJS->addNative("function Object.keys(!obj)", scKeys, 0);
-	tinyJS->addNative("function charToInt(!ch)", scCharToInt, 0); //  convert a character to an int - get its value
+	tinyJS->addNative("function Object.keys(obj)", scKeys, 0);
+	tinyJS->addNative("function charToInt(ch)", scCharToInt, 0); //  convert a character to an int - get its value
 	tinyJS->addNative("function command(path)", scCommand, 0);
-	tinyJS->addNative("function header(!str)", scHeader, tinyJS);
+	tinyJS->addNative("function header(str)", scHeader, tinyJS);
 	tinyJS->addNative("function session_start()", scSessionStart, tinyJS);
-	tinyJS->addNative("function setCookie(!name,!value,!expire)", scSetCookie, tinyJS);
+	tinyJS->addNative("function setCookie(name,value,expire)", scSetCookie, tinyJS);
 	tinyJS->addNative("function Math.rand()", scMathRand, 0);
-	tinyJS->addNative("function Math.randInt(!min, !max)", scMathRandInt, 0);
-	tinyJS->addNative("function Integer.parseInt(!str)", scIntegerParseInt, 0); // wString to int
-	tinyJS->addNative("function Integer.valueOf(!str)", scIntegerValueOf, 0); // value of a single character
-	tinyJS->addNative("function encodeURI(!uri)", scEncodeURI, 0);
-	tinyJS->addNative("function dirname(!uri)", scDirname, 0);
-	tinyJS->addNative("function basename(!uri)", scBasename, 0);
-	tinyJS->addNative("function String.indexOf(!search)", scStringIndexOf, 0); // find the position of a wString in a string, -1 if not
-	tinyJS->addNative("function String.substring(!lo,!hi)", scStringSubstring, 0);
-	tinyJS->addNative("function String.substr(!lo,!hi)", scStringSubstr, 0);
-	tinyJS->addNative("function String.charAt(!pos)", scStringCharAt, 0);
-	tinyJS->addNative("function String.charCodeAt(!pos)", scStringCharCodeAt, 0);
-	tinyJS->addNative("function String.fromCharCode(!char)", scStringFromCharCode, 0);
-	tinyJS->addNative("function String.split(!separator)", scStringSplit, 0);
-	tinyJS->addNative("function String.replace(!before,!after)", scStringReplace, 0);
-	tinyJS->addNative("function String.preg_replace(!pattern,!replace)", scPregStringReplace, 0);
-	//tinyJS->addNative("function String.preg_match(!pattern)",scPregStringMatch, 0 );
+	tinyJS->addNative("function Math.randInt(min, max)", scMathRandInt, 0);
+	tinyJS->addNative("function Integer.parseInt(str)", scIntegerParseInt, 0); // wString to int
+	tinyJS->addNative("function Integer.valueOf(str)", scIntegerValueOf, 0); // value of a single character
+	tinyJS->addNative("function encodeURI(uri)", scEncodeURI, 0);
+	tinyJS->addNative("function dirname(uri)", scDirname, 0);
+	tinyJS->addNative("function basename(uri)", scBasename, 0);
+	tinyJS->addNative("function String.indexOf(search)", scStringIndexOf, 0); // find the position of a wString in a string, -1 if not
+	tinyJS->addNative("function String.substring(lo,hi)", scStringSubstring, 0);
+	tinyJS->addNative("function String.substr(lo,hi)", scStringSubstr, 0);
+	tinyJS->addNative("function String.charAt(pos)", scStringCharAt, 0);
+	tinyJS->addNative("function String.charCodeAt(pos)", scStringCharCodeAt, 0);
+	tinyJS->addNative("function String.fromCharCode(char)", scStringFromCharCode, 0);
+	tinyJS->addNative("function String.split(separator)", scStringSplit, 0);
+	tinyJS->addNative("function String.replace(before,after)", scStringReplace, 0);
+	tinyJS->addNative("function String.preg_replace(pattern,replace)", scPregStringReplace, 0);
+	//tinyJS->addNative("function String.preg_match(pattern)",scPregStringMatch, 0 );
 	tinyJS->addNative("function String.addSlashes()", scAddShashes, 0);
 	tinyJS->addNative("function getLocalAddress()", scGetLocalAddress, 0);
 	tinyJS->addNative("function String.toLowerCase()", scToLowerCase, 0);
 	tinyJS->addNative("function String.toUpperCase()", scToUpperCase, 0);
-	tinyJS->addNative("function String.toDateString(!format)", scIntegerToDateString, 0); // time to strng format
+	tinyJS->addNative("function String.toDateString(format)", scIntegerToDateString, 0); // time to strng format
 	tinyJS->addNative("function Date()", scStringDate, 0); // time to strng
-	tinyJS->addNative("function String.nkfconv(!format)", scNKFConv, 0); // language code convert
+	tinyJS->addNative("function String.nkfconv(format)", scNKFConv, 0); // language code convert
 	tinyJS->addNative("function String.Connect()", scDBConnect, 0); // Connect to DB
 	tinyJS->addNative("function String.DisConnect()", scDBDisConnect, 0); // DisConnect to DB
-	tinyJS->addNative("function String.SQL(!sqltext)", scDBSQL, 0); // Execute SQL
+	tinyJS->addNative("function String.SQL(sqltext)", scDBSQL, 0); // Execute SQL
 
 	//    tinyJS->addNative("function JSON.mp3id3tag(path)",                scMp3Id3Tag,           0 );
-	tinyJS->addNative("function JSON.stringify(!obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment
+	tinyJS->addNative("function JSON.stringify(obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment
 
 	// JSON.parse is left out as you can (unsafely!) use eval instead
-	tinyJS->addNative("function Array.contains(!obj)", scArrayContains, 0);
-	tinyJS->addNative("function Array.remove(!obj)", scArrayRemove, 0);
-	tinyJS->addNative("function Array.join(!separator)", scArrayJoin, 0);
-	tinyJS->addNative("function encodeURI(!url)", scEncodeURI, 0);
+	tinyJS->addNative("function Array.contains(obj)", scArrayContains, 0);
+	tinyJS->addNative("function Array.remove(obj)", scArrayRemove, 0);
+	tinyJS->addNative("function Array.join(separator)", scArrayJoin, 0);
+	tinyJS->addNative("function encodeURI(url)", scEncodeURI, 0);
 	tinyJS->addNative("function String.trim()", scTrim, 0);
 	tinyJS->addNative("function String.rtrim()", scRTrim, 0);
 	tinyJS->addNative("function String.ltrim()", scLTrim, 0);
-	tinyJS->addNative("function print(!text)", js_print, tinyJS);
-	tinyJS->addNative("function htmlspecialchars(!uri)", scHtmlSpecialChars, 0);
-	tinyJS->addNative("function file_exists(!path)", scFileExists, 0);
-	tinyJS->addNative("function dir_exists(!path)", scDirExists, 0);
-	tinyJS->addNative("function scandir(!uri)", scScanDir, 0);
-	tinyJS->addNative("function extractFileExt(!uri)", scExtractFileExt, 0);
-	tinyJS->addNative("function file_stat(!path)", scFileStats, 0);
-	tinyJS->addNative("function filedate(!path)", scFileDate, 0);
-	tinyJS->addNative("function loadFromFile(!path)", scLoadFromFile, 0);
-	tinyJS->addNative("function loadFromCSV(!path)", scLoadFromCSV, 0);
-	tinyJS->addNative("function unlink(!path)", scUnlink, 0);
-	tinyJS->addNative("function touch(!path)", scTouch, 0);
-	tinyJS->addNative("function rename(!pathf,!patht)", scRename, 0);
-	tinyJS->addNative("function mkdir(!path)", scMkdir, 0);
-	tinyJS->addNative("function rmdir(!path)", scRmdir, 0);
-	tinyJS->addNative("function saveToFile(!path,!data)", scSaveToFile, 0);
-	tinyJS->addNative("function copy(!pathf,!patht)", scFileCopy, 0);
-	tinyJS->addNative("function Array.push(!val)", scArrayPush, 0);
+	tinyJS->addNative("function print(text)", js_print, tinyJS);
+	tinyJS->addNative("function htmlspecialchars(uri)", scHtmlSpecialChars, 0);
+	tinyJS->addNative("function file_exists(path)", scFileExists, 0);
+	tinyJS->addNative("function dir_exists(path)", scDirExists, 0);
+	tinyJS->addNative("function scandir(uri)", scScanDir, 0);
+	tinyJS->addNative("function extractFileExt(uri)", scExtractFileExt, 0);
+	tinyJS->addNative("function file_stat(path)", scFileStats, 0);
+	tinyJS->addNative("function filedate(path)", scFileDate, 0);
+	tinyJS->addNative("function loadFromFile(path)", scLoadFromFile, 0);
+	tinyJS->addNative("function loadFromCSV(path)", scLoadFromCSV, 0);
+	tinyJS->addNative("function unlink(path)", scUnlink, 0);
+	tinyJS->addNative("function touch(path)", scTouch, 0);
+	tinyJS->addNative("function rename(pathf,patht)", scRename, 0);
+	tinyJS->addNative("function mkdir(path)", scMkdir, 0);
+	tinyJS->addNative("function rmdir(path)", scRmdir, 0);
+	tinyJS->addNative("function saveToFile(path,data)", scSaveToFile, 0);
+	tinyJS->addNative("function copy(pathf,patht)", scFileCopy, 0);
+	tinyJS->addNative("function Array.push(val)", scArrayPush, 0);
 	tinyJS->addNative("function Array.pop()", scArrayPop, 0);
 	tinyJS->addNative("function Array.shift()", scArrayShift, 0);
-	tinyJS->addNative("function Array.unshift(!val)", scArrayUnshift, 0);
-	tinyJS->addNative("function Array.indexOf(!val)", scArrayIndexOf, 0);
-	tinyJS->addNative("function Array.slice(!start,!end)", scArraySlice, 0);
-	tinyJS->addNative("function Array.splice(!start,!deleteCount)", scArraySplice, 0);
-    tinyJS->addNative("function die(msg)", scDie, 0);
+	tinyJS->addNative("function Array.unshift(val)", scArrayUnshift, 0);
+	tinyJS->addNative("function Array.indexOf(val)", scArrayIndexOf, 0);
+	tinyJS->addNative("function Array.slice(start,end)", scArraySlice, 0);
+	tinyJS->addNative("function Array.splice(start,deleteCount)", scArraySplice, 0);
 }
