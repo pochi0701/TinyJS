@@ -1,4 +1,6 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 /*
  * TinyJS
  *
@@ -35,6 +37,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <ctype.h>
+#include <cmath>
  //#include "dregex.h"
 using namespace std;
 // ----------------------------------------------- Actual Functions
@@ -766,53 +769,53 @@ void scFileCopy(CScriptVar* c, void* userdata)
 }
 // --- Array Methods ---
 void scArrayPush(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    CScriptVar* val = c->getParameter("val");
-    arr->setArrayIndex(len, val);
-    c->getReturnVar()->setInt(len + 1);
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	CScriptVar* val = c->getParameter("val");
+	arr->setArrayIndex(len, val);
+	c->getReturnVar()->setInt(len + 1);
 }
 
 void scArrayPop(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    if (len > 0) {
-        CScriptVar* val = arr->getArrayIndex(len - 1);
-        c->getReturnVar()->copyValue(val);
-        arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	if (len > 0) {
+		CScriptVar* val = arr->getArrayIndex(len - 1);
+		c->getReturnVar()->copyValue(val);
+		arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
 	}
 	else {
-        c->getReturnVar()->setUndefined();
-    }
+		c->getReturnVar()->setUndefined();
+	}
 }
 
 void scArrayShift(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    if (len > 0) {
-        CScriptVar* val = arr->getArrayIndex(0);
-        c->getReturnVar()->copyValue(val);
-        // Shift all elements left
-        for (int i = 1; i < len; ++i) {
-            arr->setArrayIndex(i - 1, arr->getArrayIndex(i));
-        }
-        arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	if (len > 0) {
+		CScriptVar* val = arr->getArrayIndex(0);
+		c->getReturnVar()->copyValue(val);
+		// Shift all elements left
+		for (int i = 1; i < len; ++i) {
+			arr->setArrayIndex(i - 1, arr->getArrayIndex(i));
+		}
+		arr->setArrayIndex(len - 1, new CScriptVar()); // undefined
 	}
 	else {
-        c->getReturnVar()->setUndefined();
-    }
+		c->getReturnVar()->setUndefined();
+	}
 }
 
 void scArrayUnshift(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    CScriptVar* val = c->getParameter("val");
-    // Shift all elements right
-    for (int i = len; i > 0; --i) {
-        arr->setArrayIndex(i, arr->getArrayIndex(i - 1));
-    }
-    arr->setArrayIndex(0, val);
-    c->getReturnVar()->setInt(len + 1);
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	CScriptVar* val = c->getParameter("val");
+	// Shift all elements right
+	for (int i = len; i > 0; --i) {
+		arr->setArrayIndex(i, arr->getArrayIndex(i - 1));
+	}
+	arr->setArrayIndex(0, val);
+	c->getReturnVar()->setInt(len + 1);
 }
 
 void scArrayIndexOf(CScriptVar* c, void*) {
@@ -830,64 +833,64 @@ void scArrayIndexOf(CScriptVar* c, void*) {
 }
 
 void scArraySlice(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    int start = c->getParameter("start")->getInt();
-    int end = c->getParameter("end")->isUndefined() ? len : c->getParameter("end")->getInt();
-    if (start < 0) start = len + start;
-    if (end < 0) end = len + end;
-    if (start < 0) start = 0;
-    if (end > len) end = len;
-    if (end < start) end = start;
-    CScriptVar* result = c->getReturnVar();
-    result->setArray();
-    int idx = 0;
-    for (int i = start; i < end; ++i) {
-        result->setArrayIndex(idx++, arr->getArrayIndex(i));
-    }
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	int start = c->getParameter("start")->getInt();
+	int end = c->getParameter("end")->isUndefined() ? len : c->getParameter("end")->getInt();
+	if (start < 0) start = len + start;
+	if (end < 0) end = len + end;
+	if (start < 0) start = 0;
+	if (end > len) end = len;
+	if (end < start) end = start;
+	CScriptVar* result = c->getReturnVar();
+	result->setArray();
+	int idx = 0;
+	for (int i = start; i < end; ++i) {
+		result->setArrayIndex(idx++, arr->getArrayIndex(i));
+	}
 }
 
 void scArraySplice(CScriptVar* c, void*) {
-    CScriptVar* arr = c->getParameter("this");
-    int len = arr->getArrayLength();
-    int start = c->getParameter("start")->getInt();
-    int deleteCount = c->getParameter("deleteCount")->getInt();
-    if (start < 0) start = len + start;
-    if (start < 0) start = 0;
-    if (start > len) start = len;
-    if (deleteCount < 0) deleteCount = 0;
-    if (deleteCount > len - start) deleteCount = len - start;
-    // Return deleted elements
-    CScriptVar* result = c->getReturnVar();
-    result->setArray();
-    for (int i = 0; i < deleteCount; ++i) {
-        result->setArrayIndex(i, arr->getArrayIndex(start + i));
-    }
-    // Collect new items to insert
-    int numArgs = c->getChildren() - 3; // after start, deleteCount
-    std::vector<CScriptVar*> newItems;
-    for (int i = 0; i < numArgs; ++i) {
-        wString tmp;
-        tmp.sprintf("%d", 2 + i);
-        newItems.push_back(c->getParameter(tmp.c_str()));
-    }
-    // Build new array content
-    std::vector<CScriptVar*> newArr;
-    for (int i = 0; i < start; ++i) {
-        newArr.push_back(arr->getArrayIndex(i));
-    }
-    for (auto* v : newItems) {
-        newArr.push_back(v);
-    }
-    for (int i = start + deleteCount; i < len; ++i) {
-        newArr.push_back(arr->getArrayIndex(i));
-    }
-    // Set new array content
-    int newLen = (int)newArr.size();
-    arr->removeAllChildren();
-    for (int i = 0; i < newLen; ++i) {
-        arr->setArrayIndex(i, newArr[i]);
-    }
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+	int start = c->getParameter("start")->getInt();
+	int deleteCount = c->getParameter("deleteCount")->getInt();
+	if (start < 0) start = len + start;
+	if (start < 0) start = 0;
+	if (start > len) start = len;
+	if (deleteCount < 0) deleteCount = 0;
+	if (deleteCount > len - start) deleteCount = len - start;
+	// Return deleted elements
+	CScriptVar* result = c->getReturnVar();
+	result->setArray();
+	for (int i = 0; i < deleteCount; ++i) {
+		result->setArrayIndex(i, arr->getArrayIndex(start + i));
+	}
+	// Collect new items to insert
+	int numArgs = c->getChildren() - 3; // after start, deleteCount
+	std::vector<CScriptVar*> newItems;
+	for (int i = 0; i < numArgs; ++i) {
+		wString tmp;
+		tmp.sprintf("%d", 2 + i);
+		newItems.push_back(c->getParameter(tmp.c_str()));
+	}
+	// Build new array content
+	std::vector<CScriptVar*> newArr;
+	for (int i = 0; i < start; ++i) {
+		newArr.push_back(arr->getArrayIndex(i));
+	}
+	for (auto* v : newItems) {
+		newArr.push_back(v);
+	}
+	for (int i = start + deleteCount; i < len; ++i) {
+		newArr.push_back(arr->getArrayIndex(i));
+	}
+	// Set new array content
+	int newLen = (int)newArr.size();
+	arr->removeAllChildren();
+	for (int i = 0; i < newLen; ++i) {
+		arr->setArrayIndex(i, newArr[i]);
+	}
 }
 
 //死亡
@@ -896,6 +899,20 @@ void scDie(CScriptVar* c, void* userdata)
 	IGNORE_PARAMETER(userdata);
 	wString msg = c->getParameter("msg")->getString();
 	throw new CScriptException(msg);
+}
+
+void scIsNaN(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	double val = c->getParameter("v")->getDouble();
+	c->getReturnVar()->setInt(std::isnan(val) ? 1 : 0);
+}
+
+void scIsFinite(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	double val = c->getParameter("v")->getDouble();
+	c->getReturnVar()->setInt(std::isfinite(val) ? 1 : 0);
 }
 
 // ----------------------------------------------- Register Functions
@@ -916,6 +933,8 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function Math.randInt(min, max)", scMathRandInt, 0);
 	tinyJS->addNative("function Integer.parseInt(str)", scIntegerParseInt, 0); // wString to int
 	tinyJS->addNative("function Integer.valueOf(str)", scIntegerValueOf, 0); // value of a single character
+	tinyJS->addNative("function isNaN(v)", scIsNaN, 0);
+	tinyJS->addNative("function isFinite(v)", scIsFinite, 0);
 	tinyJS->addNative("function encodeURI(uri)", scEncodeURI, 0);
 	tinyJS->addNative("function dirname(uri)", scDirname, 0);
 	tinyJS->addNative("function basename(uri)", scBasename, 0);

@@ -224,3 +224,9 @@ pip-log.txt
 /.vs/VSWorkspaceState.json
 /.vs/VSWorkspaceState.json
 /.vs/VSWorkspaceState.json
+
+# Build output from native VS solution (TinyJS.sln)
+/out/
+
+# vcxproj user settings (machine-specific)
+*.vcxproj.user

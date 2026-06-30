@@ -1,4 +1,6 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #define _CRT_NONSTDC_NO_DEPRECATE
 #pragma comment(lib, "shlwapi.lib")
 #include <stdio.h>

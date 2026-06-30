@@ -1,4 +1,6 @@
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 /*
  * TinyJS
  *
@@ -39,6 +41,7 @@
 #include <string>
 #include <sstream>
 #include <stdio.h>
+#include <vector>
 #include "ltn_String.h"
 bool
 run_test(const char* filename)
@@ -109,22 +112,35 @@ int main(int argc, char** argv)
 	{
 		return !run_test(argv[1]);
 	}
+
+	const char* test_patterns[] = {
+		"tests/test%03d.js",
+		"../tests/test%03d.js",
+		"../../tests/test%03d.js",
+		"../../../tests/test%03d.js"
+	};
 	int test_num = 1;
 	int count = 0;
 	int passed = 0;
 	while (test_num < 1000)
 	{
-		char fn[32];
-		sprintf(fn, "../../../tests/test%03d.js", test_num);
+		char fn[64];
+		bool found = false;
+		for (const auto& pattern : test_patterns) {
+			sprintf(fn, pattern, test_num);
+			if (wString::file_exists(fn)) {
+				found = true;
+				break;
+			}
+		}
 
-		// check if the file exists - if not, assume we're at the end of our tests
-		if (!wString::file_exists(fn)) {
+		// if no matching file exists in any known relative location, we're done
+		if (!found) {
 			break;
 		}
+
 		FILE* f = fopen(fn, "r");
-		if (!f) {
-			break;
-		}
+		if (!f) break;
 		fclose(f);
 		if (run_test(fn)) {
 			passed++;
@@ -133,34 +149,5 @@ int main(int argc, char** argv)
 		test_num++;
 	}
 	printf("Done. %d tests, %d pass, %d fail\n", count, passed,	count - passed);
-
-	// Now run the interactive mode
-	CTinyJS* js = new CTinyJS();
-	/* add the functions from TinyJS_Functions.cpp */
-	registerFunctions(js);
-	/* Add a native function */
-	js->addNative("function print(text)", js_print2, 0);
-	js->addNative("function dump()", js_dump, js);
-	/* Execute out bit of code - we could call 'evaluate' here if
-	   we wanted something returned */
-	try {
-		js->execute("var lets_quit = 0; function quit() { lets_quit = 1; }");
-		js->execute("print(\"Interactive mode... Type quit(); to exit, or print(...); \nto print something, or dump() to dump the symbol table!\n\");");
-	}
-	catch (CScriptException* e) {
-		printf("ERROR: %s\n", e->text.c_str());
-	}
-
-	while (js->evaluate("lets_quit") == "0") {
-		char buffer[2048];
-		fgets(buffer, 2048, stdin);
-		try {
-			js->execute(buffer);
-		}
-		catch (CScriptException* e) {
-			printf("ERROR: %s\n", e->text.c_str());
-		}
-	}
-	delete js;
-	return 0;
+	return (count > 0 && count == passed) ? 0 : 1;
 }
