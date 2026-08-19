@@ -3,7 +3,7 @@
 #ifndef IGNORE_PARAMETER
 #define IGNORE_PARAMETER(n) ((void)n)
 #endif
-#ifndef linux
+#ifndef __linux__
 #define write _write
 #define read _read
 #define close _close

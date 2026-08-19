@@ -105,6 +105,9 @@
     <ClCompile Include="TinyJS_Functions.cpp" />
     <ClCompile Include="TinyJS_MathFunctions.cpp" />
     <ClCompile Include="ltn_String.cpp" />
+    <ClCompile Include="ltn_tools.cpp" />
+    <ClCompile Include="dregex.cpp" />
+    <ClCompile Include="dirent.cpp" />
   </ItemGroup>
 
   <ItemGroup>

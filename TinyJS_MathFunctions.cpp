@@ -1,36 +1,37 @@
-/*
- * TinyJS
- *
- * A single-file Javascript-alike engine
- *
- * -  Math and Trigonometry functions
- *
- * Authored By O.Z.L.B. <ozlbinfo@gmail.com>
- *
- * Copyright (C) 2011 O.Z.L.B.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
+﻿/*
+* TinyJS
+*
+* A single-file Javascript-alike engine
+*
+* -  Math and Trigonometry functions
+*
+* Authored By O.Z.L.B. <ozlbinfo@gmail.com>
+*
+* Copyright (C) 2011 O.Z.L.B.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the "Software"), to deal in
+* the Software without restriction, including without limitation the rights to
+* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+* of the Software, and to permit persons to whom the Software is furnished to do
+* so, subject to the following conditions:
 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
 
 #include <math.h>
 #include <cstdlib>
 #include <sstream>
+#include "define.h"
 #include "TinyJS_MathFunctions.h"
 
 using namespace std;
@@ -47,40 +48,12 @@ using namespace std;
 
 //CScriptVar shortcut macro
 #define scIsInt(a)          ( c->getParameter(a)->isInt() )
-#define scIsDouble(a)       ( c->getParameter(a)->isDouble() )  
+#define scIsDouble(a)       ( c->getParameter(a)->isDouble() )
 #define scGetInt(a)         ( c->getParameter(a)->getInt() )
-#define scGetDouble(a)      ( c->getParameter(a)->getDouble() )  
+#define scGetDouble(a)      ( c->getParameter(a)->getDouble() )
 #define scReturnInt(a)      ( c->getReturnVar()->setInt(a) )
-#define scReturnDouble(a)   ( c->getReturnVar()->setDouble(a) )  
+#define scReturnDouble(a)   ( c->getReturnVar()->setDouble(a) )
 
-#ifdef linux
-//namespace
-//{
-double asinh(const double& value)
-{
-	double returned;
-
-	if (value > 0)
-		returned = log(value + sqrt(value * value + 1));
-	else
-		returned = -log(-value + sqrt(value * value + 1));
-
-	return(returned);
-}
-
-double acosh(const double& value)
-{
-	double returned;
-
-	if (value > 0)
-		returned = log(value + sqrt(value * value - 1));
-	else
-		returned = -log(-value + sqrt(value * value - 1));
-
-	return(returned);
-}
-//}
-#endif
 
 //Math.abs(x) - returns absolute of given value
 void scMathAbs(CScriptVar* c, void* userdata) {
@@ -106,7 +79,7 @@ void scMathRound(CScriptVar* c, void* userdata) {
 	}
 }
 
-//Math.min(a,b) - returns minimum of two given values 
+//Math.min(a,b) - returns minimum of two given values
 void scMathMin(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
@@ -118,7 +91,7 @@ void scMathMin(CScriptVar* c, void* userdata) {
 	}
 }
 
-//Math.max(a,b) - returns maximum of two given values  
+//Math.max(a,b) - returns maximum of two given values
 void scMathMax(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
@@ -130,7 +103,7 @@ void scMathMax(CScriptVar* c, void* userdata) {
 	}
 }
 
-//Math.range(x,a,b) - returns value limited between two given values  
+//Math.range(x,a,b) - returns value limited between two given values
 void scMathRange(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
@@ -256,7 +229,7 @@ void scMathTanh(CScriptVar* c, void* userdata) {
 void scMathATanh(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
-	scReturnDouble(atan(scGetDouble("a")));
+	scReturnDouble(std::atanh(scGetDouble("a")));
 }
 
 //Math.E() - returns E Neplero value
@@ -305,7 +278,7 @@ void scMathSqr(CScriptVar* c, void* userdata) {
 void scMathSqrt(CScriptVar* c, void* userdata) {
 	IGNORE_PARAMETER(c);
 	IGNORE_PARAMETER(userdata);
-#ifndef linux
+#ifndef __linux__
 	scReturnDouble(sqrt(scGetDouble("a")));
 #else
 	scReturnDouble(sqrtf(scGetDouble("a")));

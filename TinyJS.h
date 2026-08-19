@@ -31,16 +31,20 @@
 
  // If defined, this keeps a note of all calls and where from in memory. This is slower, but good for debugging
 #define TINYJS_CALL_STACK
+// WEB/DB定義は不使用のため削除
+//#define WEB
+//#define DB
 
 #include <vector>
+#include <map>
 #include "ltn_String.h"
-#ifndef TRACE
-#define TRACE printf
-#endif // TRACE
-
-
-//const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
-
+#include "ltn_tools.h"
+//#ifndef TRACE
+//#define TRACE printf
+//#endif // TRACE
+using namespace std;
+const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
+//extern map<wString, wString>* session;  // socket不使用のためコメントアウト
 enum class  LEX_TYPES
 {
 	LEX_EOF = 0,
@@ -73,6 +77,7 @@ enum class  LEX_TYPES
 	LEX_OR = '|',
 	LEX_R_BRACE = '}',
 	LEX_TILDA = '~',
+	LEX_BACKTICK = '`',
 	LEX_a = 'a',
 	LEX_n = 'n',
 	LEX_r = 'r',
@@ -109,7 +114,7 @@ enum class  LEX_TYPES
 	LEX_OROR,
 	LEX_XOREQUAL,
 	// reserved words
-#define LEX_R_LIST_START LEX_R_IF
+	//#define LEX_R_LIST_START LEX_R_IF
 	LEX_R_IF,
 	LEX_R_ELSE,
 	LEX_R_DO,
@@ -129,6 +134,10 @@ enum class  LEX_TYPES
 	LEX_R_NEW,
 	LEX_R_TYPEOF,
 	LEX_R_INSTANCEOF,
+	LEX_R_TRY,
+	LEX_R_CATCH,
+	LEX_R_FINALLY,
+	LEX_R_THROW,
 
 	LEX_R_LIST_END /* always the last entry */
 };
@@ -164,19 +173,37 @@ SCRIPTVAR_FLAGS operator&(SCRIPTVAR_FLAGS L, SCRIPTVAR_FLAGS R);
 // 論理オペレータ~
 SCRIPTVAR_FLAGS operator~(SCRIPTVAR_FLAGS L);
 
-constexpr auto TINYJS_RETURN_VAR = "return";
-constexpr auto TINYJS_PROTOTYPE_CLASS = "prototype";
-constexpr auto TINYJS_TEMP_NAME = "";
-constexpr auto TINYJS_BLANK_DATA = "";
+//enum class ExecuteModes
+//{
+//	ON_CLIENT = 0,
+//	ON_SERVER = 1,
+//};
+
+#define TINYJS_RETURN_VAR "return"
+#define TINYJS_PROTOTYPE_CLASS "prototype"
+#define TINYJS_TEMP_NAME ""
+#define TINYJS_BLANK_DATA ""
 
 /// convert the given wString into a quoted string suitable for javascript
 wString getJSString(const wString& str);
 
+#ifndef CSCRIPTEXCEPTION_DEFINED
+#define CSCRIPTEXCEPTION_DEFINED
 class CScriptException
 {
 public:
 	wString text;
-	explicit CScriptException(const wString& exceptionText);
+	explicit CScriptException(const wString& exceptionText) : text(exceptionText) {}
+};
+#endif
+
+/// JS throw で投げられた値を運ぶC++例外クラス
+class CScriptVar;
+class CScriptVarException {
+public:
+	CScriptVar* value;
+	explicit CScriptVarException(CScriptVar* v);
+	~CScriptVarException();
 };
 
 class CScriptLex
@@ -185,7 +212,8 @@ public:
 	explicit CScriptLex(const wString& input);
 	CScriptLex(CScriptLex* owner, int startChar, int endChar);
 	~CScriptLex(void);
-
+	//wString* prBuffer;
+	//int* prPos;
 	LEX_TYPES currCh;
 	LEX_TYPES nextCh;
 	LEX_TYPES tk;                            ///< The type of the token that we have
@@ -193,7 +221,7 @@ public:
 	int tokenEnd;                            ///< Position in the data at the last character of the token we have here
 	int tokenLastEnd;                        ///< Position in the data at the last character of the last token
 	wString tkStr;                           ///< Data contained in the token we have here
-	void match(LEX_TYPES expected_tk);       ///< Lexical match wotsit
+	void match(LEX_TYPES expected_tk);           ///< Lexical match wotsit
 	static wString getTokenStr(LEX_TYPES token);   ///< Get the string representation of the given token
 	void reset();                            ///< Reset this lex so we can start again
 
@@ -201,20 +229,22 @@ public:
 	CScriptLex* getSubLex(int lastPosition); ///< Return a sub-lexer from the given position up until right now
 
 	wString getPosition(int pos = -1);         ///< Return a string representing the position in lines and columns of the character pos given
+	int  dataPos;                            ///< Position in data (we CAN go past the end of the wString here)
 
 protected:
 	/* When we go into a loop, we use getSubLex to get a lexer for just the sub-part of the
 	   relevant string. This doesn't re-allocate and copy the string, but instead copies
 	   the data pointer and sets dataOwned to false, and dataStart/dataEnd to the relevant things. */
-	char* data;             ///< Data wString to get tokens from
+	char* data;                              ///< Data wString to get tokens from
 	int  dataStart;         ///< Start and end position in data string
 	int  dataEnd;           ///< Start and end position in data string
-	bool dataOwned;         ///< Do we own this data string?
+	bool dataOwned;                          ///< Do we own this data string?
 
-	int  dataPos;                            ///< Position in data (we CAN go past the end of the wString here)
 
 	LEX_TYPES getNextCh();
-	void getNextToken();    ///< Get the text token from our text string
+	void getNextToken();                     ///< Get the text token from our text string
+	//SOCKET  socket;                        ///< socket不使用のためコメントアウト
+	//ExecuteModes  serverExecute;             ///ON_CLIENT:execute in client ON_SERVER:execute in server. start with evaluate mode 1:start with print mode
 };
 
 class CScriptVar;
@@ -230,16 +260,16 @@ public:
 	wString name;               //変数名
 	CScriptVarLink* nextSibling;//次のリンク
 	CScriptVarLink* prevSibling;//前のリンク
-	CScriptVar* var;        //変数の実体
+	CScriptVar* var;            //変数の実体
 	bool           owned;       //作成者?
 
 	CScriptVarLink(CScriptVar* var, const wString& name = TINYJS_TEMP_NAME);
 	CScriptVarLink(const CScriptVarLink& link); ///< Copy constructor
 	~CScriptVarLink();
-	void replaceWith(CScriptVar* newVar);     ///< Replace the Variable pointed to
+	void replaceWith(CScriptVar* newVar); ///< Replace the Variable pointed to
 	void replaceWith(CScriptVarLink* newVar); ///< Replace the Variable pointed to (just dereferences)
-	int  getIntName();                        ///< Get the name as an integer (for arrays)
-	void setIntName(int n);                   ///< Set the name as an integer (for arrays)
+	int getIntName(); ///< Get the name as an integer (for arrays)
+	void setIntName(int n); ///< Set the name as an integer (for arrays)
 };
 
 /// <summary>
@@ -251,9 +281,9 @@ public:
 	CScriptVarLink* firstChild;
 	CScriptVarLink* lastChild;
 
-	CScriptVar();                                     ///< Create undefined
+	CScriptVar(); ///< Create undefined
 	CScriptVar(const wString& varData, SCRIPTVAR_FLAGS varFlags); ///< User defined
-	explicit CScriptVar(const wString& str);                   ///< Create a string
+	explicit CScriptVar(const wString& str); ///< Create a string
 	explicit CScriptVar(double varData);
 	explicit CScriptVar(int val);
 	explicit CScriptVar(bool val);
@@ -276,18 +306,18 @@ public:
 	int getArrayLength(); ///< If this is an array, return the number of items in it (else 0)
 	int getChildren(); ///< Get the number of children
 
-	int getInt();
-	bool getBool() { return getInt() != 0; }
-	double getDouble();
-	const wString& getString();
+	int     getInt();
+	bool    getBool() { return getInt() != 0; }
+	double  getDouble();
+	const   wString& getString();
 	wString getParsableString(); ///< get Data as a parsable javascript string
-	void setConst();
-	void setInt(int num);
-	void setDouble(double val);
-	void setString(const wString& str);
-	void setUndefined();
-	void setArray();
-	bool equals(CScriptVar* v);
+	void    setConst();
+	void    setInt(int num);
+	void    setDouble(double val);
+	void    setString(const wString& str);
+	void    setUndefined();
+	void    setArray();
+	bool    equals(CScriptVar* v);
 
 	bool isInt() { return (flags & SCRIPTVAR_FLAGS::SCRIPTVAR_INTEGER) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
 	bool isDouble() { return (flags & SCRIPTVAR_FLAGS::SCRIPTVAR_DOUBLE) != SCRIPTVAR_FLAGS::SCRIPTVAR_UNDEFINED; }
@@ -306,28 +336,28 @@ public:
 	void copyValue(CScriptVar* val); ///< copy the value from the value given
 	CScriptVar* deepCopy(); ///< deep copy this node and return the result
 
-	void trace(const wString& indentStr = "", const wString& name = "");    ///< Dump out the contents of this using trace
-	wString trace2(void);                                            ///< Dump out the contents of this using trace
-	wString getFlagsAsString();                                      ///< For debugging - just dump a string version of the flags
+	void trace(const wString& indentStr = "", const wString& name = ""); ///< Dump out the contents of this using trace
+	wString trace2(void); ///< Dump out the contents of this using trace
+	wString getFlagsAsString(); ///< For debugging - just dump a string version of the flags
 	void getJSON(wString& destination, const wString& linePrefix = ""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
-	void setCallback(JSCallback callback, void* userdata);           ///< Set the callback for native functions
+	void setCallback(JSCallback callback, void* userdata); ///< Set the callback for native functions
 
 
 	/// For memory management/garbage collection
-	CScriptVar* setRef();     ///< Add reference to this variable
-	void unref();             ///< Remove a reference, and delete this variable if required
-	int  getRefs();           ///< Get the number of references to this script variable
+	CScriptVar* setRef(); ///< Add reference to this variable
+	void unref(); ///< Remove a reference, and delete this variable if required
+	int getRefs(); ///< Get the number of references to this script variable
 protected:
-	int refs;                 ///< The number of references held to this - used for garbage collection
+	int refs; ///< The number of references held to this - used for garbage collection
 
-	wString data;             ///< The contents of this variable if it is a string
-	long intData;             ///< The contents of this variable if it is an int
-	double doubleData;        ///< The contents of this variable if it is a double
-	SCRIPTVAR_FLAGS flags;    ///< the flags determine the type of the variable - int/double/string/etc
-	JSCallback jsCallback;    ///< Callback for native functions
+	wString data; ///< The contents of this variable if it is a string
+	long intData; ///< The contents of this variable if it is an int
+	double doubleData; ///< The contents of this variable if it is a double
+	SCRIPTVAR_FLAGS flags; ///< the flags determine the type of the variable - int/double/string/etc
+	JSCallback jsCallback; ///< Callback for native functions
 	void* jsCallbackUserData; ///< user data passed as second argument to native functions
 
-	void init();              ///< initialisation of data members
+	void init(); ///< initialisation of data members
 
 	/** Copy the basic data and flags from the variable given, with no
 	  * children. Should be used internally only - by copyValue and deepCopy */
@@ -341,8 +371,12 @@ class CTinyJS
 public:
 	CTinyJS();
 	~CTinyJS();
+	wString        outBuffer;
+	wString        prBuffer;
+	int            prPos;
+	//void FlushBuf(void);
+	const wString& execute(const wString& code);//0:start with command 1:start with contents.
 
-	void execute(const wString& code);
 	/// <summary>
 	/// Evaluate the given code and return a link to a javascript object,
 	/// useful for (dangerous) JSON parsing. If nothing to return, will return
@@ -384,6 +418,10 @@ public:
 	void trace();
 
 	CScriptVar* root;   /// root of symbol table
+	//SOCKET socket;    // socket不使用のためコメントアウト
+	//int printed;
+	//wString* headerBuf;
+
 private:
 	CScriptLex* lex;             /// current lexer
 	std::vector<CScriptVar*> scopes; /// stack of scopes when parsing
@@ -397,6 +435,7 @@ private:
 
 	// parsing - in order of precedence
 	CScriptVarLink* functionCall(bool& execute, CScriptVarLink* function, CScriptVar* parent);
+	CScriptVarLink* parsePostfixOps(bool& execute, CScriptVarLink* a, CScriptVarLink* alone = 0);
 	CScriptVarLink* factor(bool& execute);
 	CScriptVarLink* unary(bool& execute);
 	CScriptVarLink* term(bool& execute);
@@ -416,4 +455,7 @@ private:
 	/// Look up in any parent classes of the given object
 	CScriptVarLink* findInParentClasses(CScriptVar* object, const wString& name);
 };
+//#ifdef web
+//グローバルで申し訳ないが最初に文字を出力する際にheaderを先に出す
+//void headerCheckPrint(SOCKET socket, int* printed, wString* headerBuf, int flag);  // socket不使用のためコメントアウト
 #endif

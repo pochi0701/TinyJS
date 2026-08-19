@@ -32,14 +32,24 @@
  */
 
 #include "TinyJS_Functions.h"
-#include "define.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <time.h>
-#include <ctype.h>
 #include <cmath>
- //#include "dregex.h"
+#include "dregex.h"
+//#include "ltn.h"      // socket不使用のためコメントアウト
+#include "ltn_tools.h"
+#include "define.h"
+//#include "Lutino.h"   // socket不使用のためコメントアウト
+ //#include "unit1.h"
 using namespace std;
+//void headerCheckPrint(SOCKET mysocket, int* printed, wString* headerBuf, int flag);  // socket不使用のためコメントアウト
+//wString _DBConnect(const wString& database);  // DB不使用のためコメントアウト
+//int     _DBDisConnect(wString& key);
+//wString _DBSQL(const wString& key, wString& sql);
+
+//extern vector<multipart*> mp;  // socket不使用のためコメントアウト
+
 // ----------------------------------------------- Actual Functions
 void js_print(CScriptVar* v, void* userdata)
 {
@@ -63,6 +73,7 @@ void scTrace(CScriptVar* c, void* userdata)
 
 void scObjectDump(CScriptVar* c, void* userdata)
 {
+	IGNORE_PARAMETER(userdata);
 	c->getParameter("this")->trace("> ");
 }
 
@@ -144,7 +155,7 @@ void scStringIndexOf(CScriptVar* c, void* userdata)
 	IGNORE_PARAMETER(userdata);
 	wString str = c->getParameter("this")->getString();
 	wString search = c->getParameter("search")->getString();
-	int  p = str.find(search);
+	int p = str.find(search);
 	int val = (p == wString::npos) ? -1 : p;
 	c->getReturnVar()->setInt(val);
 }
@@ -186,6 +197,51 @@ void scStringSubstr(CScriptVar* c, void* userdata)
 	else
 		c->getReturnVar()->setString("");
 }
+//startsWith
+void scStringStartsWith(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str = c->getParameter("this")->getString();
+	wString needle = c->getParameter("lo")->getString();
+	//int hi = c->getParameter ("hi")->getInt ();
+
+	//if (hi >= 0)
+	//	c->getReturnVar ()->setInt (str.starts_with (needle.c_str (), hi));
+	//else
+	c->getReturnVar()->setInt(str.starts_with(needle.c_str()));
+}
+//endsWith
+void scStringEndsWith(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str = c->getParameter("this")->getString();
+	wString needle = c->getParameter("lo")->getString();
+	//int hi = c->getParameter ("hi")->getInt ();
+
+	//if (hi >= 0)
+	//	c->getReturnVar ()->setInt (str.ends_with (needle.c_str (), hi));
+	//else
+	c->getReturnVar()->setInt(str.ends_with(needle.c_str()));
+}
+////startsWith
+//void scStringStartsWith2 (CScriptVar* c, void* userdata)
+//{
+//	IGNORE_PARAMETER (userdata);
+//	wString str = c->getParameter ("this")->getString ();
+//	wString needle = c->getParameter ("lo")->getString ();
+//
+//	c->getReturnVar ()->setInt (str.starts_with (needle.c_str ()));
+//}
+////endsWith
+//void scStringEndsWith2 (CScriptVar* c, void* userdata)
+//{
+//	IGNORE_PARAMETER (userdata);
+//	wString str = c->getParameter ("this")->getString ();
+//	wString needle = c->getParameter ("lo")->getString ();
+//
+//	c->getReturnVar ()->setInt (str.ends_with (needle.c_str ()));
+//}
+
 //AT
 
 /// <summary>
@@ -249,6 +305,20 @@ void scStringReplace(CScriptVar* c, void* userdata)
 	wString after = c->getParameter("after")->getString();
 	//strの中のbeforeを探す
 	int pos = str.find(before);
+	if (pos != wString::npos) {
+		str = str.substr(0, pos) + after + str.substr(pos + before.length());
+	}
+	c->getReturnVar()->setString(str);
+}
+//ReplaceAll
+void scStringReplaceAll(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str = c->getParameter("this")->getString();
+	wString before = c->getParameter("before")->getString();
+	wString after = c->getParameter("after")->getString();
+	//strの中のbeforeを探す
+	int pos = str.find(before);
 	while (pos != wString::npos) {
 		str = str.substr(0, pos) + after + str.substr(pos + before.length());
 		pos = str.find(before, pos);
@@ -281,7 +351,53 @@ void scPregStringReplace(CScriptVar* c, void* userdata)
 		patterns.push_back(pattern);
 		replaces.push_back(replace);
 	}
-	//dregex::replace(&result, str, patterns, replaces);
+	dregex::replace(&result, str, patterns, replaces);
+	c->getReturnVar()->setString(result);
+}
+//Match - global regex match function
+void scMatch(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString pattern = c->getParameter("pattern")->getString();
+	wString text = c->getParameter("text")->getString();
+	int result = dregex::match(text, pattern);
+	c->getReturnVar()->setInt(result);
+}
+//Replace - global regex replace function
+void scReplace(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString text = c->getParameter("text")->getString();
+	CScriptVar* arrp = c->getParameter("pattern");
+	vector<wString> patterns;
+	vector<wString> replaces;
+
+	// Check if pattern is an array
+	int pn = arrp->getArrayLength();
+	if (pn > 0) {
+		// Pattern is an array
+		CScriptVar* arrr = c->getParameter("replacement");
+		int rn = arrr->getArrayLength();
+		if (pn == rn) {
+			for (int i = 0; i < pn; i++) {
+				patterns.push_back(arrp->getArrayIndex(i)->getString());
+				replaces.push_back(arrr->getArrayIndex(i)->getString());
+			}
+		}
+	}
+	else {
+		// Pattern is a single string
+		wString pattern = c->getParameter("pattern")->getString();
+		wString replacement = c->getParameter("replacement")->getString();
+		patterns.push_back(pattern);
+		replaces.push_back(replacement);
+	}
+
+	// Perform replacement
+	wString result;
+	dregex::replace(&result, text, patterns, replaces);
+
+	// Return the replaced text
 	c->getReturnVar()->setString(result);
 }
 //AddShashes
@@ -291,12 +407,20 @@ void scAddShashes(CScriptVar* c, void* userdata)
 	wString str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(str.add_slashes());
 }
-//getLocalAddress
+//getLocalAddress (socket不使用のためコメントアウト)
+#if 0
 void scGetLocalAddress(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
-	//c->getReturnVar()->setString(wString::get_local_address());
+	c->getReturnVar()->setString(wString::get_local_address());
 }
+//getLocalPort
+void scGetLocalPort(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	c->getReturnVar()->setInt(wString::get_local_port());
+}
+#endif
 void scStringFromCharCode(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
@@ -327,21 +451,21 @@ void scIntegerValueOf(CScriptVar* c, void* userdata)
 void scIntegerToDateString(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
-	//wString times = c->getParameter("this")->getString();
-	//wString format = c->getParameter("format")->getString();
-	//char s[128] = {0};
-	//long time = atol(times.c_str());
-	//struct tm *timeptr;
-	//timeptr = localtime(&time);
-	//strftime(s, 128, format.c_str(), timeptr);
-	//c->getReturnVar()->setString(s);
+	wString times = c->getParameter("this")->getString();
+	wString format = c->getParameter("format")->getString();
+	char s[128] = {};
+	time_t time = atol(times.c_str());
+	const struct tm* timeptr;
+	timeptr = localtime(&time);
+	strftime(s, 128, format.c_str(), timeptr);
+	c->getReturnVar()->setString(s);
 }
 void scStringDate(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	auto t = time(NULL);
 	char s[128];
-#ifdef linux
+#ifdef __linux__
 	sprintf(s, "%ld", t);
 #else
 	sprintf(s, "%lld", t);
@@ -363,10 +487,12 @@ void scDBConnect(CScriptVar* c, void* userdata)
 {
 #ifdef DB
 	IGNORE_PARAMETER(userdata);
-	wString str = c->getParameter("this")->getString();
+	//接続DB名
+	wString str = c->getParameter("dbn")->getString();
+	//DB接続文字列取得
 	str = _DBConnect(str);
-	if (str.Length()) {
-		c->getParameter("this")->setString(str);
+	if (str.length() > 0) {
+		//c->getParameter("this")->setString(str);
 		c->getReturnVar()->setString(str);
 	}
 	else {
@@ -441,27 +567,21 @@ void scArrayRemove(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	CScriptVar* obj = c->getParameter("obj");
-	vector<int> removedIndices;
-	CScriptVarLink* v;
-	// remove
-	v = c->getParameter("this")->firstChild;
-	while (v) {
-		if (v->var->equals(obj)) {
-			removedIndices.push_back(v->getIntName());
+	CScriptVar* arr = c->getParameter("this");
+	int len = arr->getArrayLength();
+
+	std::vector<CScriptVar*> kept;
+	kept.reserve(len);
+	for (int i = 0; i < len; i++) {
+		CScriptVar* v = arr->getArrayIndex(i);
+		if (!v->equals(obj)) {
+			kept.push_back(v->deepCopy());
 		}
-		v = v->nextSibling;
 	}
-	// renumber
-	v = c->getParameter("this")->firstChild;
-	while (v) {
-		int n = v->getIntName();
-		int newn = n;
-		for (size_t i = 0; i < removedIndices.size(); i++)
-			if (n >= removedIndices[i])
-				newn--;
-		if (newn != n)
-			v->setIntName(newn);
-		v = v->nextSibling;
+
+	arr->removeAllChildren();
+	for (int i = 0; i < (int)kept.size(); i++) {
+		arr->setArrayIndex(i, kept[i]);
 	}
 }
 
@@ -487,7 +607,8 @@ void scFileExists(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int flag = wString::file_exists(path);
+	//int flag = wString::file_exists(path);
+	int flag = path.file_exists();
 	c->getReturnVar()->setInt(flag);
 }
 //ディレクトリ存在チェック
@@ -514,6 +635,22 @@ void scEncodeURI(CScriptVar* c, void* userdata)
 	uri = uri.uri_encode();
 	c->getReturnVar()->setString(uri);
 }
+//atob
+void scAtob(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str = c->getParameter("str")->getString();
+	str = str.unbase64();
+	c->getReturnVar()->setString(str);
+}
+//btoa
+void scBtoa(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str = c->getParameter("str")->getString();
+	str = str.base64();
+	c->getReturnVar()->setString(str);
+}
 //dirname
 void scDirname(CScriptVar* c, void* userdata)
 {
@@ -539,7 +676,7 @@ void scBasename(CScriptVar* c, void* userdata)
 	while (len >= 0 && uri[len] != '/') {
 		len--;
 	}
-	uri = uri.SubString(len + 1, uri.length() - len - 1);
+	uri = uri.substr(len + 1, uri.length() - len - 1);
 	c->getReturnVar()->setString(uri);
 }
 
@@ -547,9 +684,19 @@ void scBasename(CScriptVar* c, void* userdata)
 void scScanDir(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
+	wString path = c->getParameter("path")->getString();
+	wString json = wString::enum_folder_json(path);
+	c->getReturnVar()->setString(json);
+}
+
+//scMimeInfo
+void scMimeInfo(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
 	wString uri = c->getParameter("uri")->getString();
-	uri = wString::enum_folder_json(uri);
-	c->getReturnVar()->setString(uri);
+	auto ret = wString::find_mime_type(uri);
+	c->getReturnVar()->setString(ret);
+	return;
 }
 //extract_file_ext
 void scExtractFileExt(CScriptVar* c, void* userdata)
@@ -577,7 +724,7 @@ void scToUpperCase(CScriptVar* c, void* userdata)
 	wString str = c->getParameter("this")->getString();
 	char* String = str.c_str();
 	for (unsigned int i = 0; i < str.length(); i++) {
-		//String[i] = (unsigned char)toupper(String[i]);
+		String[i] = (unsigned char)toupper(String[i]);
 	}
 	c->getReturnVar()->setString(str);
 }
@@ -620,8 +767,11 @@ void scUnlink(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int res = unlink(path.c_str());
-	int ret = (res == 0) ? true : false;
+#ifdef __linux__
+#else
+#endif
+	int res = wString::delete_file(path);
+	int ret = (res == 0) ? false : true;
 	c->getReturnVar()->setInt(ret);
 }
 //ファイル作成
@@ -630,7 +780,7 @@ void scTouch(CScriptVar* c, void* userdata)
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
 	int ret = true;
-	int fd = open(path.c_str(), O_CREAT | O_APPEND | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE);
+	int fd = myopen(path, O_CREAT | O_APPEND | O_WRONLY | O_BINARY, S_IREAD | S_IWRITE);
 	if (fd < 0) {
 		ret = false;
 	}
@@ -661,8 +811,11 @@ void scRmdir(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	wString path = c->getParameter("path")->getString();
-	int res = rmdir(path.c_str());
-	int ret = (res == 0) ? true : false;
+#ifdef __linux__
+#else
+#endif
+	int res = wString::delete_folder(path);
+	int ret = (res == 0) ? false : true;
 	c->getReturnVar()->setInt(ret);
 }
 //ファイル保存
@@ -680,49 +833,53 @@ void scCommand(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	wString ppath = c->getParameter("path")->getString();
+#ifdef __linux__
+#else
+	ppath = ppath.nkfcnv("Ws");
+#endif
 	int res = system(ppath.c_str());
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
 }
-//Header
+//Header (socket不使用のためコメントアウト)
+#if 0
 void scHeader(CScriptVar* c, void* userdata)
 {
-#ifdef WEB
-	CTinyJS* js = (CTinyJS*)userdata;
+	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
 	wString str = c->getParameter("str")->getString();
 	int res = js->headerBuf->header(str.c_str());
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
-#endif
 }
 //SessionStart
 void scSessionStart(CScriptVar* c, void* userdata)
 {
 #ifdef WEB
 	const static char material[] = "abcdefghijklmnopqrstuvwxyz0123456789";
-	CTinyJS* js = (CTinyJS*)userdata;
+	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	int ret = 0;
 	//sidある？
 	wString jssessid = js->evaluate("JSSESSID");
 	if (jssessid != "undefined") {
-		if (session.count(jssessid) > 0) {
-			wString data = session[jssessid];
-			js->execute("var _SESSION=" + data + ";", 1);
+		if (session->count(jssessid) > 0) {
+			wString data = (*session)[jssessid];
+			js->execute("var _SESSION=" + data + ";", ExecuteModes::ON_SERVER);
 		}
 		else {
-			js->execute("var _SESSION={};", 1);
+			js->execute("var _SESSION={};", ExecuteModes::ON_SERVER);
 		}
 	}
 	else {
-		srand((unsigned)time(NULL));
+		// initializeへ移動
+		//srand((unsigned)time(NULL));
 		char work[27] = {};
 		while (1) {
 			for (int i = 0; i < 26; i++) {
 				work[i] = material[rand() % (sizeof(material) - 1)];
 			}
 			//同じモノはダメ
-			if (session.count(work) == 0) break;
+			if (session->count(work) == 0) break;
 		}
 		jssessid = work;
 		js->execute("var _SESSION={};var sid=\"" + jssessid + "\";");
@@ -744,8 +901,7 @@ void scSessionStart(CScriptVar* c, void* userdata)
 /// <param name="userdata"></param>
 void scSetCookie(CScriptVar* c, void* userdata)
 {
-#ifdef WEB
-	CTinyJS* js = (CTinyJS*)userdata;
+	CTinyJS* js = static_cast<CTinyJS*>(userdata);
 	wString str;
 	time_t timer;
 	headerCheckPrint(js->socket, &(js->printed), js->headerBuf, 0);
@@ -756,16 +912,113 @@ void scSetCookie(CScriptVar* c, void* userdata)
 	int res = js->headerBuf->header(str.c_str());
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
-#endif
 }
+#endif  // end socket不使用
 void scFileCopy(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
 	wString pathf = c->getParameter("pathf")->getString();
 	wString patht = c->getParameter("patht")->getString();
-	int res = wString::FileCopy(pathf.c_str(), patht.c_str());
+	int res = wString::FileCopy(pathf, patht);
 	int ret = (res == 0) ? true : false;
 	c->getReturnVar()->setInt(ret);
+}
+void scMp3Id3Tag(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	mp3* mp3instance = new mp3();
+	wString path = c->getParameter("path")->getString();
+#ifdef __linux__
+#else
+	path = path.nkfcnv("Ws");
+#endif
+	wString res = mp3instance->mp3_id3_tag(path);
+	delete mp3instance;
+	c->getReturnVar()->setString(res);
+}
+#if 0  // socket/lutino不使用のためコメントアウト
+void scShutDown(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString pw = c->getParameter("password")->getString();
+	//global_param.system_passwordを設定しないと、シャットダウンできないようにする
+	if (global_param.system_password.length() > 0 && pw == global_param.system_password) {
+		//ループ抜ける
+		loop_flag = 0;
+#ifndef __linux__
+		PostMessage(g_hMainWnd, WM_COMMAND, IDM_EXIT, 0);
+#endif
+	}
+}
+extern int ssdp_client(wString& str, int loops);
+void scSSDP(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString str;
+	int ret = ssdp_client(str, 2);
+	if (ret == 0) {
+		c->getReturnVar()->setString(str);
+	}
+}
+//ファイル内容取得
+void scRestful(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString method = c->getParameter("method")->getString();
+	wString url = c->getParameter("url")->getString();
+	wString send = c->getParameter("send")->getString();
+	wString data;
+	data = wString::http_rest(method, url, send);
+	c->getReturnVar()->setString(data);
+}
+#endif  // end socket/lutino不使用
+char randhex()
+{
+	auto value = rand() % 16;
+	if (value < 10) {
+		return value + '0';
+	}
+	else {
+		return value + 'a' - 10;
+	}
+}
+
+/// <summary>
+/// UUID 取得
+/// </summary>
+/// <param name="c"></param>
+/// <param name="userdata"></param>
+void scRandomUUID(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString data;
+	char no1 = '8';
+	char no2 = '9';
+
+	data = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+	for (auto ptr = 0U; ptr < data.length(); ptr++) {
+		if (data[ptr] == 'x') {
+			data[ptr] = randhex();
+		}
+		else if (data[ptr] == 'y')
+		{
+			data[ptr] = no2;
+		}
+	}
+	c->getReturnVar()->setString(data);
+}
+
+/// <summary>
+/// BIOS UUID
+/// </summary>
+/// <param name="c"></param>
+/// <param name="userdata"></param>
+void scBiosUUID(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString data;
+	data = data.bios_uuid();
+	c->getReturnVar()->setString(data);
 }
 // --- Array Methods ---
 void scArrayPush(CScriptVar* c, void*) {
@@ -864,26 +1117,29 @@ void scArraySplice(CScriptVar* c, void*) {
 	CScriptVar* result = c->getReturnVar();
 	result->setArray();
 	for (int i = 0; i < deleteCount; ++i) {
-		result->setArrayIndex(i, arr->getArrayIndex(start + i));
+		result->setArrayIndex(i, arr->getArrayIndex(start + i)->deepCopy());
 	}
 	// Collect new items to insert
-	int numArgs = c->getChildren() - 3; // after start, deleteCount
+	CScriptVar* args = c->getParameter("arguments");
+	int argc = args->getArrayLength();
+	int numArgs = argc - 2; // after start, deleteCount
+	if (numArgs < 0) numArgs = 0;
 	std::vector<CScriptVar*> newItems;
 	for (int i = 0; i < numArgs; ++i) {
 		wString tmp;
-		tmp.sprintf("%d", 2 + i);
+		tmp.sprintf("%d", i + 2);
 		newItems.push_back(c->getParameter(tmp.c_str()));
 	}
 	// Build new array content
 	std::vector<CScriptVar*> newArr;
 	for (int i = 0; i < start; ++i) {
-		newArr.push_back(arr->getArrayIndex(i));
+		newArr.push_back(arr->getArrayIndex(i)->deepCopy());
 	}
 	for (auto* v : newItems) {
-		newArr.push_back(v);
+		newArr.push_back(v->deepCopy());
 	}
 	for (int i = start + deleteCount; i < len; ++i) {
-		newArr.push_back(arr->getArrayIndex(i));
+		newArr.push_back(arr->getArrayIndex(i)->deepCopy());
 	}
 	// Set new array content
 	int newLen = (int)newArr.size();
@@ -926,9 +1182,9 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function Object.keys(obj)", scKeys, 0);
 	tinyJS->addNative("function charToInt(ch)", scCharToInt, 0); //  convert a character to an int - get its value
 	tinyJS->addNative("function command(path)", scCommand, 0);
-	tinyJS->addNative("function header(str)", scHeader, tinyJS);
-	tinyJS->addNative("function session_start()", scSessionStart, tinyJS);
-	tinyJS->addNative("function setCookie(name,value,expire)", scSetCookie, tinyJS);
+	//tinyJS->addNative("function header(str)", scHeader, tinyJS);       // socket不使用のためコメントアウト
+	//tinyJS->addNative("function session_start()", scSessionStart, tinyJS);  // socket不使用
+	//tinyJS->addNative("function setCookie(name,value,expire)", scSetCookie, tinyJS);  // socket不使用
 	tinyJS->addNative("function Math.rand()", scMathRand, 0);
 	tinyJS->addNative("function Math.randInt(min, max)", scMathRandInt, 0);
 	tinyJS->addNative("function Integer.parseInt(str)", scIntegerParseInt, 0); // wString to int
@@ -936,37 +1192,47 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function isNaN(v)", scIsNaN, 0);
 	tinyJS->addNative("function isFinite(v)", scIsFinite, 0);
 	tinyJS->addNative("function encodeURI(uri)", scEncodeURI, 0);
+	tinyJS->addNative("function atob(str)", scAtob, 0);
+	tinyJS->addNative("function btoa(str)", scBtoa, 0);
 	tinyJS->addNative("function dirname(uri)", scDirname, 0);
 	tinyJS->addNative("function basename(uri)", scBasename, 0);
 	tinyJS->addNative("function String.indexOf(search)", scStringIndexOf, 0); // find the position of a wString in a string, -1 if not
 	tinyJS->addNative("function String.substring(lo,hi)", scStringSubstring, 0);
 	tinyJS->addNative("function String.substr(lo,hi)", scStringSubstr, 0);
+	//tinyJS->addNative ("function String.startsWith(lo,hi)", scStringStartsWith, 0);
+	tinyJS->addNative("function String.startsWith(lo)", scStringStartsWith, 0);
+	//tinyJS->addNative ("function String.endsWith(lo,hi)", scStringEndsWith, 0);
+	tinyJS->addNative("function String.endsWith(lo)", scStringEndsWith, 0);
 	tinyJS->addNative("function String.charAt(pos)", scStringCharAt, 0);
 	tinyJS->addNative("function String.charCodeAt(pos)", scStringCharCodeAt, 0);
 	tinyJS->addNative("function String.fromCharCode(char)", scStringFromCharCode, 0);
 	tinyJS->addNative("function String.split(separator)", scStringSplit, 0);
 	tinyJS->addNative("function String.replace(before,after)", scStringReplace, 0);
+	tinyJS->addNative("function String.replaceAll(before,after)", scStringReplaceAll, 0);
 	tinyJS->addNative("function String.preg_replace(pattern,replace)", scPregStringReplace, 0);
 	//tinyJS->addNative("function String.preg_match(pattern)",scPregStringMatch, 0 );
+	tinyJS->addNative("function match(pattern,text)", scMatch, 0);
+	tinyJS->addNative("function replace(text,pattern,replacement)", scReplace, 0);
 	tinyJS->addNative("function String.addSlashes()", scAddShashes, 0);
-	tinyJS->addNative("function getLocalAddress()", scGetLocalAddress, 0);
+	//tinyJS->addNative("function getLocalAddress()", scGetLocalAddress, 0);  // socket不使用のためコメントアウト
+	//tinyJS->addNative("function getLocalPort()", scGetLocalPort, 0);  // socket不使用
 	tinyJS->addNative("function String.toLowerCase()", scToLowerCase, 0);
 	tinyJS->addNative("function String.toUpperCase()", scToUpperCase, 0);
 	tinyJS->addNative("function String.toDateString(format)", scIntegerToDateString, 0); // time to strng format
 	tinyJS->addNative("function Date()", scStringDate, 0); // time to strng
 	tinyJS->addNative("function String.nkfconv(format)", scNKFConv, 0); // language code convert
-	tinyJS->addNative("function String.Connect()", scDBConnect, 0); // Connect to DB
-	tinyJS->addNative("function String.DisConnect()", scDBDisConnect, 0); // DisConnect to DB
-	tinyJS->addNative("function String.SQL(sqltext)", scDBSQL, 0); // Execute SQL
+	//tinyJS->addNative("function DBConnect(dbn)", scDBConnect, 0);          // DB不使用のためコメントアウト
+	//tinyJS->addNative("function String.DBDisConnect()", scDBDisConnect, 0);
+	//tinyJS->addNative("function String.SQL(sqltext)", scDBSQL, 0);
 
-	//    tinyJS->addNative("function JSON.mp3id3tag(path)",                scMp3Id3Tag,           0 );
+	tinyJS->addNative("function JSON.mp3id3tag(path)", scMp3Id3Tag, 0);
 	tinyJS->addNative("function JSON.stringify(obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment
 
 	// JSON.parse is left out as you can (unsafely!) use eval instead
 	tinyJS->addNative("function Array.contains(obj)", scArrayContains, 0);
 	tinyJS->addNative("function Array.remove(obj)", scArrayRemove, 0);
 	tinyJS->addNative("function Array.join(separator)", scArrayJoin, 0);
-	tinyJS->addNative("function encodeURI(url)", scEncodeURI, 0);
+	//tinyJS->addNative ("function encodeURI(url)", scEncodeURI, 0);
 	tinyJS->addNative("function String.trim()", scTrim, 0);
 	tinyJS->addNative("function String.rtrim()", scRTrim, 0);
 	tinyJS->addNative("function String.ltrim()", scLTrim, 0);
@@ -974,8 +1240,9 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function htmlspecialchars(uri)", scHtmlSpecialChars, 0);
 	tinyJS->addNative("function file_exists(path)", scFileExists, 0);
 	tinyJS->addNative("function dir_exists(path)", scDirExists, 0);
-	tinyJS->addNative("function scandir(uri)", scScanDir, 0);
+	tinyJS->addNative("function scandir(path)", scScanDir, 0);
 	tinyJS->addNative("function extractFileExt(uri)", scExtractFileExt, 0);
+	tinyJS->addNative("function mimeInfo(uri)", scMimeInfo, 0);
 	tinyJS->addNative("function file_stat(path)", scFileStats, 0);
 	tinyJS->addNative("function filedate(path)", scFileDate, 0);
 	tinyJS->addNative("function loadFromFile(path)", scLoadFromFile, 0);
@@ -987,6 +1254,11 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function rmdir(path)", scRmdir, 0);
 	tinyJS->addNative("function saveToFile(path,data)", scSaveToFile, 0);
 	tinyJS->addNative("function copy(pathf,patht)", scFileCopy, 0);
+	//tinyJS->addNative("function shutdown(password)", scShutDown, 0);  // socket不使用のためコメントアウト
+	//tinyJS->addNative("function ssdp()", scSSDP, 0);  // socket不使用
+	//tinyJS->addNative("function restful(method,url,send)", scRestful, 0);  // socket不使用
+	tinyJS->addNative("function randomUUID()", scRandomUUID, 0);
+	tinyJS->addNative("function biosUUID()", scBiosUUID, 0);
 	tinyJS->addNative("function Array.push(val)", scArrayPush, 0);
 	tinyJS->addNative("function Array.pop()", scArrayPop, 0);
 	tinyJS->addNative("function Array.shift()", scArrayShift, 0);
@@ -994,4 +1266,5 @@ void registerFunctions(CTinyJS* tinyJS)
 	tinyJS->addNative("function Array.indexOf(val)", scArrayIndexOf, 0);
 	tinyJS->addNative("function Array.slice(start,end)", scArraySlice, 0);
 	tinyJS->addNative("function Array.splice(start,deleteCount)", scArraySplice, 0);
+	tinyJS->addNative("function die(msg)", scDie, 0);
 }
