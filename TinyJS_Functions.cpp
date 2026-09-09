@@ -523,6 +523,73 @@ void scDBSQL(CScriptVar* c, void* userdata)
 }
 
 
+// sqlBind: ":key" 形式のプレースホルダーを、params オブジェクトの値で
+// SQL標準のエスケープ（文字列は '...' で囲み、内部の ' を '' に置換）を
+// 行いながら安全に置換します。対応キーが無い場合や、文字列/数値/真偽値
+// 以外の型が渡された場合は例外を投げます。
+void scSqlBind(CScriptVar* c, void* userdata)
+{
+	IGNORE_PARAMETER(userdata);
+	wString tmpl = c->getParameter("this")->getString();
+	CScriptVar* params = c->getParameter("params");
+
+	auto isIdentStart = [](char ch) {
+		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
+		};
+	auto isIdentChar = [](char ch) {
+		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+			(ch >= '0' && ch <= '9') || ch == '_';
+		};
+
+	wString result;
+	const char* p = tmpl.c_str();
+	unsigned int n = tmpl.length();
+	unsigned int i = 0;
+	while (i < n) {
+		char ch = p[i];
+		if (ch == ':' && i + 1 < n && isIdentStart(p[i + 1])) {
+			unsigned int j = i + 1;
+			wString key;
+			while (j < n && isIdentChar(p[j])) {
+				key += p[j];
+				j++;
+			}
+			CScriptVarLink* link = params ? params->findChild(key) : NULL;
+			if (link == NULL) {
+				throw new CScriptException("sqlBind: no value for placeholder :" + key + " in params");
+			}
+			CScriptVar* v = link->var;
+			if (v->isNumeric()) {
+				result += v->getString();
+			}
+			else if (v->isString()) {
+				const wString& sv = v->getString();
+				result += '\'';
+				const char* sp = sv.c_str();
+				unsigned int sn = sv.length();
+				for (unsigned int k = 0; k < sn; k++) {
+					if (sp[k] == '\'') {
+						result += "''";
+					}
+					else {
+						result += sp[k];
+					}
+				}
+				result += '\'';
+			}
+			else {
+				throw new CScriptException("sqlBind: unsupported value type for :" + key + " (only string/number/boolean allowed)");
+			}
+			i = j;
+		}
+		else {
+			result += ch;
+			i++;
+		}
+	}
+	c->getReturnVar()->setString(result);
+}
+
 void scJSONStringify(CScriptVar* c, void* userdata)
 {
 	IGNORE_PARAMETER(userdata);
@@ -1224,6 +1291,7 @@ void registerFunctions(CTinyJS* tinyJS)
 	//tinyJS->addNative("function DBConnect(dbn)", scDBConnect, 0);          // DB不使用のためコメントアウト
 	//tinyJS->addNative("function String.DBDisConnect()", scDBDisConnect, 0);
 	//tinyJS->addNative("function String.SQL(sqltext)", scDBSQL, 0);
+    tinyJS->addNative("function String.sqlBind(params)", scSqlBind, 0); // Safely bind :key placeholders into a SQL string
 
 	tinyJS->addNative("function JSON.mp3id3tag(path)", scMp3Id3Tag, 0);
 	tinyJS->addNative("function JSON.stringify(obj, replacer)", scJSONStringify, 0); // convert to JSON. replacer is ignored at the moment

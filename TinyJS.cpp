@@ -356,7 +356,7 @@ bool isAlphaNum(const wString& str)
 	return true;
 }
 
-#if 0  // socket不使用のためコメントアウト (旧JSTRACE with transport_send)
+#ifdef WEB
 void JSTRACE(SOCKET socket, const char* format, ...)
 {
 	char work[1024];
@@ -463,7 +463,7 @@ void CScriptLex::match(LEX_TYPES expected_tk)
 	}
 	getNextToken();
 }
-#if 0  // socket不使用のためコメントアウト
+#ifdef WEB
 //グローバルで申し訳ないが最初に文字を出力する際にheaderを先に出す
 void headerCheckPrint(SOCKET socket, int* printed, wString* headerBuf, int flag)
 {
@@ -937,12 +937,9 @@ wString CScriptLex::getPosition(int pos)
 	int line = 1;
 	int col = 1;
 	for (int i = 0; i < pos; i++) {
-		char ch;
+		char ch = 0;
 		if (i < dataEnd) {
 			ch = data[i];
-		}
-		else {
-			ch = 0;
 		}
 		col++;
 		if (ch == '\n') {
@@ -3063,7 +3060,9 @@ LEX_TYPES  CTinyJS::statement(bool& execute)
 			CScriptVar* throwVal = val->var;
 			throwVal->setRef();
 			CLEAN(val);
-			throw new CScriptVarException(throwVal);
+			CScriptVarException* ex = new CScriptVarException(throwVal);
+			throwVal->unref();
+			throw ex;
 		}
 		CLEAN(val);
 	}
